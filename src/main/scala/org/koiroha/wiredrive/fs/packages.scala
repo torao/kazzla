@@ -1,7 +1,7 @@
 /* Copyright (C) 2012 BJöRFUAN
  * This source and related resources are distributed under Apache License, Version 2.0.
  */
-package org.koiroha.wiredrive.node
+package org.koiroha.wiredrive
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // NodeService:
@@ -9,13 +9,14 @@ package org.koiroha.wiredrive.node
 /**
  * @author Takami Torao
  */
-trait NodeService {
+object fs {
 
-	// ========================================================================
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	//
-	// ========================================================================
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	/**
 	 *
 	 */
+	case class FileInfo()
 
 }
