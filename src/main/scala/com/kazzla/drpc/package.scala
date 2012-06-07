@@ -6,9 +6,10 @@ package com.kazzla
 import org.apache.log4j.Logger
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// package
+// Duplex Remote Procedure Call
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
+ * 双方向 RPC のためのパッケージです。
  * @author Takami Torao
  */
 package object drpc {
