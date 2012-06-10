@@ -52,7 +52,7 @@ class EndpointSpec extends FunSpec {
 		}
 
 		class TestEndpoint(channel:SocketChannel) extends Endpoint(channel){
-			def receive(buffer:ByteBuffer) = false
+			def receive(buffer:ByteBuffer) = { }
 			def send():ByteBuffer = null
 		}
 	}
