@@ -22,6 +22,6 @@ trait AsyncSocketListener {
 	 * は呼び出し終了後にクリアされるためサブクラス側で保持することはできません。
 	 * @param buffer 受信したデータ
 	 */
-	def asyncDataReceived(buffer:ByteBuffer)
+	def asyncDataReceived(buffer:ByteBuffer):Unit
 
 }

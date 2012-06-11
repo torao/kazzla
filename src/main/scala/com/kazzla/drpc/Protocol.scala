@@ -3,7 +3,7 @@
  */
 package com.kazzla.drpc
 
-import java.nio.ByteBuffer
+import async.RawBuffer
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Protocol
@@ -21,7 +21,7 @@ trait Protocol {
 	/**
 	 * RPC のための呼び出し要求用のバイナリを作成します。
 	 */
-	def pack(call:Protocol.Call):ByteBuffer
+	def pack(call:Protocol.Call):Array[Byte]
 
 	// ========================================================================
 	// バッファの作成
@@ -29,20 +29,64 @@ trait Protocol {
 	/**
 	 * RPC 呼び出し結果用のバイナリを作成します。
 	 */
-	def pack(call:Protocol.Result):ByteBuffer
+	def pack(result:Protocol.Result):Array[Byte]
 
 	// ========================================================================
-	// バッファの評価
+	// バッファの復元
 	// ========================================================================
 	/**
-	 * 指定されたバッファから次の転送オブジェクトを参照します。
+	 * 指定されたバッファから転送オブジェクトを復元します。
 	 */
-	def unpack(buffer:ByteBuffer):Option[Protocol.Transferable]
+	def unpack(buffer:RawBuffer):Seq[Protocol.Transferable]
 
 }
 
 object Protocol {
 	class Transferable private[drpc]()
-	case class Call(id:Long, timeout:Long, name:String, args:Any*) extends Transferable
-	case class Result(id:Long, error:String, result:Any*) extends Transferable
+
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// Call
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	/**
+	 * @author Takami Torao
+	 */
+	case class Call(id:Long, timeout:Long, name:String, args:Any*) extends Transferable {
+
+		// ======================================================================
+		// インスタンスの文字列化
+		// ======================================================================
+		/**
+		 * このインスタンスを文字列化します。
+		 * @return インスタンスの文字列
+		 */
+		override def toString():String = {
+			id + ":" + name + '(' + com.kazzla.debug.makeDebugString(args) + ')'
+		}
+
+	}
+
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// Result
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	/**
+	 * @author Takami Torao
+	 */
+	case class Result(id:Long, error:Option[String], result:Any*) extends Transferable {
+
+		// ======================================================================
+		// インスタンスの文字列化
+		// ======================================================================
+		/**
+		 * このインスタンスを文字列化します。
+		 * @return インスタンスの文字列
+		 */
+		override def toString():String = {
+			id + ":" + (error match {
+				case Some(msg) => msg
+				case None => com.kazzla.debug.makeDebugString(result)
+			})
+		}
+
+	}
+
 }

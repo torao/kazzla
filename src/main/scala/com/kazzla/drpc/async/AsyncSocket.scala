@@ -16,7 +16,7 @@ import java.nio.channels.{SelectionKey, Selector, SocketChannel}
  * @author Takami Torao
  * @param channel このエンドポイントのチャネル
  */
-abstract class AsyncSocket(channel:SocketChannel) extends Closeable{
+class AsyncSocket(channel:SocketChannel) extends Closeable{
 	channel.configureBlocking(false)
 
 	// ========================================================================

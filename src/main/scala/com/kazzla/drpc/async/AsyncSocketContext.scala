@@ -110,7 +110,6 @@ class AsyncSocketContext {
 
 	// TODO reboot and takeover thread that works specified times
 
-
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	// Worker: ワーカースレッド
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -118,7 +117,7 @@ class AsyncSocketContext {
 	 * 複数の非同期ソケットの受送信処理を担当するスレッドです。
 	 * @author Takami Torao
 	 */
-	private[async] class Worker extends Thread(threadGroup, "AsyncWorker") {
+	private[AsyncSocketContext] class Worker extends Thread(threadGroup, "AsyncWorker") {
 
 		// ======================================================================
 		// セレクター
@@ -239,6 +238,11 @@ class AsyncSocketContext {
 						}
 					}
 				}
+			}
+
+			// このスレッドをリストから除去
+			AsyncSocketContext.this.synchronized {
+				workers = workers.filter{ _.ne(this) }
 			}
 
 			// スレッドが終了する前に全ての処理中の非同期ソケットを別のスレッドに割り当て

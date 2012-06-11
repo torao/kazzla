@@ -3,8 +3,8 @@
  */
 package com.kazzla.drpc
 
+import async.{RawBuffer, AsyncSocket, AsyncSocketListener}
 import java.nio.channels.SocketChannel
-import com.kazzla.drpc.async.Endpoint
 import java.nio.ByteBuffer
 import annotation.tailrec
 import java.util.concurrent.atomic.AtomicLong
@@ -12,7 +12,6 @@ import java.lang.reflect.{Proxy, InvocationHandler, Method}
 import java.security.cert.Certificate
 import com.kazzla.drpc.Node.MetaInfo
 import collection.mutable.{Queue, HashMap}
-import java.io.ByteArrayOutputStream
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Peer
@@ -23,26 +22,27 @@ import java.io.ByteArrayOutputStream
 class Peer private[drpc](node:Node, protocol:Protocol, channel:SocketChannel) {
 
 	// ========================================================================
-	//
+	// 非同期ソケット
 	// ========================================================================
 	/**
-	 *
+	 * このピアと通信するための非同期ソケットです。
 	 */
-	private[drpc] val endpoint = new DRPCEndpoint()
+	private[this] val socket = new AsyncSocket(channel)
 
 	// ========================================================================
-	//
+	// 処理中タスクマップ
 	// ========================================================================
 	/**
-	 *
+	 * このピアに対して処理中のタスクを保持するマップです。タスク番号によって管理されます。
 	 */
 	private[this] val tasks = new HashMap[Long, Future[Seq[Any]]]()
 
 	// ========================================================================
-	//
+	// タスク番号生成用シーケンス
 	// ========================================================================
 	/**
-	 *
+	 * ピアに対するタスク番号を生成するためのシーケンスです。タスク番号はピアからの応答が
+	 * どのタスクに対するものかを識別するために使用します。
 	 */
 	private[this] val sequence = new AtomicLong(0)
 
@@ -67,21 +67,29 @@ class Peer private[drpc](node:Node, protocol:Protocol, channel:SocketChannel) {
 	}
 
 	// ========================================================================
-	//
+	// 非同期呼び出しの実行
 	// ========================================================================
 	/**
-	 *
+	 * このピアに対して指定された名前のサービスを非同期で実行します。
+	 * @param name 処理名 (サービス名 + "." + メソッド名)
+	 * @param args 処理に対する引数
 	 */
 	def asyncCall(name:String, args:Any*):Future[Seq[Any]] = asyncCall(0, name, args)
 
 	// ========================================================================
-	//
+	// 非同期呼び出しの実行
 	// ========================================================================
 	/**
-	 *
+	 * このピアに対して指定された名前のサービスを非同期で実行します。
+	 * @param timeout タイムアウト時間 (ミリ秒)
+	 * @param name 処理名 (サービス名 + "." + メソッド名)
+	 * @param args 処理に対する引数
 	 */
 	def asyncCall(timeout:Long, name:String, args:Any*):Future[Seq[Any]] = {
-		while(true){
+		@tailrec
+		def exec(){
+
+			// タスク ID を採番してリモート呼び出しを実行
 			val id = sequence.getAndIncrement
 			tasks.synchronized{
 				if(! tasks.contains(id)){
@@ -91,15 +99,16 @@ class Peer private[drpc](node:Node, protocol:Protocol, channel:SocketChannel) {
 					return future
 				}
 			}
+			exec()
 		}
-		null
+		exec()
 	}
 
 	// ========================================================================
-	//
+	// 同期呼び出しの実行
 	// ========================================================================
 	/**
-	 *
+	 * このピアに対して指定されたリモート処理を実行します。
 	 */
 	def call(name:String, args:Any*):Seq[Any] = {
 		val future = asyncCall(0, name, args:_*)
@@ -119,6 +128,57 @@ class Peer private[drpc](node:Node, protocol:Protocol, channel:SocketChannel) {
 		))
 	}
 
+	// ========================================================================
+	// ローカル呼び出し
+	// ========================================================================
+	/**
+	 * 指定された呼び出しをローカルのサービスに対して行います。
+	 * @param call 呼び出し
+	 */
+	private[Peer] def localCall(call:Protocol.Call):Protocol.Result = {
+		if(logger.isDebugEnabled){
+			logger.debug("execute: " + proc)
+		}
+
+		val method = getLocalMethod(call) match {
+			case Some(method) => method
+			case None =>
+				// 要求のあった呼び出し先が見つからない
+				return Protocol.Result(call.id, Some("not found: " + call.name))
+		}
+
+		// サービスの呼び出し
+		val result = try {
+			method(proc.args)
+		} catch {
+			case ex:Throwable =>
+				logger.error("uncaught exeption in service" + call, ex)
+				return Protocol.Result(call.id, Some(ex.toString()))
+		}
+
+		// 処理結果を返す
+		Protocol.Result(call.id, None, result:_*)
+	}
+
+	// ========================================================================
+	// リモート結果参照
+	// ========================================================================
+	/**
+	 * リモートからの RPC 実行結果を受け付けます。
+	 */
+	private[Peer] def remoteResult(result:Protocol.Result):Unit = {
+		if(logger.isDebugEnabled){
+			logger.debug("result: " + result)
+		}
+
+		tasks.get(result.id) {
+			case Some(future) =>
+				future.set
+			case None =>
+
+		}
+	}
+
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	// Peer
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -132,13 +192,13 @@ class Peer private[drpc](node:Node, protocol:Protocol, channel:SocketChannel) {
 	}
 
 
-		// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	// Peer
+	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// Listener
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	/**
 	 * @author Takami Torao
 	 */
-	private[drpc] class DRPCEndpoint extends Endpoint(channel:SocketChannel) {
+	private[Peer] class Listener extends AsyncSocketListener {
 
 		// ====================================================================
 		// サービス
@@ -154,7 +214,7 @@ class Peer private[drpc](node:Node, protocol:Protocol, channel:SocketChannel) {
 		/**
 		 * 受信データのバッファです。
 		 */
-		private[this] var readBuffer = ByteBuffer.allocate(1024)
+		private[this] val receiveBuffer = new RawBuffer(4 * 1024)
 
 		// ====================================================================
 		// メソッド
@@ -172,19 +232,22 @@ class Peer private[drpc](node:Node, protocol:Protocol, channel:SocketChannel) {
 		 */
 		private[this] val queue = new Queue[ByteBuffer]()
 
-		// ====================================================================
-		// 送信データの参照
-		// ====================================================================
+		// ========================================================================
+		// データの受信通知
+		// ========================================================================
 		/**
-		 * 送信用のデータを参照するために呼び出されます。
-		 * @return 送信用データ
+		 * 非同期ソケットがデータを受信した時に呼び出されます。パラメータとして渡されたバッファ
+		 * は呼び出し終了後にクリアされるためサブクラス側で保持することはできません。
+		 * @param buffer 受信したデータ
 		 */
-		def send():ByteBuffer = {
-			synchronized{
-				if(queue.size == 1){
-					sendDataReady(false)
-				}
-				queue.dequeue()
+		def asyncDataReceived(buffer:ByteBuffer):Unit = {
+			receiveBuffer.enqueue(buffer)
+			protocol.unpack(receiveBuffer).foreach {
+				case call:Protocol.Call =>
+					// TODO スレッドプール化
+					socket.send(protocol.pack(localCall(call)))
+				case result:Protocol.Result =>
+					removeResult(result)
 			}
 		}
 
@@ -244,33 +307,6 @@ class Peer private[drpc](node:Node, protocol:Protocol, channel:SocketChannel) {
 			}
 			queue.enqueue(protocol.pack(proc))
 			sendDataReady(true)
-		}
-
-		// ========================================================================
-		//
-		// ========================================================================
-		/**
-		 *
-		 */
-		private[drpc] def localCall(proc:Protocol.Call){
-			if(logger.isDebugEnabled){
-				logger.debug("execute: " + proc)
-			}
-
-			val method = getLocalMethod(proc) match {
-				case Some(method) => method
-				case None =>
-					// TODO 呼び出し先が見つからないエラー
-					return
-			}
-
-			// サービスの呼び出し
-			try {
-				method(proc.args)
-			} catch {
-				case ex:Exception =>
-				// TODO 呼び出し失敗エラー
-			}
 		}
 
 		// ========================================================================
