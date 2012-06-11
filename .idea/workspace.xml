@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a1d58914-f30a-4b91-ab07-d81a653537e1" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.sbt" afterPath="$PROJECT_DIR$/build.sbt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kazzla.iml" afterPath="$PROJECT_DIR$/kazzla.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketIOContext.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketIOContext.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/package.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/package.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Worker.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Worker.scala" />
     </list>
     <ignored path="wiredrive.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -84,7 +81,7 @@
       <file leaf-file-name="package.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/package.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="11" column="23" selection-start="392" selection-end="392" vertical-scroll-proportion="0.0">
+            <state line="16" column="0" selection-start="443" selection-end="489" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -102,7 +99,43 @@
       <file leaf-file-name="AsyncSocketIOContext.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketIOContext.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="73" column="7" selection-start="2356" selection-end="2356" vertical-scroll-proportion="0.6009901">
+            <state line="49" column="13" selection-start="1669" selection-end="1669" vertical-scroll-proportion="0.27920792">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Worker.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Worker.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="47" column="77" selection-start="1647" selection-end="1647" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AsyncSocketIOContextSpec.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/AsyncSocketIOContextSpec.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="15" column="6" selection-start="480" selection-end="480" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="EndpointSpec.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/EndpointSpec.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="26" column="44" selection-start="809" selection-end="809" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Endpoint.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Endpoint.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="153" column="0" selection-start="4387" selection-end="4387" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -131,12 +164,12 @@
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Peer.scala" />
         <option value="$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/AsyncSocketIOContextTest.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Principal.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Worker.scala" />
         <option value="$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/AsyncSocketIOContextSpec.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Endpoint.scala" />
         <option value="$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/EndpointSpec.scala" />
         <option value="$PROJECT_DIR$/build.sbt" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/package.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Worker.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketIOContext.scala" />
       </list>
     </option>
@@ -210,10 +243,6 @@
               <option name="myItemId" value="kazzla" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="External Libraries" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ExternalLibrariesNode" />
-            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -236,6 +265,18 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="async" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -661,7 +702,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-4" y="-4" width="1608" height="1180" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -677,7 +718,7 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24146813" sideWeight="0.4830918" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24146813" sideWeight="0.51014495" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24146813" sideWeight="0.51014495" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -790,37 +831,9 @@
         <state line="48" column="13" selection-start="1025" selection-end="1025" vertical-scroll-proportion="0.33214286" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Worker.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="96" column="20" selection-start="2827" selection-end="2827" vertical-scroll-proportion="0.017832648">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Principal.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="57" column="65" selection-start="1765" selection-end="1765" vertical-scroll-proportion="0.55418384">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/EndpointSpec.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="50" column="22" selection-start="1510" selection-end="1510" vertical-scroll-proportion="0.32235938">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Endpoint.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="181" column="4" selection-start="5039" selection-end="5039" vertical-scroll-proportion="0.7613169">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/AsyncSocketIOContextSpec.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="15" column="6" selection-start="480" selection-end="480" vertical-scroll-proportion="0.23182441">
           <folding />
         </state>
       </provider>
@@ -832,9 +845,16 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/EndpointSpec.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="44" selection-start="809" selection-end="809" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/package.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="11" column="23" selection-start="392" selection-end="392" vertical-scroll-proportion="0.0">
+        <state line="16" column="0" selection-start="443" selection-end="489" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -846,9 +866,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Worker.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="47" column="77" selection-start="1647" selection-end="1647" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/AsyncSocketIOContextSpec.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="6" selection-start="480" selection-end="480" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Endpoint.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="153" column="0" selection-start="4387" selection-end="4387" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketIOContext.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="73" column="7" selection-start="2356" selection-end="2356" vertical-scroll-proportion="0.6009901">
+        <state line="49" column="13" selection-start="1669" selection-end="1669" vertical-scroll-proportion="0.27920792">
           <folding />
         </state>
       </provider>
