@@ -10,7 +10,7 @@ import java.io.IOException
 import java.nio.channels.Selector
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// Worker: ワーカー
+// Worker: ワーカースレッド
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
  * 複数のエンドポイントの受送信処理を担当するスレッドです。
@@ -25,7 +25,7 @@ private[async] class Worker(readBufferSize:Int) extends Thread {
 	/**
 	 * このインスタンスが使用するセレクターです。
 	 */
-	private val selector = Selector.open()
+	private[this] val selector = Selector.open()
 
 	// ========================================================================
 	// 接続キュー
@@ -33,15 +33,15 @@ private[async] class Worker(readBufferSize:Int) extends Thread {
 	/**
 	 * このワーカーに新しい接続先を追加するためのキューです。
 	 */
-	private val queue:Buffer[Endpoint] = new ArrayBuffer[Endpoint]()
+	private[this] val queue:Buffer[Endpoint] = new ArrayBuffer[Endpoint]()
 
 	// ========================================================================
-	// ソケット数の参照
+	// エンドポイント数の参照
 	// ========================================================================
 	/**
-	 * このワーカーが担当しているソケット数を参照します。
+	 * このワーカーが担当しているエンドポイント数を参照します。
 	 */
-	def socketCount:Int = selector.keys().size()
+	def activeEndpoints:Int = selector.keys().size()
 
 	// ========================================================================
 	// ピアの追加
