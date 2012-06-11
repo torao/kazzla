@@ -1,5 +1,6 @@
 .DS_Store
 Thumnail.db
+.idea/
 target/
 lib_managed/
 src_managed/

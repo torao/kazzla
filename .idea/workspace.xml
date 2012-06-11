@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a1d58914-f30a-4b91-ab07-d81a653537e1" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketIOContext.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketIOContext.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Worker.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Worker.scala" />
-    </list>
+    <list default="true" id="a1d58914-f30a-4b91-ab07-d81a653537e1" name="Default" comment="" />
     <ignored path="wiredrive.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -165,7 +161,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/ServiceFactory.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/ProcedureCall.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Service.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Future.scala" />
@@ -181,6 +176,7 @@
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/RawBuffer.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocket.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketIOContext.scala" />
+        <option value="$PROJECT_DIR$/.idea/workspace.xml" />
       </list>
     </option>
   </component>
@@ -696,7 +692,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="754" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -713,7 +709,7 @@
       <window_info id="Structure" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18949772" sideWeight="0.67154473" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19710806" sideWeight="0.67154473" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19710806" sideWeight="0.67154473" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -783,11 +779,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://C:/Program Files/Java/jdk1.7.0_02/src.zip!/java/lang/reflect/InvocationHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="93" column="25" selection-start="3447" selection-end="3542" vertical-scroll-proportion="0.78571427" />
-      </provider>
-    </entry>
     <entry file="jar://C:/Program Files/Java/jdk1.7.0_02/src.zip!/java/lang/Object.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="382" column="29" selection-start="17643" selection-end="17643" vertical-scroll-proportion="1.2964286" />
@@ -864,6 +855,13 @@
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocket.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="221" column="0" selection-start="6475" selection-end="6475" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="873" column="10" selection-start="48377" selection-end="48377" vertical-scroll-proportion="0.49107143">
           <folding />
         </state>
       </provider>
