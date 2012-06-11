@@ -8,15 +8,24 @@ import java.io.{Closeable, IOException}
 import java.nio.channels.{SelectionKey, Selector, SocketChannel}
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// Endpoint
+// AsyncSocket
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
+ * 非同期入出力のチャネルとデータの入出力を管理するクラスです。
  * クローズ済みのチャネルを指定した場合は例外が発生します。
  * @author Takami Torao
  * @param channel このエンドポイントのチャネル
  */
-abstract class Endpoint(channel:SocketChannel) extends Closeable{
+abstract class AsyncSocket(channel:SocketChannel) extends Closeable{
 	channel.configureBlocking(false)
+
+	// ========================================================================
+	// 送信待ちバッファ
+	// ========================================================================
+	/**
+	 * 送信待機しているデータのバッファです。
+	 */
+	private[this] val sendBuffer = new RawBuffer()
 
 	// ========================================================================
 	// 出力バッファ
@@ -59,6 +68,14 @@ abstract class Endpoint(channel:SocketChannel) extends Closeable{
 	 * 出力データ準備フラグを変更するための Mutex です。
 	 */
 	private val writeDataReadyMutex = new Object()
+
+	// ========================================================================
+	// リスナー
+	// ========================================================================
+	/**
+	 * 非同期 I/O 発生時に呼び出しを行うリスナーです。
+	 */
+	private[this] var listeners = List[AsyncSocketListener]()
 
 	// ========================================================================
 	// 送信データ準備フラグ設定
@@ -196,11 +213,43 @@ abstract class Endpoint(channel:SocketChannel) extends Closeable{
 	}
 
 	// ========================================================================
+	// データの送信
+	// ========================================================================
+	/**
+	 * 指定されたバイナリデータを非同期で送信します。
+	 */
+	def send(buffer:Array[Byte], offset:Int, length:Int) = {
+
+	}
+
+	// ========================================================================
+	// リスナの追加
+	// ========================================================================
+	/**
+	 * この非同期ソケットにリスナを追加します。
+	 * @param listener 追加するリスナ
+	 */
+	def addAsyncSocketListener(listener:AsyncSocketListener):Unit = synchronized{
+		listeners += listener
+	}
+
+	// ========================================================================
+	// リスナの削除
+	// ========================================================================
+	/**
+	 * この非同期ソケットから指定されたリスナを削除します。
+	 * @param listener 削除するリスナ
+	 */
+	def removeAsyncSocketListener(listener:AsyncSocketListener):Unit = synchronized{
+		listeners -= listener
+	}
+
+	// ========================================================================
 	// インスタンスの文字列化
 	// ========================================================================
 	/**
 	 * このインスタンスを文字列化します。
 	 */
-	override def toString = "Endpoint(" + channel + ")"
+	override def toString = "AsyncSocket(" + channel + ")"
 
 }

@@ -85,7 +85,7 @@ class AsyncSocketIOContext {
 	 * @param endpoint 切り離すエンドポイント
 	 */
 	/*
-	def leave(endpoint:Endpoint):Unit = {
+	def leave(endpoint:AsyncSocket):Unit = {
 		val worker = synchronized{
 			workers.find{ worker =>
 				worker.leave(channel) match {
