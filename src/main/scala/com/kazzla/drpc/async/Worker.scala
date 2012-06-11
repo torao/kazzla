@@ -7,7 +7,7 @@ import collection.mutable.{ArrayBuffer, Buffer}
 import collection.JavaConversions._
 import java.nio.ByteBuffer
 import java.io.IOException
-import java.nio.channels.{SocketChannel, Selector}
+import java.nio.channels.Selector
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Worker: ワーカースレッド

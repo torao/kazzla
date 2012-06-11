@@ -16,7 +16,7 @@ import java.io.IOException
  * @author Takami Torao
  */
 class EndpointSpec extends FunSpec {
-	describe("Endpoint"){
+	describe("AsyncSocket"){
 
 		it("constructor accept opened channel"){
 			val google = new InetSocketAddress("www.google.com", 80)
@@ -52,7 +52,7 @@ class EndpointSpec extends FunSpec {
 		}
 
 		class TestEndpoint(channel:SocketChannel) extends Endpoint(channel){
-			def receive(buffer:ByteBuffer) = false
+			def receive(buffer:ByteBuffer) = { }
 			def send():ByteBuffer = null
 		}
 	}
