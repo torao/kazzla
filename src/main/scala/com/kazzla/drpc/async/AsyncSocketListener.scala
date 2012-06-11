@@ -18,8 +18,10 @@ trait AsyncSocketListener {
 	// データの受信通知
 	// ========================================================================
 	/**
-	 * 非同期ソケットがデータを受診した時に呼び出されます。
+	 * 非同期ソケットがデータを受信した時に呼び出されます。パラメータとして渡されたバッファ
+	 * は呼び出し終了後にクリアされるためサブクラス側で保持することはできません。
+	 * @param buffer 受信したデータ
 	 */
-	def dataReceived(buffer:ByteBuffer)
+	def asyncDataReceived(buffer:ByteBuffer)
 
 }

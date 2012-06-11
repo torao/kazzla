@@ -20,26 +20,27 @@ abstract class AsyncSocket(channel:SocketChannel) extends Closeable{
 	channel.configureBlocking(false)
 
 	// ========================================================================
-	// 送信待ちバッファ
+	// 送信待ちキュー
 	// ========================================================================
 	/**
-	 * 送信待機しているデータのバッファです。
+	 * このソケットに対して送信待機しているデータのキューです。
 	 */
-	private[this] val sendBuffer = new RawBuffer()
+	private[this] val sendQueue = new RawBuffer()
 
 	// ========================================================================
-	// 出力バッファ
+	// 送信中バッファ
 	// ========================================================================
 	/**
-	 * このエンドポイントで出力待機しているデータのバッファです。
+	 * このソケット上で出力中のデータのバッファです。出力中のバッファが存在しない場合は
+	 * None となります。
 	 */
-	private var out:Option[ByteBuffer] = None
+	private[this] var out:Option[ByteBuffer] = None
 
 	// ========================================================================
 	// セレクションキー
 	// ========================================================================
 	/**
-	 * このエンドポイントのセレクションキーです。特定のセレクターに登録されている場合に
+	 * この非同期ソケットのセレクションキーです。特定のセレクターに登録されている場合に
 	 * Some となります。チャネルに対する Write 可能通知の ON/OFF を切り替えるために使用
 	 * します。
 	 */
@@ -54,22 +55,6 @@ abstract class AsyncSocket(channel:SocketChannel) extends Closeable{
 	private val keyMutex = new Object()
 
 	// ========================================================================
-	// 出力データ準備状態フラグ
-	// ========================================================================
-	/**
-	 * サブクラスが出力可能なデータを持っているか表すフラグです。
-	 */
-	private var _writeDataReady:Boolean = false
-
-	// ========================================================================
-	// 出力データ準備フラグ変更 Mutex
-	// ========================================================================
-	/**
-	 * 出力データ準備フラグを変更するための Mutex です。
-	 */
-	private val writeDataReadyMutex = new Object()
-
-	// ========================================================================
 	// リスナー
 	// ========================================================================
 	/**
@@ -78,79 +63,36 @@ abstract class AsyncSocket(channel:SocketChannel) extends Closeable{
 	private[this] var listeners = List[AsyncSocketListener]()
 
 	// ========================================================================
-	// 送信データ準備フラグ設定
-	// ========================================================================
-	/**
-	 * 出力可能なデータが準備できたとき true、出力可能なデータがなくなったとき false を
-	 * サブクラスから通知します。
-	 * @param ready サブクラスで送信データの準備ができた場合 true
-	 */
-	protected def sendDataReady(ready:Boolean):Unit = {
-		writeDataReadyMutex.synchronized{
-			if(ready != _writeDataReady){
-				_writeDataReady = ready
-				// 送信データの準備ができたらチャネルの書き込み可能状態を監視する
-				if(_writeDataReady){
-					key.foreach{ k =>
-						k.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE)
-						k.selector().wakeup()
-					}
-				} else {
-					// 送信データがなくなった場合でもバッファにデータが残っている可能性があるので
-					// ただちに OP_WRITE を OFF にはせず次回の出力時まで待つ
-				}
-			}
-		}
-	}
-
-	// ========================================================================
-	// 送信データの参照
-	// ========================================================================
-	/**
-	 * 送信用のデータを参照するために呼び出されます。
-	 * @return 送信用データ
-	 */
-	def send():ByteBuffer
-
-	// ========================================================================
-	// データ受信の通知
-	// ========================================================================
-	/**
-	 * データ受診時に呼び出されます。パラメータとして渡されたバッファは呼び出し終了後に
-	 * クリアされるためサブクラス側で保持できません。
-	 */
-	def receive(buffer:ByteBuffer, offset:Int, length:Int):Unit
-
-	// ========================================================================
 	// データの送信
 	// ========================================================================
 	/**
-	 * このエンドポイントが保持している送信バッファのデータを送信します。送信バッファが空の
-	 * 場合はサブクラスからデータを参照します。。
+	 * この非同期ソケットが保持している送信データを送信します。
 	 */
-	private[async] def write():Unit = {
+	private[async] def channelWrite():Unit = {
 
-		// 送信バッファの参照
+		// 送信中のバファを参照
 		val buffer = out match {
 			case Some(b) => b
 			case None =>
-				out = Some(send())
+				// 送信中バッファがなくなり送信キューも空なら、次の送信データが到着するまで
+				// OP_WRITE 通知を受けない
+				sendQueue.synchronized{
+					if(sendQueue.length == 0){
+						key.foreach{ _.interestOps(SelectionKey.OP_READ) }
+						return
+					}
+				}
+				out = Some(sendQueue.dequeue())
 				out.get
 		}
 
-		// データの送信
+		// バイナリデータの送信
 		channel.write(buffer)
 
 		// 送信バッファ内のデータを全て送信し終えたらバッファを持たない状態にして次回の呼び出し
-		// でサブクラスから取得
+		// で送信キューから取得
 		if(buffer.remaining() == 0){
 			out = None
-			// データが空になりサブクラスのデータもなくなれば OP_WRITE 通知を受けない
-			writeDataReadyMutex.synchronized{
-				if(! _writeDataReady){
-					key.foreach{ _.interestOps(SelectionKey.OP_READ) }
-				}
-			}
 		}
 	}
 
@@ -158,32 +100,70 @@ abstract class AsyncSocket(channel:SocketChannel) extends Closeable{
 	// データの受信
 	// ========================================================================
 	/**
-	 * 指定されたバッファへデータを読み込みます。
+	 * 指定されたバファを使用してデータの読み込みを行います。
+	 * @param in 読み込み用に使用するバッファ
 	 */
-	private[async] def read(in:ByteBuffer):Unit = synchronized{
+	private[async] def channelRead(in:ByteBuffer):Unit = {
 
 		// データの受信
-		int len = channel.read(in)
+		channel.read(in)
 
-		// サブクラスへ受診したデータを渡してバッファをクリア
+		// 受信したデータをリスナに通知しバッファをクリア
 		in.flip()
-		receive(in, 0, len)
+		listeners.foreach{ listener =>
+			listener.asyncDataReceived(in)
+		}
 		in.clear()
 	}
 
 	// ========================================================================
-	// エンドポイントのクローズ
+	// データの非同期送信
 	// ========================================================================
 	/**
+	 * 指定されたバイナリデータを非同期で送信します。メソッドはすぐに完了しますが、データが
+	 * 送信完了している保証はありません。
+	 * @param buffer バッファ
+	 * @param offset バッファ内での送信データの開始位置
+	 * @param length 送信データの長さ
+	 */
+	def send(buffer:Array[Byte], offset:Int, length:Int):Unit = sendQueue.synchronized{
+		val old = sendQueue.length
+		sendQueue.enqueue(buffer, offset, length)
+
+		// 送信データの準備ができたらチャネルの書き込み可能状態を監視する
+		if(old == 0 && sendQueue.length > 0){
+			key.foreach{ k =>
+				k.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE)
+				k.selector().wakeup()
+			}
+		}
+	}
+
+	// ========================================================================
+	// データの非同期送信
+	// ========================================================================
+	/**
+	 * 指定されたバッファに格納さされている全てのデータを非同期で送信します。
+	 * @param buffer 送信バッファ
+	 */
+	def send(buffer:Array[Byte]):Unit = send(buffer, 0, buffer.length)
+
+	// ========================================================================
+	// 非同期ソケットのクローズ
+	// ========================================================================
+	/**
+	 * この非同期ソケットをクローズします。
 	 * このエンドポイントをコンテキストから除外しチャネルをクローズします。
 	 */
 	override def close():Unit = {
 		logger.trace(this + " close()")
+		// コンテキストから切り離し
 		try{
 			leave()
 		} catch {
 			case ex:IOException => logger.error("fail to close SelectionKey", ex)
 		}
+		// チャネルのクローズ
 		try {
 			channel.close()
 		} catch {
@@ -192,12 +172,44 @@ abstract class AsyncSocket(channel:SocketChannel) extends Closeable{
 	}
 
 	// ========================================================================
+	// 送信キューサイズの参照
+	// ========================================================================
+	/**
+	 * この非同期ソケット上で送信待機中のキューのサイズを参照します。
+	 */
+	def sendQueueSize:Int = {
+		sendQueue.length
+	}
+
+	// ========================================================================
+	// リスナの追加
+	// ========================================================================
+	/**
+	 * この非同期ソケットにリスナを追加します。
+	 * @param listener 追加するリスナ
+	 */
+	def addAsyncSocketListener(listener:AsyncSocketListener):Unit = synchronized{
+		listeners ::= listener
+	}
+
+	// ========================================================================
+	// リスナの削除
+	// ========================================================================
+	/**
+	 * この非同期ソケットから指定されたリスナを削除します。
+	 * @param listener 削除するリスナ
+	 */
+	def removeAsyncSocketListener(listener:AsyncSocketListener):Unit = synchronized{
+		listeners = listeners.filter{ _ != listener }
+	}
+
+	// ========================================================================
 	//
 	// ========================================================================
 	/**
 	 */
 	private[async] def join(selector:Selector):SelectionKey = keyMutex.synchronized{
-		val selectOption = SelectionKey.OP_READ | (if(_writeDataReady) SelectionKey.OP_WRITE else 0)
+		val selectOption = SelectionKey.OP_READ | (if(sendQueue.length > 0) SelectionKey.OP_WRITE else 0)
 		key = Some(channel.register(selector, selectOption))
 		key.get
 	}
@@ -210,38 +222,6 @@ abstract class AsyncSocket(channel:SocketChannel) extends Closeable{
 	private[async] def leave():Unit = keyMutex.synchronized{
 		key.foreach{ _.cancel() }
 		key = None
-	}
-
-	// ========================================================================
-	// データの送信
-	// ========================================================================
-	/**
-	 * 指定されたバイナリデータを非同期で送信します。
-	 */
-	def send(buffer:Array[Byte], offset:Int, length:Int) = {
-
-	}
-
-	// ========================================================================
-	// リスナの追加
-	// ========================================================================
-	/**
-	 * この非同期ソケットにリスナを追加します。
-	 * @param listener 追加するリスナ
-	 */
-	def addAsyncSocketListener(listener:AsyncSocketListener):Unit = synchronized{
-		listeners += listener
-	}
-
-	// ========================================================================
-	// リスナの削除
-	// ========================================================================
-	/**
-	 * この非同期ソケットから指定されたリスナを削除します。
-	 * @param listener 削除するリスナ
-	 */
-	def removeAsyncSocketListener(listener:AsyncSocketListener):Unit = synchronized{
-		listeners -= listener
 	}
 
 	// ========================================================================

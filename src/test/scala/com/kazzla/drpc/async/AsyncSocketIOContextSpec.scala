@@ -14,7 +14,7 @@ import org.scalatest.FunSpec
 class AsyncSocketIOContextSpec extends FunSpec {
 	describe("非同期ソケットI/O"){
 		it(""){
-			val context = new AsyncSocketIOContext()
+			val context = new AsyncSocketContext()
 		}
 	}
 }

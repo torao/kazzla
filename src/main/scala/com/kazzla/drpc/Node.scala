@@ -3,7 +3,7 @@
  */
 package com.kazzla.drpc
 
-import com.kazzla.drpc.async.AsyncSocketIOContext
+import com.kazzla.drpc.async.AsyncSocketContext
 import java.net.Socket
 import java.util.concurrent.Executor
 import java.util.{TimerTask, Timer}
@@ -24,7 +24,7 @@ class Node(val protocol:Protocol, val threadPool:Executor, cert:Certificate) {
 	/**
 	 * このノード上で非同期 I/O 処理を行うコンテキストです。
 	 */
-	private val context = new AsyncSocketIOContext()
+	private val context = new AsyncSocketContext()
 
 	// ========================================================================
 	// サービス
