@@ -2,10 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a1d58914-f30a-4b91-ab07-d81a653537e1" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Peer.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Peer.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/resources/log4j.properties" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/AsyncSocketSpec.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kazzla.iml" afterPath="$PROJECT_DIR$/kazzla.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocket.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocket.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketContext.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketContext.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketListener.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketListener.scala" />
     </list>
     <ignored path="wiredrive.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -80,17 +82,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="RawBufferSpec.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/RawBufferSpec.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="21" column="34" selection-start="601" selection-end="601" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="e#154#182#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="readme.md" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/readme.md">
           <provider selected="true" editor-type-id="text-editor">
@@ -100,13 +91,49 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AsyncSocket.scala" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="AsyncSocket.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocket.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="75" column="10" selection-start="2460" selection-end="2460" vertical-scroll-proportion="0.3970297">
+            <state line="133" column="0" selection-start="3281" selection-end="3946" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="e#154#180#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FileOutputStream.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://C:/Program Files/Java/jdk1.7.0_04/src.zip!/java/io/FileOutputStream.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="293" column="24" selection-start="11378" selection-end="11457" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AsyncSocketSpec.scala" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/AsyncSocketSpec.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="42" column="50" selection-start="1453" selection-end="1453" vertical-scroll-proportion="0.30212235">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AsyncSocketContext.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketContext.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="7" column="0" selection-start="217" selection-end="217" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="package.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/package.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="86" column="0" selection-start="2654" selection-end="2654" vertical-scroll-proportion="0.0">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -125,12 +152,9 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/EndpointSpec.scala" />
-        <option value="$PROJECT_DIR$/build.sbt" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/package.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketIOContext.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Worker.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/package.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Protocol.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Future.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Node.scala" />
@@ -138,9 +162,12 @@
         <option value="$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/RawBufferSpec.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/RawBuffer.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketListener.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketContext.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Peer.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/log4j.properties" />
+        <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/package.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocket.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketContext.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/AsyncSocketSpec.scala" />
       </list>
     </option>
   </component>
@@ -192,6 +219,30 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scope">
+        <subPane subId="Project Files">
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="PackagesPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -231,10 +282,6 @@
               <option name="myItemId" value="scala" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="async" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -250,101 +297,11 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
+              <option name="myItemId" value="test" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="drpc" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="drpc" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="async" />
+              <option name="myItemId" value="resources" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -366,28 +323,30 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-        </subPane>
-      </pane>
-      <pane id="Scope">
-        <subPane subId="Project Files">
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="PackagesPane">
-        <subPane>
           <PATH>
             <PATH_ELEMENT>
               <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="nio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
@@ -402,6 +361,7 @@
     <property name="OverrideImplement.combined" value="true" />
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="Repository.Attach.JavaDocs" value="false" />
+    <property name="recentsLimit" value="5" />
     <property name="MemberChooser.sorted" value="false" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder1" value="1" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth0" value="118" />
@@ -435,15 +395,35 @@
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\torao\IdeaProjects\wiredrive\src\main\scala\com\kazzla\drpc" />
     </key>
-    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
-      <recent name="org.koiroha.wiredrive" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Documents and Settings\t_takami\IdeaProjects\kazzla\src\test\resources" />
       <recent name="C:\Users\torao\IdeaProjects\wiredrive\src" />
       <recent name="C:\Users\torao\IdeaProjects\wiredrive" />
     </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="org.koiroha.wiredrive" />
+    </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="ScalaTest.AsyncSocketSpec">
+    <configuration default="false" name="AsyncSocketSpec" type="ScalaTestRunConfiguration" factoryName="ScalaTest" temporary="true">
+      <module name="kazzla" />
+      <setting name="path" value="com.kazzla.drpc.async.AsyncSocketSpec" />
+      <setting name="package" value="" />
+      <setting name="vmparams" value="" />
+      <setting name="params" value="" />
+      <setting name="workingDirectory" value="$PROJECT_DIR$" />
+      <setting name="searchForTest" value="Across module dependencies" />
+      <setting name="testName" value="" />
+      <setting name="testKind" value="Class" />
+      <setting name="showProgressMessages" value="true" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <ConfigurationWrapper RunnerId="Debug" />
+      <method />
+    </configuration>
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
       <module name="" />
       <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m" />
@@ -586,7 +566,9 @@
         <option name="SBT.BeforeRunTask" enabled="false" runInCurrentModule="false" />
       </method>
     </configuration>
-    <list size="0" />
+    <list size="1">
+      <item index="0" class="java.lang.String" itemvalue="ScalaTest.AsyncSocketSpec" />
+    </list>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
       <Port>5050</Port>
@@ -635,22 +617,22 @@
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32753623" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="SBT Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.27149758" sideWeight="0.49695587" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="SBT Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.19323671" sideWeight="0.49695587" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.20193237" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.22439024" sideWeight="0.4977169" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3284553" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2821256" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19124275" sideWeight="0.38164252" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19124275" sideWeight="0.51400965" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19124275" sideWeight="0.6115942" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19124275" sideWeight="0.2772947" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32753623" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="IvyIDEA" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3284553" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -729,127 +711,95 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/build.sbt">
+    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/RawBuffer.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="0" selection-start="412" selection-end="412" vertical-scroll-proportion="0.28532237">
-          <folding />
-        </state>
+        <state line="174" column="5" selection-start="5302" selection-end="5302" vertical-scroll-proportion="0.56237626" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/package.scala">
+    <entry file="jar://C:/Program Files/Java/jdk1.7.0_04/src.zip!/java/net/Socket.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="0" selection-start="452" selection-end="452" vertical-scroll-proportion="0.18019801">
-          <folding />
-        </state>
+        <state line="812" column="25" selection-start="31564" selection-end="31564" vertical-scroll-proportion="0.33267328" />
       </provider>
     </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.7.0_04/src.zip!/java/lang/ThreadGroup.java">
+    <entry file="jar://C:/Program Files/Java/jdk1.7.0_04/jre/lib/rt.jar!/sun/nio/ch/WindowsSelectorImpl.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="123" column="58" selection-start="3903" selection-end="3903" vertical-scroll-proportion="0.34554455" />
+        <state line="132" column="23" selection-start="4877" selection-end="4877" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/package.scala">
+    <entry file="jar://C:/Program Files/Java/jdk1.7.0_04/src.zip!/java/lang/Object.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="73" column="68" selection-start="2386" selection-end="2386" vertical-scroll-proportion="0.6559889">
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
-        </state>
+        <state line="382" column="29" selection-start="17643" selection-end="17643" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/package.scala">
+    <entry file="jar://C:/Program Files/Java/jdk1.7.0_04/src.zip!/java/nio/channels/Selector.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="4" column="0" selection-start="142" selection-end="142" vertical-scroll-proportion="0.0724234">
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
-        </state>
+        <state line="349" column="24" selection-start="13215" selection-end="13215" vertical-scroll-proportion="0.7929227" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Protocol.scala">
+    <entry file="jar://C:/Program Files/scala/src/scala-library-src.jar!/scala/collection/mutable/Queue.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="5" selection-start="1185" selection-end="1185" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="31" column="14" selection-start="1030" selection-end="1030" vertical-scroll-proportion="0.33289647" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Future.scala">
+    <entry file="file://$PROJECT_DIR$/src/test/resources/log4j.properties">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="0" selection-start="449" selection-end="449" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#148#181#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Node.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="262" column="1" selection-start="7388" selection-end="7388" vertical-scroll-proportion="0.97910863">
-          <folding>
-            <element signature="e#148#195#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.7.0_04/src.zip!/java/nio/ByteBuffer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="956" column="24" selection-start="26630" selection-end="26630" vertical-scroll-proportion="0.33267328">
-          <folding />
-        </state>
+        <state line="6" column="23" selection-start="284" selection-end="284" vertical-scroll-proportion="0.102228045" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/RawBufferSpec.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="34" selection-start="601" selection-end="601" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#154#182#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Peer.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="299" column="7" selection-start="9294" selection-end="9294" vertical-scroll-proportion="0.54950494">
-          <folding>
-            <element signature="e#148#206#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketListener.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="77" selection-start="503" selection-end="503" vertical-scroll-proportion="0.18019801">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketContext.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="285" column="48" selection-start="8416" selection-end="8416" vertical-scroll-proportion="0.7425743">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/RawBuffer.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="174" column="5" selection-start="5302" selection-end="5302" vertical-scroll-proportion="0.56237626">
-          <folding />
-        </state>
+        <state line="31" column="34" selection-start="0" selection-end="5517" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/readme.md">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="0" selection-start="442" selection-end="442" vertical-scroll-proportion="0.0">
+        <state line="13" column="0" selection-start="442" selection-end="442" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.7.0_04/src.zip!/java/io/FileOutputStream.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="293" column="24" selection-start="11378" selection-end="11457" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/package.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="86" column="0" selection-start="2654" selection-end="2654" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.7.0_04/src.zip!/java/nio/channels/SocketChannel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="457" column="24" selection-start="17501" selection-end="17501" vertical-scroll-proportion="0.78571427">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.7.0_04/src.zip!/java/lang/AutoCloseable.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="33" column="17" selection-start="364" selection-end="364" vertical-scroll-proportion="0.16229713">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocket.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="75" column="10" selection-start="2460" selection-end="2460" vertical-scroll-proportion="0.3970297">
+        <state line="133" column="0" selection-start="3281" selection-end="3946" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="e#154#180#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketContext.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="7" column="0" selection-start="217" selection-end="217" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/AsyncSocketSpec.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="42" column="50" selection-start="1453" selection-end="1453" vertical-scroll-proportion="0.30212235">
+          <folding />
         </state>
       </provider>
     </entry>

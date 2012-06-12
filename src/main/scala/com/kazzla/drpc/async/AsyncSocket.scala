@@ -6,6 +6,7 @@ package com.kazzla.drpc.async
 import java.nio.ByteBuffer
 import java.io.{Closeable, IOException}
 import java.nio.channels.{SelectionKey, Selector, SocketChannel}
+import org.apache.log4j.Logger
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // AsyncSocket
@@ -16,7 +17,10 @@ import java.nio.channels.{SelectionKey, Selector, SocketChannel}
  * @author Takami Torao
  * @param channel 非同期チャネル
  */
-class AsyncSocket(channel:SocketChannel) extends Closeable{
+class AsyncSocket(channel:SocketChannel) extends Closeable with AutoCloseable{
+	import AsyncSocket.logger
+
+	// 非ブロッキングモードに設定
 	channel.configureBlocking(false)
 
 	// ========================================================================
@@ -67,16 +71,24 @@ class AsyncSocket(channel:SocketChannel) extends Closeable{
 	 * @param length 送信データの長さ
 	 */
 	def send(buffer:Array[Byte], offset:Int, length:Int):Unit = synchronized{
+
+		// 送信キューに送信データを連結
 		val len = sendQueue.synchronized{
 			sendQueue.enqueue(buffer, offset, length)
 			sendQueue.length
 		}
+		if(logger.isTraceEnabled){
+			logger.trace("enqueued write buffer, request " + length + " bytes, total " + len + " bytes")
+		}
 
 		// 送信データの準備ができたらチャネルの書き込み可能状態を監視する
-		if(len > 0 && key.isDefined && ! key.get.isWritable){
-			key.foreach{ k =>
+		key.foreach{ k =>
+			if(len > 0 && (k.interestOps() & SelectionKey.OP_WRITE) == 0){
 				k.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE)
 				k.selector().wakeup()
+				if(logger.isTraceEnabled){
+					logger.trace("enable writable callback")
+				}
 			}
 		}
 	}
@@ -158,7 +170,10 @@ class AsyncSocket(channel:SocketChannel) extends Closeable{
 	/**
 	 * このインスタンスを文字列化します。
 	 */
-	override def toString = "AsyncSocket(" + channel + ")"
+	override def toString = {
+		val s = channel.socket()
+		s.getInetAddress.getHostName + ":" + s.getPort
+	}
 
 	// ========================================================================
 	// データの送信
@@ -176,7 +191,12 @@ class AsyncSocket(channel:SocketChannel) extends Closeable{
 				// OP_WRITE 通知を受けない
 				sendQueue.synchronized{
 					if(sendQueue.length == 0){
-						key.foreach{ _.interestOps(SelectionKey.OP_READ) }
+						key.foreach{ k =>
+							k.interestOps(SelectionKey.OP_READ)
+							if(logger.isTraceEnabled){
+								logger.trace("disable writable callback")
+							}
+						}
 						return
 					}
 					out = Some(sendQueue.dequeue())
@@ -186,7 +206,10 @@ class AsyncSocket(channel:SocketChannel) extends Closeable{
 
 		// バイナリデータの送信
 		// 送信しきれなかった分は次回出力可能時に続きから出力される
-		channel.write(buffer)
+		val len = channel.write(buffer)
+		if(logger.isTraceEnabled){
+			logger.trace("write " + len + " bytes")
+		}
 
 		// 送信バッファ内のデータを全て送信し終えたらバッファを持たない状態にして次回の呼び出し
 		// で送信キューから取得
@@ -205,7 +228,18 @@ class AsyncSocket(channel:SocketChannel) extends Closeable{
 	private[async] def channelRead(in:ByteBuffer):Unit = {
 
 		// データの受信
-		channel.read(in)
+		val len = channel.read(in)
+
+		// 相手からストリームがクローズされた場合
+		if(len < 0){
+			logger.debug("closed async I/O socket " + this + " by peer")
+			close()
+			return
+		}
+
+		if(logger.isTraceEnabled){
+			logger.trace("read " + len + " bytes")
+		}
 
 		// 受信したデータをリスナに通知しバッファをクリア
 		in.flip()
@@ -233,13 +267,18 @@ class AsyncSocket(channel:SocketChannel) extends Closeable{
 		}
 
 		// 指定されたセレクターとバインド
-		selector match {
+		key = selector match {
 			case Some(sel) =>
 				val selectOption = SelectionKey.OP_READ | (if(sendQueue.length > 0) SelectionKey.OP_WRITE else 0)
 				Some(channel.register(sel, selectOption))
 			case None =>
 				None
 		}
+		key
 	}
 
+}
+
+object AsyncSocket {
+	val logger = Logger.getLogger(AsyncSocket.getClass)
 }

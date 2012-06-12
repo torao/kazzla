@@ -3,11 +3,12 @@
  */
 package com.kazzla.drpc.async
 
-import java.nio.channels.Selector
-import collection.mutable.{ArrayBuffer, Buffer}
 import collection.JavaConversions._
 import java.nio.ByteBuffer
-import java.io.IOException
+import org.apache.log4j.Logger
+import collection.mutable.Queue
+import java.nio.channels.{SelectionKey, Selector}
+import java.io.{Closeable, IOException}
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // AsyncSocketContext: 非同期ソケットコンテキスト
@@ -17,7 +18,8 @@ import java.io.IOException
  * 理を行うワーカースレッドプールを保持しています。
  * @author Takami Torao
  */
-class AsyncSocketContext {
+class AsyncSocketContext extends Closeable with AutoCloseable{
+	import AsyncSocketContext.logger
 
 	// ========================================================================
 	// スレッドグループ
@@ -76,18 +78,18 @@ class AsyncSocketContext {
 	 * @param socket コンテキストに参加する非同期ソケット
 	 */
 	def join(socket:AsyncSocket):Unit = synchronized{
-		workers.find{
-			_.join(socket)
-		} match {
-			case Some(worker) => None
-			case None =>
-				// 既に停止しているスレッドを除去
-				workers = workers.filter{ _.isAlive }
-				// 新しいスレッドを作成
-				logger.debug("creating new worker thread: " + activeAsyncSockets + " + 1 sockets")
-				val worker = new Worker()
-				workers ::= worker
-				worker.start()
+		if(workers.find{ _.join(socket) }.isEmpty){
+			// 既に停止しているスレッドを除去
+			workers = workers.filter{ _.isAlive }
+			// 新しいスレッドを作成
+			logger.debug("creating new worker thread: " + activeAsyncSockets + " + 1 sockets")
+			val worker = new Worker()
+			workers ::= worker
+			worker.start()
+			val success = worker.join(socket)
+			if(! success){
+				throw new IllegalStateException()
+			}
 		}
 	}
 
@@ -105,6 +107,19 @@ class AsyncSocketContext {
 		workers.find{ worker => worker.leave(socket) } match {
 			case Some(_) => true
 			case None => false
+		}
+	}
+
+	// ========================================================================
+	// 非同期ソケットのクローズ
+	// ========================================================================
+	/**
+	 * このコンテキストの入出力スレッドを停止しすべての非同期ソケットをクローズします。
+	 */
+	override def close():Unit = synchronized {
+		workers.foreach{ worker =>
+			worker.closeAll()
+			worker.interrupt()
 		}
 	}
 
@@ -133,7 +148,7 @@ class AsyncSocketContext {
 		/**
 		 * このワーカーに新しい接続先を追加するためのキューです。
 		 */
-		private[this] val queue:Buffer[AsyncSocket] = new ArrayBuffer[AsyncSocket]()
+		private[this] val joinQueue = new Queue[AsyncSocket]()
 
 		// ======================================================================
 		// イベントループ中フラグ
@@ -141,7 +156,7 @@ class AsyncSocketContext {
 		/**
 		 * このスレッドがイベントループ中かどうかを表すフラグです。
 		 */
-		private[this] val inEventLoop = new java.util.concurrent.atomic.AtomicBoolean(false)
+		private[this] val inEventLoop = new java.util.concurrent.atomic.AtomicBoolean(true)
 
 		// ======================================================================
 		// 非同期ソケット数の参照
@@ -166,8 +181,8 @@ class AsyncSocketContext {
 				return false
 			}
 			// スレッドのイベントループ内で追加しないと例外が発生する
-			queue.synchronized{
-				queue.append(socket)
+			joinQueue.synchronized{
+				joinQueue.enqueue(socket)
 			}
 			selector.wakeup()
 			true
@@ -194,6 +209,23 @@ class AsyncSocketContext {
 		}
 
 		// ======================================================================
+		// 非同期ソケットの全クローズ
+		// ======================================================================
+		/**
+		 * このワーカーが管理している非同期ソケットを全てクローズします。
+		 */
+		def closeAll():Unit = {
+			selector.keys().foreach{ key =>
+				val socket = key.attachment().asInstanceOf[AsyncSocket]
+				try {
+					socket.close()
+				} catch {
+					case ex:Exception => logger.error("fail to close async socket: " + socket, ex)
+				}
+			}
+		}
+
+		// ======================================================================
 		// スレッドの実行
 		// ======================================================================
 		/**
@@ -201,6 +233,7 @@ class AsyncSocketContext {
 		 */
 		override def run():Unit = {
 			inEventLoop.set(true)
+			logger.debug("start async I/O worker thread")
 
 			// データ受信用バッファを作成 (全非同期ソケット共用)
 			val readBuffer = ByteBuffer.allocate(readBufferSize)
@@ -215,9 +248,12 @@ class AsyncSocketContext {
 					val key = it.next()
 					it.remove()
 					val socket = key.attachment().asInstanceOf[AsyncSocket]
+					if(logger.isTraceEnabled){
+						logger.trace("selection state: %s -> %s".format(socket, AsyncSocketContext.sk2s(key)))
+					}
 
-					// データ受信処理の実行
 					if(key.isReadable){
+						// データ受信処理の実行
 						try {
 							socket.channelRead(readBuffer)
 						} catch {
@@ -225,10 +261,8 @@ class AsyncSocketContext {
 								logger.error("uncaught exception in read operation, closing connection", ex)
 								socket.close()
 						}
-					}
-
-					// データ送信処理の実行
-					if (key.isWritable){
+					} else if (key.isWritable){
+						// データ送信処理の実行
 						try {
 							socket.channelWrite()
 						} catch {
@@ -236,6 +270,8 @@ class AsyncSocketContext {
 								logger.error("uncaught exception in write operation, closing connection", ex)
 								socket.close()
 						}
+					} else {
+						logger.warn("unexpected selection key state: 0x%X".format(key.readyOps()))
 					}
 				}
 			}
@@ -251,6 +287,8 @@ class AsyncSocketContext {
 				socket.bind(null)
 				AsyncSocketContext.this.join(socket)
 			}
+
+			logger.debug("exit async I/O worker thread")
 		}
 
 		// ======================================================================
@@ -265,6 +303,9 @@ class AsyncSocketContext {
 			// チャネルが送受信可能になるまで待機
 			try {
 				selector.select()
+				if(logger.isTraceEnabled){
+					logger.trace("async I/O worker thread awake")
+				}
 			} catch {
 				case ex:IOException =>
 					logger.fatal("select operatin failure: " + select, ex)
@@ -274,17 +315,19 @@ class AsyncSocketContext {
 
 			// スレッドが割り込まれていたら終了
 			if(Thread.currentThread().isInterrupted){
+				logger.debug("async I/O worker thread interruption detected")
 				inEventLoop.set(false)
 				return
 			}
 
 			// このスレッドへ参加する非同期ソケットを取り込み
-			queue.synchronized {
-				while(! queue.isEmpty){
-					val socket = queue.remove(0)
+			joinQueue.synchronized {
+				while(! joinQueue.isEmpty){
+					val socket = joinQueue.dequeue()
 					try {
 						val key = socket.bind(Some(selector)).get
 						key.attach(socket)
+						logger.debug("join new async socket in worker thread")
 					} catch {
 						case ex:IOException =>
 							logger.error("register operation failed, ignore and close socket: " + socket, ex)
@@ -296,4 +339,18 @@ class AsyncSocketContext {
 
 	}
 
+}
+
+object AsyncSocketContext {
+	val logger = Logger.getLogger(AsyncSocketContext.getClass)
+
+	def sk2s(key:SelectionKey):String = {
+		val opt = key.readyOps()
+		Seq(
+			if((opt & SelectionKey.OP_READ) != 0) "READ" else null,
+			if((opt & SelectionKey.OP_WRITE) != 0) "WRITE" else null,
+			if((opt & SelectionKey.OP_ACCEPT) != 0) "ACCEPT" else null,
+			if((opt & SelectionKey.OP_CONNECT) != 0) "CONNECT" else null
+		).filter{ _ != null }.mkString("|")
+	}
 }
