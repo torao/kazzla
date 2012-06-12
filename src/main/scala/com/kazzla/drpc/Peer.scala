@@ -10,7 +10,6 @@ import annotation.tailrec
 import java.util.concurrent.atomic.AtomicLong
 import java.lang.reflect.{Proxy, InvocationHandler, Method}
 import java.security.cert.Certificate
-import com.kazzla.drpc.Node.MetaInfo
 import collection.mutable.{Queue, HashMap}
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -181,7 +180,7 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 		} catch {
 			case ex:Throwable =>
 				logger.error("uncaught exeption in service" + call, ex)
-				return Protocol.Result(call.id, Some(ex.toString()))
+				return Protocol.Result(call.id, Some(ex.toString))
 		}
 
 		// 処理結果を返す

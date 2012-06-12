@@ -118,7 +118,7 @@
       <file leaf-file-name="Peer.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Peer.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="62" column="0" selection-start="2099" selection-end="2099" vertical-scroll-proportion="0.54011464">
+            <state line="182" column="58" selection-start="5859" selection-end="5859" vertical-scroll-proportion="1.1862464">
               <folding>
                 <element signature="e#148#206#0" expanded="true" />
               </folding>
@@ -861,7 +861,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Peer.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="62" column="0" selection-start="2099" selection-end="2099" vertical-scroll-proportion="0.54011464">
+        <state line="182" column="58" selection-start="5859" selection-end="5859" vertical-scroll-proportion="1.1862464">
           <folding>
             <element signature="e#148#206#0" expanded="true" />
           </folding>
