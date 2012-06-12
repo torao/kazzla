@@ -117,7 +117,7 @@ class AsyncSocketContext {
 	 * 複数の非同期ソケットの受送信処理を担当するスレッドです。
 	 * @author Takami Torao
 	 */
-	private[AsyncSocketContext] class Worker extends Thread(threadGroup, "AsyncWorker") {
+	private[async] class Worker extends Thread(threadGroup, "AsyncWorker") {
 
 		// ======================================================================
 		// セレクター
@@ -185,8 +185,8 @@ class AsyncSocketContext {
 		def leave(socket:AsyncSocket):Boolean = {
 			selector.keys.foreach{ key =>
 				val peer = key.attachment().asInstanceOf[AsyncSocket]
-				if(peer == socket){
-					socket.leave()
+				if(peer.eq(socket)){
+					socket.bind(null)
 					return true
 				}
 			}
@@ -248,8 +248,8 @@ class AsyncSocketContext {
 			// スレッドが終了する前に全ての処理中の非同期ソケットを別のスレッドに割り当て
 			selector.keys().foreach{ key =>
 				val socket = key.attachment().asInstanceOf[AsyncSocket]
-				socket.leave()
-				join(socket)
+				socket.bind(null)
+				AsyncSocketContext.this.join(socket)
 			}
 		}
 
@@ -281,14 +281,14 @@ class AsyncSocketContext {
 			// このスレッドへ参加する非同期ソケットを取り込み
 			queue.synchronized {
 				while(! queue.isEmpty){
-					val endpoint = queue.remove(0)
+					val socket = queue.remove(0)
 					try {
-						val key = endpoint.join(selector)
-						key.attach(endpoint)
+						val key = socket.bind(Some(selector)).get
+						key.attach(socket)
 					} catch {
 						case ex:IOException =>
-							logger.error("register operation failed, ignore and close socket: " + endpoint, ex)
-							endpoint.close()
+							logger.error("register operation failed, ignore and close socket: " + socket, ex)
+							socket.close()
 					}
 				}
 			}

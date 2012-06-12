@@ -24,4 +24,13 @@ trait AsyncSocketListener {
 	 */
 	def asyncDataReceived(buffer:ByteBuffer):Unit
 
+	// ========================================================================
+	// ソケットのクローズ
+	// ========================================================================
+	/**
+	 * このリスナがバインドされている非同期ソケットがクローズされた時に呼び出されます。
+	 * @param socket クローズされたソケット
+	 */
+	def asyncSocketClosed(socket:AsyncSocket):Unit
+
 }
