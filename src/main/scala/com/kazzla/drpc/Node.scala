@@ -9,9 +9,10 @@ import java.util.concurrent.Executor
 import java.util.{TimerTask, Timer}
 import collection.mutable.HashMap
 import java.security.cert.Certificate
+import com.kazzla.drpc.Node.MetaInfo
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// Server
+// Node
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
  * @author Takami Torao
@@ -24,7 +25,7 @@ class Node(val protocol:Protocol, val threadPool:Executor, cert:Certificate) {
 	/**
 	 * このノード上で非同期 I/O 処理を行うコンテキストです。
 	 */
-	private val context = new AsyncSocketContext()
+	private[drpc] val context = new AsyncSocketContext()
 
 	// ========================================================================
 	// サービス
@@ -155,22 +156,26 @@ class Node(val protocol:Protocol, val threadPool:Executor, cert:Certificate) {
 	}
 
 	// ========================================================================
-	//
+	// ソケットのアタッチ
 	// ========================================================================
 	/**
-	 *
+	 * 指定されたソケットをこのノードにアタッチします。
+	 * @param socket ノードにアタッチするソケット
+	 * @return ピア (通信相手) を表すインスタンス
 	 */
-	def connect(socket:Socket):Peer = {
-		val peer = new Peer(this, socket.getChannel)
-		context.join(peer.endpoint)
-		peer
+	def attach(socket:Socket):Peer = {
+		new Peer(this, socket.getChannel)
 	}
 
 	// ========================================================================
-	//
+	// サービスの参照
 	// ========================================================================
 	/**
-	 *
+	 * 指定されたピアに対してこのノードが提供するサービスを参照します。名前に対するサービス
+	 * が定義されていない場合やピアにサービスを提供できない場合は None を返します。
+	 * @param name サービス名
+	 * @param peer ピア
+	 * @return サービス
 	 */
 	private[drpc] def newService(name:String, peer:Peer):Option[Service] = {
 		factories.get(name) match {
@@ -207,7 +212,7 @@ class Node(val protocol:Protocol, val threadPool:Executor, cert:Certificate) {
 		/**
 		 * このノードの証明書を参照します。
 		 */
-		def certificate(args:AnyRef*):Seq[AnyRef] = {
+		def certificate(args:Any*):Seq[Any] = {
 			List(cert.getEncoded)
 		}
 
