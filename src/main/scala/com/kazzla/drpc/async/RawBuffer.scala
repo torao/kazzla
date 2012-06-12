@@ -115,8 +115,9 @@ class RawBuffer(initialSize:Int) {
 	// バイナリの連結
 	// ========================================================================
 	/**
-	 * 指定されたバイナリデータをこのバッファに連結します。
-	 * @param buffer バッファ
+	 * 指定されたバッファの現在位置から remaining バイトのバイナリをこのバッファに連結し
+	 * ます。
+	 * @param buffer 連結するバッファ
 	 */
 	def enqueue(buffer:ByteBuffer):Unit = synchronized{
 		val length = buffer.remaining()
