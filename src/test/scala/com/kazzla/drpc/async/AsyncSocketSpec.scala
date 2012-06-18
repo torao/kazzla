@@ -7,7 +7,7 @@ import org.scalatest.FunSpec
 import java.nio.ByteBuffer
 import java.io.ByteArrayOutputStream
 import java.nio.channels.SocketChannel
-import java.net.{InetSocketAddress, Socket}
+import java.net.InetSocketAddress
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // AsyncSocketSpec

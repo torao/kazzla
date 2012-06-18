@@ -52,7 +52,7 @@ class AsyncSocketContext extends Closeable with AutoCloseable{
 	/**
 	 * 実行中のワーカースレッドです。
 	 */
-	private[this] var workers = List[Worker]()
+	private[this] var workers = List[Dispatcher]()
 
 	// ========================================================================
 	// 起動中のワーカースレッド数
@@ -83,7 +83,7 @@ class AsyncSocketContext extends Closeable with AutoCloseable{
 			workers = workers.filter{ _.isAlive }
 			// 新しいスレッドを作成
 			logger.debug("creating new worker thread: " + activeAsyncSockets + " + 1 sockets")
-			val worker = new Worker()
+			val worker = new Dispatcher()
 			workers ::= worker
 			worker.start()
 			val success = worker.join(socket)
@@ -126,13 +126,13 @@ class AsyncSocketContext extends Closeable with AutoCloseable{
 	// TODO reboot and takeover thread that works specified times
 
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	// Worker: ワーカースレッド
+	// Dispatcher: ディスパッチャースレッド
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	/**
 	 * 複数の非同期ソケットの受送信処理を担当するスレッドです。
 	 * @author Takami Torao
 	 */
-	private[async] class Worker extends Thread(threadGroup, "AsyncWorker") {
+	private[async] class Dispatcher extends Thread(threadGroup, "AsyncDispatcher") {
 
 		// ======================================================================
 		// セレクター
@@ -146,7 +146,7 @@ class AsyncSocketContext extends Closeable with AutoCloseable{
 		// 接続キュー
 		// ======================================================================
 		/**
-		 * このワーカーに新しい接続先を追加するためのキューです。
+		 * このディスパッチャーに新しい接続先を追加するためのキューです。
 		 */
 		private[this] val joinQueue = new Queue[AsyncSocket]()
 
@@ -154,7 +154,7 @@ class AsyncSocketContext extends Closeable with AutoCloseable{
 		// イベントループ中フラグ
 		// ======================================================================
 		/**
-		 * このスレッドがイベントループ中かどうかを表すフラグです。
+		 * このディスパッチャーがイベントループ中かどうかを表すフラグです。
 		 */
 		private[this] val inEventLoop = new java.util.concurrent.atomic.AtomicBoolean(true)
 
@@ -162,7 +162,7 @@ class AsyncSocketContext extends Closeable with AutoCloseable{
 		// 非同期ソケット数の参照
 		// ======================================================================
 		/**
-		 * このワーカーが担当している非同期ソケット数を参照します。
+		 * このディスパッチャーが担当している非同期ソケット数を参照します。
 		 */
 		def activeSockets:Int = selector.keys().size()
 

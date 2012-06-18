@@ -47,7 +47,7 @@ class AsyncSocket(channel:SocketChannel) extends Closeable with AutoCloseable{
 	 * この非同期ソケットのセレクションキーです。特定のセレクターに登録されている場合に
 	 * Some となります。チャネルに対する Write 可能通知の ON/OFF を切り替えるために使用
 	 * します。
-	 * キーに対する Selector を握っている Worker スレッドの Take Over が必要なので一意
+	 * キーに対する Selector を握っている Dispatcher スレッドの Take Over が必要なので一意
 	 * にしない。
 	 */
 	private[this] var key:Option[SelectionKey] = None
