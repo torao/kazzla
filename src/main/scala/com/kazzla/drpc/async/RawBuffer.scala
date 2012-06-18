@@ -4,20 +4,26 @@
 package com.kazzla.drpc.async
 
 import java.nio.ByteBuffer
+import annotation.tailrec
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // RawBuffer
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
- * FIFO 特性を持った可変長バッファです。
+ * FIFO 特性を持った可変長バッファです。隠蔽性より処理効率を優先しておりバッファの内容を
+ * 直接参照することができます。
  * 初期バッファ容量に 0 以下の値を指定すると例外が発生します。
+ * 内部バッファが上限容量を超える書き込みが行われようとした場合、バッファ内に有効な空き
+ * 容量ができるまで書き込み処理がブロックされます。
  * @author Takami Torao
  * @param initialSize 内部バッファの初期容量
+ * @param limitSize 内部バッファの上限容量
  * @throws IllegalArgumentException initialSize に 0 以下の値が指定された場合
  */
-class RawBuffer(initialSize:Int) {
+class RawBuffer(initialSize:Int, limitSize:Int) {
 	// TODO buffer size limit need to block enqueue
 
+	// 初期バッファサイズの確認
 	if(initialSize <= 0){
 		throw new IllegalArgumentException("invalid initial buffer size: " + initialSize)
 	}
@@ -28,7 +34,32 @@ class RawBuffer(initialSize:Int) {
 	/**
 	 * 初期状態で 4kB のバッファ容量を持つインスタンスを構築します。
 	 */
-	def this() = this(4 * 1024)
+	def this() = this(4 * 1024, Int.MaxValue)
+
+	// ========================================================================
+	// コンストラクタ
+	// ========================================================================
+	/**
+	 * 指定された初期サイズのバッファ容量を持つインスタンスを構築します。
+	 */
+	def this(initialSize:Int) = this(initialSize, Int.MaxValue)
+
+	// ========================================================================
+	// Mutex
+	// ========================================================================
+	/**
+	 * enqueue / dequeue の整合性を確保するための Mutex です。
+	 */
+	private[this] val mutex = new Object()
+
+	// ========================================================================
+	// enqueue 待ち回数
+	// ========================================================================
+	/**
+	 * このバッファ上で enqueue 待ちが発生した回数です。Int 値の範囲で循環します。
+	 */
+	@volatile
+	private[this] var _blockingCount:Int = 0
 
 	// ========================================================================
 	// バイナリデータ
@@ -87,6 +118,15 @@ class RawBuffer(initialSize:Int) {
 	def capacity:Int = binary.length
 
 	// ========================================================================
+	// enqueue ブロック回数
+	// ========================================================================
+	/**
+	 * このバッファがいっぱいになり enqueue 操作がブロックされた回数を示すカウンターです。
+	 * Int の範囲で循環します。
+	 */
+	def blockingCount:Int = _blockingCount
+
+	// ========================================================================
 	// バイナリの連結
 	// ========================================================================
 	/**
@@ -100,15 +140,19 @@ class RawBuffer(initialSize:Int) {
 	// ========================================================================
 	/**
 	 * 指定されたバイナリデータをこのバッファに連結します。
-	 * 長さ 0 を指定した場合は何も起きません。
+	 * 長さに 0 を指定した場合は何も起きません。
 	 * @param buffer バッファ
 	 * @param offset バッファ内での連結データの開始位置
 	 * @param length 連結データの長さ
 	 */
-	def enqueue(buffer:Array[Byte], offset:Int, length:Int):Unit = synchronized{
-		ensureAppend(length)
-		System.arraycopy(buffer, offset, binary, _offset + _length, length)
-		this._length += length
+	def enqueue(buffer:Array[Byte], offset:Int, length:Int):Unit = mutex.synchronized{
+		var concat = 0
+		while(length - concat > 0){
+			val len = requireAndWait(length - concat)
+			System.arraycopy(buffer, offset + concat, binary, _offset + _length, len)
+			this._length += len
+			concat += len
+		}
 	}
 
 	// ========================================================================
@@ -119,11 +163,12 @@ class RawBuffer(initialSize:Int) {
 	 * ます。
 	 * @param buffer 連結するバッファ
 	 */
-	def enqueue(buffer:ByteBuffer):Unit = synchronized{
-		val length = buffer.remaining()
-		ensureAppend(length)
-		buffer.get(binary, _offset + _length, length)
-		this._length += length
+	def enqueue(buffer:ByteBuffer):Unit = mutex.synchronized{
+		do {
+			val len = requireAndWait(buffer.remaining())
+			buffer.get(binary, _offset + _length, len)
+			this._length += len
+		} while(buffer.remaining() > 0)
 	}
 
 	// ========================================================================
@@ -144,9 +189,9 @@ class RawBuffer(initialSize:Int) {
 	 * 指定サイズが現在のバッファ内の有効サイズより大きい場合は例外が発生します。
 	 * @return 指定されたサイズのバッファ
 	 */
-	def dequeue(size:Int):ByteBuffer = synchronized{
-		if(size > _length){
-			throw new IllegalArgumentException("dequeue size too long: " + size + "/" + _length)
+	def dequeue(size:Int):ByteBuffer = mutex.synchronized{
+		if(size > _length || size < 0){
+			throw new IllegalArgumentException("invalid dequeue size: " + size + ", max " + _length)
 		}
 		val buffer = ByteBuffer.wrap(binary, _offset, size)
 		_length -= size
@@ -155,6 +200,7 @@ class RawBuffer(initialSize:Int) {
 		} else {
 			_offset += size
 		}
+		mutex.notify()
 		buffer
 	}
 
@@ -177,26 +223,37 @@ class RawBuffer(initialSize:Int) {
 	 * 連結できることを保証します。
 	 * @param len 連結する長さ
 	 */
-	private[this] def ensureAppend(len:Int){
+	@tailrec
+	private[this] def requireAndWait(len:Int):Int = {
+		assert(Thread.holdsLock(mutex))
 
-		// 現在の状態で指定サイズのデータを連結できる場合
-		val total = this._length + len
-		if(_offset + total < binary.length){
-			return
+		// バッファに空きがある場合
+		if(_offset + _length < binary.length){
+			return scala.math.min(len, binary.length - _offset - _length)
 		}
 
-		// オフセットを調整すれば収まる場合
-		if(total < binary.length){
+		// オフセットを調整すれば空きができる場合
+		if(_offset > 0){
+			val available = _offset
 			System.arraycopy(binary, _offset, binary, 0, this._length)
 			_offset = 0
-			return
+			return scala.math.min(len, binary.length - _length)
 		}
 
-		// バッファの拡張が必要な場合
-		val temp = new Array[Byte]((total * 1.25).toInt)
-		System.arraycopy(binary, _offset, temp, 0, this._length)
-		binary = temp
-		_offset = 0
+		// バッファの拡張が可能な場合
+		if(binary.length < limitSize){
+			val newBufferSize = scala.math.min(((_length + len) * 1.25).toInt, limitSize)
+			val temp = new Array[Byte](newBufferSize)
+			System.arraycopy(binary, _offset, temp, 0, this._length)
+			binary = temp
+			assert(_offset == 0)
+			return scala.math.min(len, binary.length - _length)
+		}
+
+		// バッファに空きができるまで待機して再実行
+		_blockingCount += 1
+		mutex.wait()
+		requireAndWait(len)
 	}
 
 }

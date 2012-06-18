@@ -233,7 +233,7 @@ class AsyncSocketContext extends Closeable with AutoCloseable{
 		 */
 		override def run():Unit = {
 			inEventLoop.set(true)
-			logger.debug("start async I/O worker thread")
+			logger.debug("start async I/O dispatcher thread")
 
 			// データ受信用バッファを作成 (全非同期ソケット共用)
 			val readBuffer = ByteBuffer.allocate(readBufferSize)
@@ -304,7 +304,7 @@ class AsyncSocketContext extends Closeable with AutoCloseable{
 			try {
 				selector.select()
 				if(logger.isTraceEnabled){
-					logger.trace("async I/O worker thread awake")
+					logger.trace("async I/O dispatcher thread awake")
 				}
 			} catch {
 				case ex:IOException =>
@@ -315,7 +315,7 @@ class AsyncSocketContext extends Closeable with AutoCloseable{
 
 			// スレッドが割り込まれていたら終了
 			if(Thread.currentThread().isInterrupted){
-				logger.debug("async I/O worker thread interruption detected")
+				logger.debug("async I/O dispatcher thread interruption detected")
 				inEventLoop.set(false)
 				return
 			}
@@ -327,7 +327,7 @@ class AsyncSocketContext extends Closeable with AutoCloseable{
 					try {
 						val key = socket.bind(Some(selector)).get
 						key.attach(socket)
-						logger.debug("join new async socket in worker thread")
+						logger.debug("join new async socket in dispatcher thread")
 					} catch {
 						case ex:IOException =>
 							logger.error("register operation failed, ignore and close socket: " + socket, ex)

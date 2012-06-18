@@ -5,8 +5,9 @@ package com.kazzla.drpc.async
 
 import java.nio.ByteBuffer
 import java.io.{Closeable, IOException}
-import java.nio.channels.{SelectionKey, Selector, SocketChannel}
+import java.nio.channels._
 import org.apache.log4j.Logger
+import scala.Some
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // AsyncSocket
@@ -15,13 +16,23 @@ import org.apache.log4j.Logger
  * 非同期入出力のチャネルとデータの入出力を管理するクラスです。
  * クローズ済みのチャネルを指定した場合は例外が発生します。
  * @author Takami Torao
- * @param channel 非同期チャネル
+ * @param channel 入出力用非同期チャネル
+ * @param initialSendBufferSize 初期送信バッファサイズ
+ * @param maxSendBufferSize 最大送信バッファサイズ
  */
-class AsyncSocket(channel:SocketChannel) extends Closeable with AutoCloseable{
+class AsyncSocket(channel:SelectableChannel with ReadableByteChannel with WritableByteChannel, initialSendBufferSize:Int, maxSendBufferSize:Int) extends Closeable with AutoCloseable{
 	import AsyncSocket.logger
 
-	// 非ブロッキングモードに設定
+	// I/O を非ブロッキングモードに設定
 	channel.configureBlocking(false)
+
+	// ========================================================================
+	// コンストラクタ
+	// ========================================================================
+	/**
+	 * 初期送信バッファサイズ 4kB、最大送信バッファサイズ 2GB のインスタンスを構築します。
+	 */
+	def this(channel:SelectableChannel with ReadableByteChannel with WritableByteChannel) = this(channel, 4 * 1024, Int.MaxValue)
 
 	// ========================================================================
 	// 送信待ちデータキュー
@@ -29,7 +40,7 @@ class AsyncSocket(channel:SocketChannel) extends Closeable with AutoCloseable{
 	/**
 	 * このソケットに対して送信待機しているバイナリデータのキューです。
 	 */
-	private[this] val sendQueue = new RawBuffer()
+	private[this] val sendQueue = new RawBuffer(initialSendBufferSize, maxSendBufferSize)
 
 	// ========================================================================
 	// 送信中バッファ
@@ -38,7 +49,7 @@ class AsyncSocket(channel:SocketChannel) extends Closeable with AutoCloseable{
 	 * このソケット上で出力中のデータのバッファです。出力中のバッファが存在しない場合は
 	 * None となります。
 	 */
-	private[this] var out:Option[ByteBuffer] = None
+	private[this] var sendBuffer:Option[ByteBuffer] = None
 
 	// ========================================================================
 	// セレクションキー
@@ -66,6 +77,8 @@ class AsyncSocket(channel:SocketChannel) extends Closeable with AutoCloseable{
 	/**
 	 * 指定されたバイナリデータを非同期で送信します。メソッドはすぐに完了しますが、データが
 	 * 送信完了している保証はありません。
+	 * 未送信のデータと指定されたデータの合計サイズが送信バッファの最大サイズを超える場合、
+	 * このメソッドはブロックします。
 	 * @param buffer バッファ
 	 * @param offset バッファ内での送信データの開始位置
 	 * @param length 送信データの長さ
@@ -84,10 +97,10 @@ class AsyncSocket(channel:SocketChannel) extends Closeable with AutoCloseable{
 		// 送信データの準備ができたらチャネルの書き込み可能状態を監視する
 		key.foreach{ k =>
 			if(len > 0 && (k.interestOps() & SelectionKey.OP_WRITE) == 0){
-				k.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE)
+				k.interestOps(k.interestOps() | SelectionKey.OP_WRITE)
 				k.selector().wakeup()
 				if(logger.isTraceEnabled){
-					logger.trace("enable writable callback")
+					logger.trace("enable write callback")
 				}
 			}
 		}
@@ -119,11 +132,11 @@ class AsyncSocket(channel:SocketChannel) extends Closeable with AutoCloseable{
 			case ex:IOException => logger.error("fail to close SelectionKey", ex)
 		}
 
-		// チャネルのクローズ
+		// 入出力チャネルのクローズ
 		try {
 			channel.close()
 		} catch {
-			case ex:IOException => logger.error("fail to close SocketChannel", ex)
+			case ex:IOException => logger.error("fail to close I/O channel", ex)
 		}
 
 		// ソケットのクローズを通知
@@ -171,8 +184,13 @@ class AsyncSocket(channel:SocketChannel) extends Closeable with AutoCloseable{
 	 * このインスタンスを文字列化します。
 	 */
 	override def toString = {
-		val s = channel.socket()
-		s.getInetAddress.getHostName + ":" + s.getPort
+		channel match {
+			case socketChannel:SocketChannel =>
+				val s = socketChannel.socket()
+				s.getInetAddress.getHostName + ":" + s.getPort
+			case c =>
+				c.toString()
+		}
 	}
 
 	// ========================================================================
@@ -184,7 +202,7 @@ class AsyncSocket(channel:SocketChannel) extends Closeable with AutoCloseable{
 	private[async] def channelWrite():Unit = {
 
 		// 送信中のバファを参照
-		val buffer = out match {
+		val buffer = sendBuffer match {
 			case Some(b) => b
 			case None =>
 				// 送信中バッファがなくなり送信キューも空なら、次の送信データが到着するまで
@@ -192,29 +210,29 @@ class AsyncSocket(channel:SocketChannel) extends Closeable with AutoCloseable{
 				sendQueue.synchronized{
 					if(sendQueue.length == 0){
 						key.foreach{ k =>
-							k.interestOps(SelectionKey.OP_READ)
+							k.interestOps(k.interestOps() & ~SelectionKey.OP_WRITE)
 							if(logger.isTraceEnabled){
 								logger.trace("disable writable callback")
 							}
 						}
 						return
 					}
-					out = Some(sendQueue.dequeue())
+					sendBuffer = Some(sendQueue.dequeue())
 				}
-				out.get
+				sendBuffer.get
 		}
 
 		// バイナリデータの送信
 		// 送信しきれなかった分は次回出力可能時に続きから出力される
 		val len = channel.write(buffer)
 		if(logger.isTraceEnabled){
-			logger.trace("write " + len + " bytes")
+			logger.trace("write %,d bytes".format(len))
 		}
 
 		// 送信バッファ内のデータを全て送信し終えたらバッファを持たない状態にして次回の呼び出し
 		// で送信キューから取得
 		if(buffer.remaining() == 0){
-			out = None
+			sendBuffer = None
 		}
 	}
 
@@ -228,7 +246,7 @@ class AsyncSocket(channel:SocketChannel) extends Closeable with AutoCloseable{
 	private[async] def channelRead(in:ByteBuffer):Unit = {
 
 		// データの受信
-		val len = channel.read(in)
+		val len = this.channel.read(in)
 
 		// 相手からストリームがクローズされた場合
 		if(len < 0){

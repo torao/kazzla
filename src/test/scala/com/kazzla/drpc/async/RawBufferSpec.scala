@@ -22,7 +22,7 @@ class RawBufferSpec extends FunSpec {
 			val buffer = new RawBuffer()
 			assert(buffer.capacity == 4 * 1024)
 			assert(buffer.length == 0)
-			// assert(buffer.offset == 0)		// オフセットが 0 である必要はない
+			// assert(buffer.offset == 0)		// 初期オフセットが 0 である必要はない
 		}
 
 		it("初期バッファ容量指定"){
@@ -30,7 +30,7 @@ class RawBufferSpec extends FunSpec {
 				val buffer = new RawBuffer(size)
 				assert(buffer.capacity == size)
 				assert(buffer.length == 0)
-				// assert(buffer.offset == 0)		// オフセットが 0 である必要はない
+				// assert(buffer.offset == 0)		// 初期オフセットが 0 である必要はない
 			}
 		}
 

@@ -9,6 +9,7 @@ import org.apache.log4j.Logger
 // package
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
+ * 非同期ソケット通信のためのパッケージ。
  * @author Takami Torao
  */
 package object async {
