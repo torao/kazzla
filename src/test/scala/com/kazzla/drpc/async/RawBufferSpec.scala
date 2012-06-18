@@ -121,7 +121,39 @@ class RawBufferSpec extends FunSpec {
 
 	}
 
-	// ランダム値のバイト配列作成
+	describe("ブロッキング操作"){
+
+		it("ブロッキング"){
+			val data1 = "hello, world".getBytes
+			val data2 = new Array[Byte](data1.length)
+			val buffer = new RawBuffer(1, 1)
+			scala.actors.Actor.actor {
+				// 1 バイト当たり 0.5 秒かけて読み込むスレッド
+				for(i <- 0 until data2.length){
+					Thread.sleep(500)
+					val b = buffer.dequeue(1)
+					assert(b.remaining() == 1)
+					val b1 = data1(i)
+					val b2 = b.get()
+					logger.debug("%s <-> %s".format(b1.toChar, b2.toChar))
+					data2(i) = b2
+				}
+			}
+			val start = System.currentTimeMillis()
+			buffer.enqueue(data1)
+			val actual = System.currentTimeMillis() - start
+			val expected = 500 * data1.length
+			val error = scala.math.abs(expected - actual) / expected.toDouble
+			assert(error < 0.01, error)		// 誤差 1% 以内
+			scala.actors.Actor.exit()
+
+			// enqueue したデータが dequeue できていること
+			assert(data1 == data2, new String(data2))
+		}
+
+	}
+
+		// ランダム値のバイト配列作成
 	private def randomBinary(size:Int):Array[Byte] = {
 		(0 until size).map{ _ => (scala.math.random * 256).toByte }.toArray
 	}

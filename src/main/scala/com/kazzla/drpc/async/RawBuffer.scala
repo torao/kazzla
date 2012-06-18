@@ -141,7 +141,7 @@ class RawBuffer(initialSize:Int, limitSize:Int) {
 	/**
 	 * 指定されたバイナリデータをこのバッファに連結します。
 	 * 長さに 0 を指定した場合は何も起きません。
-	 * @param buffer バッファ
+	 * @param buffer バッファ	
 	 * @param offset バッファ内での連結データの開始位置
 	 * @param length 連結データの長さ
 	 */
@@ -149,6 +149,14 @@ class RawBuffer(initialSize:Int, limitSize:Int) {
 		var concat = 0
 		while(length - concat > 0){
 			val len = requireAndWait(length - concat)
+			/*
+			if(logger.isTraceEnabled){
+				logger.trace((for(i <- 0 until len) yield {
+					com.kazzla.debug.makeDebugChar((buffer(offset + concat + i) & 0xFF).toChar)
+				}).mkString("\"", "", "\"") + " (" + len + "B)")
+			}
+			*/
+			logger.trace("offset=%d, length=%d".format(_offset, _length))
 			System.arraycopy(buffer, offset + concat, binary, _offset + _length, len)
 			this._length += len
 			concat += len

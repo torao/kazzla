@@ -14,6 +14,21 @@ import java.text.{SimpleDateFormat, DateFormat, NumberFormat}
  */
 package object debug {
 
+	// 文字のエスケープ
+	def makeDebugChar(ch:Char):String = ch match {
+		case '\0' => "\\0"
+		case '\b' => "\\b"
+		case '\n' => "\\n"
+		case '\r' => "\\r"
+		case '\t' => "\\t"
+		case '\\' => "\\\\"
+		case '\"' => "\\\""
+		case '\'' => "\\\'"
+		case c if(java.lang.Character.isISOControl(c) || ! java.lang.Character.isDefined(c)) =>
+			"\\u%04X".format(c.toInt)
+		case c => c.toString
+	}
+
 	// ========================================================================
 	// デバッグ文字列の作成
 	// ========================================================================
@@ -29,19 +44,7 @@ package object debug {
 		}
 
 		// 文字のエスケープ
-		def escape(buffer:StringBuilder, ch:Char):Unit = ch match {
-			case '\0' => buffer.append("\\0")
-			case '\b' => buffer.append("\\b")
-			case '\n' => buffer.append("\\n")
-			case '\r' => buffer.append("\\r")
-			case '\t' => buffer.append("\\t")
-			case '\\' => buffer.append("\\\\")
-			case '\"' => buffer.append("\\\"")
-			case '\'' => buffer.append("\\\'")
-			case c if(java.lang.Character.isISOControl(c) || ! java.lang.Character.isDefined(c)) =>
-				buffer.append("\\u%04X".format(c.toInt))
-			case c => buffer.append(c)
-		}
+		def escape(buffer:StringBuilder, ch:Char):Unit = buffer.append(makeDebugChar(ch))
 
 		lazy val df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
 		val buffer = new StringBuilder()
