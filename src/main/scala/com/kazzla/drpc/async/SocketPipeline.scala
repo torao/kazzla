@@ -12,7 +12,7 @@ import com.kazzla.drpc.async.Pipeline
 /**
  * @author Takami Torao
  */
-class SocketPipeline(channel:SocketChannel) extends Pipeline {
+class SocketPipeline(channel:SocketChannel) extends PipelineAssembler {
 
 	// ========================================================================
 	// 入力元の参照
