@@ -19,7 +19,7 @@ class RawBufferSpec extends FunSpec {
 	describe("コンストラクタ"){
 
 		it("デフォルトのバッファ容量 4kB 確認"){
-			val buffer = new RawBuffer()
+			val buffer = new RawBuffer("unit test")
 			assert(buffer.capacity == 4 * 1024)
 			assert(buffer.length == 0)
 			// assert(buffer.offset == 0)		// 初期オフセットが 0 である必要はない
@@ -27,7 +27,7 @@ class RawBufferSpec extends FunSpec {
 
 		it("初期バッファ容量指定"){
 			(1 to 10).foreach{ size =>
-				val buffer = new RawBuffer(size)
+				val buffer = new RawBuffer("unit test", size)
 				assert(buffer.capacity == size)
 				assert(buffer.length == 0)
 				// assert(buffer.offset == 0)		// 初期オフセットが 0 である必要はない
@@ -35,9 +35,9 @@ class RawBufferSpec extends FunSpec {
 		}
 
 		it("不正なバッファ容量指定"){
-			try { new RawBuffer(0); fail() } catch { case ex:IllegalArgumentException => None }
-			try { new RawBuffer(-1); fail() } catch { case ex:IllegalArgumentException => None }
-			try { new RawBuffer(-10); fail() } catch { case ex:IllegalArgumentException => None }
+			try { new RawBuffer("unit test", 0); fail() } catch { case ex:IllegalArgumentException => None }
+			try { new RawBuffer("unit test", -1); fail() } catch { case ex:IllegalArgumentException => None }
+			try { new RawBuffer("unit test", -10); fail() } catch { case ex:IllegalArgumentException => None }
 		}
 
 	}
@@ -45,13 +45,13 @@ class RawBufferSpec extends FunSpec {
 	describe("バッファのクリア"){
 
 		it("空のバッファに対するクリア操作"){
-			val buffer = new RawBuffer()
+			val buffer = new RawBuffer("unit test")
 			buffer.clear()
 			assert(buffer.length == 0)
 		}
 
 		it("有効なデータの入っているバッファに対するクリア操作"){
-			val buffer = new RawBuffer()
+			val buffer = new RawBuffer("unit test")
 			buffer.enqueue("ABCDEFG".getBytes())
 			assert(buffer.length == 7)
 			buffer.clear()
@@ -64,8 +64,8 @@ class RawBufferSpec extends FunSpec {
 		it("バッファ全体指定の enqueue"){
 			for(i <- 1 to 10){
 				val b = randomBinary(i)							// 期待値
-				val buffer1 = new RawBuffer()
-				val buffer2 = new RawBuffer()
+				val buffer1 = new RawBuffer("unit test")
+				val buffer2 = new RawBuffer("unit test")
 				buffer1.enqueue(b)									// Array[Byte]版
 				buffer2.enqueue(ByteBuffer.wrap(b))	// ByteBuffer版
 				assertMatch(buffer1, b)
@@ -75,8 +75,8 @@ class RawBufferSpec extends FunSpec {
 
 		it("バッファサイズ指定の enqueue 連結"){
 			val expected = new ByteArrayOutputStream()
-			val buffer1 = new RawBuffer()
-			val buffer2 = new RawBuffer()
+			val buffer1 = new RawBuffer("unit test")
+			val buffer2 = new RawBuffer("unit test")
 			val limit = buffer1.capacity * 10			// バッファ容量拡張を伴う処理
 			while(expected.size() < limit){
 				for(offset <- 0 to 10){
@@ -100,7 +100,7 @@ class RawBufferSpec extends FunSpec {
 		it("バッファ全体に対する dequeue 操作"){
 			for(i <- 0 to 1024){							// 長さが 0 のケースも対応
 				val b = randomBinary(i)					// 期待値
-				val buffer = new RawBuffer()
+				val buffer = new RawBuffer("unit test")
 				buffer.enqueue(b)
 				assertMatch(buffer.dequeue(), b)
 				assert(buffer.length == 0)
@@ -110,7 +110,7 @@ class RawBufferSpec extends FunSpec {
 		it("バッファの一部に対する dequeue 操作"){
 			for(i <- 0 to 1024){							// 長さが 0 のケースも対応
 				val b = randomBinary(i + 100)		// 期待値
-				val buffer = new RawBuffer()
+				val buffer = new RawBuffer("unit test")
 				buffer.enqueue(b)
 				assertMatch(buffer.dequeue(i), b, 0, i)
 				assert(buffer.length == 100)
@@ -126,7 +126,7 @@ class RawBufferSpec extends FunSpec {
 		it("ブロッキング"){
 			val data1 = "hello, world".getBytes
 			val data2 = new Array[Byte](data1.length)
-			val buffer = new RawBuffer(1, 1)
+			val buffer = new RawBuffer("unit test", 1, 1)
 			scala.actors.Actor.actor {
 				// 1 バイト当たり 0.5 秒かけて読み込むスレッド
 				for(i <- 0 until data2.length){
@@ -144,7 +144,7 @@ class RawBufferSpec extends FunSpec {
 			val actual = System.currentTimeMillis() - start
 			val expected = 500 * data1.length
 			val error = scala.math.abs(expected - actual) / expected.toDouble
-			assert(error < 0.01, error)		// 誤差 1% 以内
+			assert(error < 0.10, error)		// 誤差 10% 以内
 			scala.actors.Actor.exit()
 
 			// enqueue したデータが dequeue できていること
