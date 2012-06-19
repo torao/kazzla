@@ -16,7 +16,7 @@ import scala.actors.Actor
  * @author Takami Torao
  */
 class RawBufferSpec extends FunSpec {
-/*
+
 	describe("コンストラクタ"){
 
 		it("デフォルトのバッファ容量 4kB 確認"){
@@ -121,7 +121,7 @@ class RawBufferSpec extends FunSpec {
 		}
 
 	}
-*/
+
 	describe("ブロッキング操作"){
 
 		it("バッファフル状態でのブロッキング"){
