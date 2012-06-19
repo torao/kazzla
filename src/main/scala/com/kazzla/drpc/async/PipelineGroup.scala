@@ -17,7 +17,7 @@ import java.nio.ByteBuffer
  * パイプラインのスレッドプール
  * @author Takami Torao
  */
-class PipelineGroup extends Closeable with AutoCloseable{
+class PipelineGroup extends Closeable with java.lang.AutoCloseable{
 	import PipelineGroup.logger
 
 	// ========================================================================

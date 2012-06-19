@@ -19,7 +19,7 @@ import java.nio.ByteBuffer
  * @param sink データ読み出し時に呼び出す関数。パイプラインの入力チャネルが EOF に達して
  *             いる場合は null パラメータで呼び出される。
  */
-abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with AutoCloseable{
+abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with java.lang.AutoCloseable{
 	import Pipeline.logger
 
 	// I/O を非ブロッキングモードに設定

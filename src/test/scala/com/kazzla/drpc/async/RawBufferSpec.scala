@@ -7,6 +7,7 @@ import org.scalatest.FunSpec
 import java.util.Arrays
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
+import scala.actors.Actor
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // RawBufferSpec
@@ -15,7 +16,7 @@ import java.nio.ByteBuffer
  * @author Takami Torao
  */
 class RawBufferSpec extends FunSpec {
-
+/*
 	describe("コンストラクタ"){
 
 		it("デフォルトのバッファ容量 4kB 確認"){
@@ -120,35 +121,42 @@ class RawBufferSpec extends FunSpec {
 		}
 
 	}
-
+*/
 	describe("ブロッキング操作"){
 
-		it("ブロッキング"){
+		it("バッファフル状態でのブロッキング"){
 			val data1 = "hello, world".getBytes
 			val data2 = new Array[Byte](data1.length)
 			val buffer = new RawBuffer("unit test", 1, 1)
-			scala.actors.Actor.actor {
-				// 1 バイト当たり 0.5 秒かけて読み込むスレッド
-				for(i <- 0 until data2.length){
-					Thread.sleep(500)
-					val b = buffer.dequeue(1)
-					assert(b.remaining() == 1)
-					val b1 = data1(i)
-					val b2 = b.get()
-					logger.debug("%s <-> %s".format(b1.toChar, b2.toChar))
-					data2(i) = b2
+			val actor = new Actor {
+				def act() {
+					// 1 バイト当たり 0.5 秒かけて読み込むスレッド
+					for(i <- 0 until data2.length){
+						Thread.sleep(500)
+						val b = buffer.dequeue(1)
+						assert(b.remaining() == 1, b.remaining())
+						val b1 = data1(i)
+						val b2 = b.get()
+						logger.debug("%s <-> %s".format(b1.toChar, b2.toChar))
+						data2(i) = b2
+					}
+					react {
+						case e => reply("ok")
+					}
 				}
 			}
+			actor.start()
 			val start = System.currentTimeMillis()
 			buffer.enqueue(data1)
 			val actual = System.currentTimeMillis() - start
 			val expected = 500 * data1.length
 			val error = scala.math.abs(expected - actual) / expected.toDouble
 			assert(error < 0.10, error)		// 誤差 10% 以内
-			scala.actors.Actor.exit()
+			// scala.actors.Actor.exit()
 
 			// enqueue したデータが dequeue できていること
-			assert(data1 == data2, new String(data2))
+			actor !? "exit"
+			assert(Arrays.equals(data1, data2), new String(data2))
 		}
 
 	}

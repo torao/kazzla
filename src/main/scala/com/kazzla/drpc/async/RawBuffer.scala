@@ -175,10 +175,11 @@ class RawBuffer(val name:String, val initialSize:Int, val limitSize:Int, val blo
 				}).mkString("\"", "", "\"") + " (" + len + "B)")
 			}
 			*/
-			logger.trace("offset=%d, length=%d".format(_offset, _length))
 			System.arraycopy(buffer, offset + concat, binary, _offset + _length, len)
+
 			this._length += len
 			concat += len
+			RawBuffer.dump(this)
 		}
 	}
 
@@ -196,6 +197,7 @@ class RawBuffer(val name:String, val initialSize:Int, val limitSize:Int, val blo
 			buffer.get(binary, _offset + _length, len)
 			this._length += len
 		} while(buffer.remaining() > 0)
+		RawBuffer.dump(this)
 	}
 
 	// ========================================================================
@@ -213,21 +215,25 @@ class RawBuffer(val name:String, val initialSize:Int, val limitSize:Int, val blo
 	// ========================================================================
 	/**
 	 * このインスタンスが保持しているバイナリから指定された長さを取得します。
-	 * 指定サイズが現在のバッファ内の有効サイズより大きい場合は例外が発生します。
+	 * 指定サイズが現在のバッファ内の有効サイズより大きい場合は有効なデータが到着するまで
+	 * 待機します。
 	 * @return 指定されたサイズのバッファ
 	 */
 	def dequeue(size:Int):ByteBuffer = mutex.synchronized{
-		if(size > _length || size < 0){
-			throw new IllegalArgumentException("invalid dequeue size: " + size + ", max " + _length)
+		// TODO busy loop! This should wait until buffered data available.
+		val buffer = ByteBuffer.allocate(size)
+		while(buffer.position() < size){
+			val len = scala.math.min(_length, buffer.remaining())
+			buffer.put(binary, _offset, len)
+			_length -= len
+			if(_length == 0){
+				_offset = 0
+			} else {
+				_offset += size
+			}
+			mutex.notify()
 		}
-		val buffer = ByteBuffer.wrap(binary, _offset, size)
-		_length -= size
-		if(_length == 0){
-			_offset = 0
-		} else {
-			_offset += size
-		}
-		mutex.notify()
+		buffer.flip()
 		buffer
 	}
 
@@ -302,4 +308,28 @@ class RawBuffer(val name:String, val initialSize:Int, val limitSize:Int, val blo
 
 object RawBuffer {
 	val logger = Logger.getLogger(classOf[RawBuffer])
+
+	private[async] def dump(buffer:RawBuffer){
+		if(logger.isTraceEnabled){
+			for(j <- 0 until buffer.length by 16){
+				val hex = (for(i <- 0 until 16) yield {
+					if(j + i < buffer.length){
+						"%02X".format(buffer.raw.apply(buffer.offset + j + i) & 0xFF)
+					} else {
+						"  "
+					}
+				}).mkString(" ")
+				val asc = (for(i <- 0 until 16) yield {
+					if(j + i < buffer.length){
+						val b = buffer.raw.apply(buffer.offset + j + i) & 0xFF
+						if(b >= ' ' && b < 0x7F)	b.toChar
+						else											'.'
+					} else {
+						" "
+					}
+				}).mkString("")
+				logger.trace("%04X: %s | %s".format(j, hex, asc))
+			}
+		}
+	}
 }
