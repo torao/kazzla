@@ -76,7 +76,6 @@ class RawBuffer(val name:String, val initialSize:Int, val limitSize:Int, val blo
 	/**
 	 * このバッファ上で enqueue 待ちが発生した回数です。Int 値の範囲で循環します。
 	 */
-	@volatile
 	private[this] var _blockingCount:Int = 0
 
 	// ========================================================================
@@ -220,21 +219,46 @@ class RawBuffer(val name:String, val initialSize:Int, val limitSize:Int, val blo
 	 * @return 指定されたサイズのバッファ
 	 */
 	def dequeue(size:Int):ByteBuffer = mutex.synchronized{
-		// TODO busy loop! This should wait until buffered data available.
 		val buffer = ByteBuffer.allocate(size)
-		while(buffer.position() < size){
-			val len = scala.math.min(_length, buffer.remaining())
-			buffer.put(binary, _offset, len)
-			_length -= len
-			if(_length == 0){
-				_offset = 0
-			} else {
-				_offset += size
-			}
-			mutex.notify()
+		if(size > 0){
+			dequeue(buffer)
+			buffer.flip()
 		}
-		buffer.flip()
 		buffer
+	}
+
+	// ========================================================================
+	// バイナリデータの取得
+	// ========================================================================
+	/**
+	 * このインスタンスが保持している内部バッファから指定されたバッファへデータを移動します。
+	 * @param buffer 内部バッファの戦闘データを移動するバッファ
+	 */
+	@tailrec
+	private[this] def dequeue(buffer:ByteBuffer):Unit = {
+		assert(buffer.remaining() != 0)
+
+		// 内部バッファから可能なだけのデータをバッファへ移動
+		val len = scala.math.min(_length, buffer.remaining())
+		buffer.put(binary, _offset, len)
+		_length -= len
+		if(_length == 0){
+			_offset = 0
+		} else {
+			_offset += len
+		}
+
+		// バッファに空きができたことを通知
+		mutex.notify()
+
+		// バッファがいっぱいになったら終了
+		if(buffer.remaining() == 0){
+			return
+		}
+
+		// TODO busy loop! This should wait until buffered data available.
+		try { Thread.sleep(100) } catch { case ex:InterruptedException => None }
+		dequeue(buffer)
 	}
 
 	// ========================================================================

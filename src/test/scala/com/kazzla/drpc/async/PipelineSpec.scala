@@ -17,7 +17,7 @@ import java.net.InetSocketAddress
  */
 class PipelineSpec extends FunSpec {
 
-	describe("パイプラインコンテキスト"){
+	describe("パイプライングループ"){
 
 		it("コンストラクタ"){
 			val group = new PipelineGroup()
@@ -27,7 +27,7 @@ class PipelineSpec extends FunSpec {
 		}
 	}
 
-	describe("非同期ソケット"){
+	describe("非同期ソケット通信"){
 
 		it("Google と HTTP/1.0 通信可能"){
 			val client = new Client()

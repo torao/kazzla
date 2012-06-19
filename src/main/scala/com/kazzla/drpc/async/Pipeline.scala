@@ -85,17 +85,17 @@ abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with java.lan
 	def write(buffer:Array[Byte], offset:Int, length:Int):Unit = {
 
 		// 送信キューに送信データを連結
-		val (old,next) = writeQueue.synchronized{
+		val needNotify = writeQueue.synchronized{
 			val old = writeQueue.length
 			writeQueue.enqueue(buffer, offset, length)
-			(old, writeQueue.length)
+			(old == 0 && writeQueue.length > 0)
 		}
 		if(logger.isTraceEnabled){
-			logger.trace("enqueued %,d bytes into buffer, totally %,d bytes".format(length, next))
+			logger.trace("enqueued %,d bytes into buffer, totally %,d bytes".format(length, writeQueue.length))
 		}
 
 		// 送信待機中のデータが発生したらチャネルの書き込み可能通知を受ける
-		if(old == 0 && next > 0){
+		if(needNotify){
 			synchronized{
 				onWaitingToWrite(true)
 			}
