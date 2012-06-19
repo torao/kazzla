@@ -5,6 +5,8 @@ package com.kazzla.drpc.async
 
 import java.nio.ByteBuffer
 import annotation.tailrec
+import org.apache.log4j.Logger
+import java.io.IOException
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // RawBuffer
@@ -15,17 +17,25 @@ import annotation.tailrec
  * 初期バッファ容量に 0 以下の値を指定すると例外が発生します。
  * 内部バッファが上限容量を超える書き込みが行われようとした場合、バッファ内に有効な空き
  * 容量ができるまで書き込み処理がブロックされます。
+ * 処理がブロックされた状態でブロック時間の上限を超えてもバッファに空きができない場合は
+ * 例外が発生します。
  * @author Takami Torao
+ * @param name バッファの名前(ログ出力用)
  * @param initialSize 内部バッファの初期容量
  * @param limitSize 内部バッファの上限容量
+ * @param blockingLimit ブロック時間の上限 (ミリ秒)。0 を指定した場合は無制限
  * @throws IllegalArgumentException initialSize に 0 以下の値が指定された場合
  */
-class RawBuffer(initialSize:Int, limitSize:Int) {
-	// TODO buffer size limit need to block enqueue
+class RawBuffer(val name:String, val initialSize:Int, val limitSize:Int, val blockingLimit:Long) {
+	import RawBuffer.logger
+	// TODO 拡張したバッファの縮小
 
 	// 初期バッファサイズの確認
 	if(initialSize <= 0){
 		throw new IllegalArgumentException("invalid initial buffer size: " + initialSize)
+	}
+	if(blockingLimit < 0){
+		throw new IllegalArgumentException("invalid block limit: " + blockingLimit)
 	}
 
 	// ========================================================================
@@ -34,7 +44,7 @@ class RawBuffer(initialSize:Int, limitSize:Int) {
 	/**
 	 * 初期状態で 4kB のバッファ容量を持つインスタンスを構築します。
 	 */
-	def this() = this(4 * 1024, Int.MaxValue)
+	def this(name:String) = this(name, 4 * 1024, Int.MaxValue, 0)
 
 	// ========================================================================
 	// コンストラクタ
@@ -42,7 +52,15 @@ class RawBuffer(initialSize:Int, limitSize:Int) {
 	/**
 	 * 指定された初期サイズのバッファ容量を持つインスタンスを構築します。
 	 */
-	def this(initialSize:Int) = this(initialSize, Int.MaxValue)
+	def this(name:String, initialSize:Int) = this(name, initialSize, Int.MaxValue, 0)
+
+	// ========================================================================
+	// コンストラクタ
+	// ========================================================================
+	/**
+	 * 指定された初期サイズのバッファ容量を持つインスタンスを構築します。
+	 */
+	def this(name:String, initialSize:Int, limitSize:Int) = this(name, initialSize, limitSize, 0)
 
 	// ========================================================================
 	// Mutex
@@ -89,7 +107,8 @@ class RawBuffer(initialSize:Int, limitSize:Int) {
 	// バッファの参照
 	// ========================================================================
 	/**
-	 * バイナリデータのバッファを直接参照します。
+	 * バイナリデータのバッファを直接参照します。このバッファへの変更操作はこのインスタンス
+	 * が保持する内部バッファへ影響を与えます。
 	 */
 	def raw:Array[Byte] = binary
 
@@ -141,7 +160,7 @@ class RawBuffer(initialSize:Int, limitSize:Int) {
 	/**
 	 * 指定されたバイナリデータをこのバッファに連結します。
 	 * 長さに 0 を指定した場合は何も起きません。
-	 * @param buffer バッファ	
+	 * @param buffer バッファ
 	 * @param offset バッファ内での連結データの開始位置
 	 * @param length 連結データの長さ
 	 */
@@ -224,11 +243,13 @@ class RawBuffer(initialSize:Int, limitSize:Int) {
 	}
 
 	// ========================================================================
-	// バッファサイズの保証
+	// バッファサイズの要求
 	// ========================================================================
 	/**
-	 * このインスタンスが保持しているバッファの有効領域へ指定されたサイズのバイナリデータを
-	 * 連結できることを保証します。
+	 * このインスタンスが保持しているバッファから指定されたサイズの領域を要求します。呼び出
+	 * し側は現在のオフセットから返値が示す長さのデータを格納することができます。
+	 * 内部バッファを上限まで使い尽くしている場合、このメソッドは処理をブロックして空きが
+	 * 発生するまで待機します。
 	 * @param len 連結する長さ
 	 */
 	@tailrec
@@ -239,29 +260,46 @@ class RawBuffer(initialSize:Int, limitSize:Int) {
 		if(_offset + _length < binary.length){
 			return scala.math.min(len, binary.length - _offset - _length)
 		}
+		assert(_offset + _length == binary.length)
 
 		// オフセットを調整すれば空きができる場合
 		if(_offset > 0){
 			val available = _offset
 			System.arraycopy(binary, _offset, binary, 0, this._length)
 			_offset = 0
-			return scala.math.min(len, binary.length - _length)
+			return scala.math.min(len, available)
 		}
+		assert(_length == binary.length)
 
 		// バッファの拡張が可能な場合
 		if(binary.length < limitSize){
 			val newBufferSize = scala.math.min(((_length + len) * 1.25).toInt, limitSize)
+			if(logger.isTraceEnabled){
+				logger.trace("[%s] expanding buffer space from %,d to %,d bytes".format(name, binary.length, newBufferSize))
+			}
 			val temp = new Array[Byte](newBufferSize)
 			System.arraycopy(binary, _offset, temp, 0, this._length)
 			binary = temp
 			assert(_offset == 0)
 			return scala.math.min(len, binary.length - _length)
 		}
+		assert(binary.length == limitSize)
+		if(logger.isDebugEnabled){
+			logger.debug("[%s] %,d bytes buffer full, waiting buffer space".format(name, limitSize))
+		}
 
 		// バッファに空きができるまで待機して再実行
 		_blockingCount += 1
-		mutex.wait()
+		assert(blockingLimit >= 0)
+		mutex.wait(blockingLimit)
+		if(_length == limitSize){
+			throw new IOException("blocking timed out for buffer \"%s\"; %,dmsec".format(name, blockingLimit))
+		}
 		requireAndWait(len)
 	}
 
+}
+
+object RawBuffer {
+	val logger = Logger.getLogger(classOf[RawBuffer])
 }

@@ -3,7 +3,7 @@
  */
 package com.kazzla.drpc
 
-import async.{RawBuffer, AsyncSocket, AsyncSocketListener}
+import async.{RawBuffer, SocketPipeline}
 import java.nio.channels.SocketChannel
 import java.nio.ByteBuffer
 import annotation.tailrec
@@ -26,8 +26,8 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 	/**
 	 * このピアと通信するための非同期ソケットです。
 	 */
-	private[this] val socket = new AsyncSocket(channel)
-	node.context.join(socket)
+	private[this] val socket = new SocketPipeline(channel, new Listener().asyncDataReceived)
+	node.context.begin(socket)
 
 	// ========================================================================
 	// 処理中タスクマップ
@@ -122,7 +122,7 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 			if(! tasks.contains(id)){
 				val future = new Future(id)
 				tasks += (id -> future)
-				socket.send(node.protocol.pack(Protocol.Call(id, timeout, name, args:_*)))
+				socket.write(node.protocol.pack(Protocol.Call(id, timeout, name, args:_*)))
 				return future
 			}
 		}
@@ -268,7 +268,7 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 	/**
 	 * @author Takami Torao
 	 */
-	private[Peer] class Listener extends AsyncSocketListener {
+	private[Peer] class Listener {
 
 		// ====================================================================
 		// サービス
@@ -283,8 +283,9 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 		// ====================================================================
 		/**
 		 * 受信データのバッファです。
+		 * TODO バッファの名前
 		 */
-		private[this] val receiveBuffer = new RawBuffer(4 * 1024)
+		private[this] val receiveBuffer = new RawBuffer("peer", 4 * 1024)
 
 		// ====================================================================
 		//
@@ -313,15 +314,6 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 					remoteResult(result)
 			}
 		}
-
-		// ====================================================================
-		// ソケットのクローズ
-		// ====================================================================
-		/**
-		 * このリスナがバインドされている非同期ソケットがクローズされた時に呼び出されます。
-		 * @param socket クローズされたソケット
-		 */
-		def asyncSocketClosed(socket:AsyncSocket):Unit = None
 
 	}
 
