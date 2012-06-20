@@ -33,7 +33,7 @@ class PipelineSpec extends FunSpec {
 			val client = new Client()
 			val group = new PipelineGroup()
 			val channel = SocketChannel.open(new InetSocketAddress("www.google.com", 80))
-			val socket = new SocketPipeline(channel, client.capture)
+			val socket = Pipeline.newPipeline(channel)(client.capture)
 			group.begin(socket)
 			socket.write("GET / HTTP/1.0\r\nConnection:close\r\nHost:www.google.com\r\n\r\n".getBytes)
 			val content = client()

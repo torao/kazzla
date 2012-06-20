@@ -15,9 +15,16 @@ import java.nio.ByteBuffer
 /**
  * 非同期入出力を行うためのクラスです。
  * パイプラインの入力チャネルが EOF に達している場合でも内部での自動クローズは行われません。
+ * <p>
+ * sink パラメータはこのパイプラインが非同期に読みだしたデータを渡すコールバック関数です。
+ * 関数の呼び出しはディスパッチャースレッド内で行われるため関数は直ちに終了する必要があります。
+ * 関数は入力データバッファや処理を起動するためのワーカースレッドプールを実装する必要があり
+ * ます。パイプラインの入力が EOF に達した場合、Sink 関数 null パラメータ付きで呼び出され
+ * ます。
+ * </p>
  * @author Takami Torao
- * @param sink データ読み出し時に呼び出す関数。パイプラインの入力チャネルが EOF に達して
- *             いる場合は null パラメータで呼び出される。
+ * @param sink function to callback when asynchronouse data is read on this
+ *             pipeline. Null will pass in case input reaches EOF.
  */
 abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with java.lang.AutoCloseable{
 	import Pipeline.logger
@@ -270,5 +277,85 @@ abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with java.lan
 }
 
 object Pipeline {
-	val logger = Logger.getLogger(classOf[Pipeline])
+	private[async] val logger = Logger.getLogger(classOf[Pipeline])
+
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// DefaultPipeline
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	/**
+	 * デフォルトのパイプライン。
+	 */
+	private[this] class DefaultPipeline(
+		_in:SelectableChannel with ReadableByteChannel,
+		_out:SelectableChannel with WritableByteChannel,
+		sink:(ByteBuffer)=>Unit) extends Pipeline(sink){
+
+		// ======================================================================
+		// 入力元の参照
+		// ======================================================================
+		/**
+		 * 入力元を参照します。
+		 */
+		def in:SelectableChannel with ReadableByteChannel = _in
+
+		// ======================================================================
+		// 出力先の参照
+		// ======================================================================
+		/**
+		 * このパイプラインの出力先を参照します。
+		 */
+		def out:SelectableChannel with WritableByteChannel = out
+
+		// ======================================================================
+		// パイプラインのクローズ
+		// ======================================================================
+		/**
+		 * このパイプラインをクローズします。
+		 * スーパークラスのメソッドではセレクタへ登録されているキーを解放する
+		 */
+		override def close():Unit = {
+			super.close()
+			try{
+				_in.close()
+			} catch {
+				case ex:IOException => logger.error("fail to close input", ex)
+			}
+			try{
+				_out.close()
+			} catch {
+				case ex:IOException => logger.error("fail to close input", ex)
+			}
+		}
+
+	}
+
+	// ========================================================================
+	// パイプラインの構築
+	// ========================================================================
+	/**
+	 * 指定された非同期入出力チャネルを使用するパイプラインを構築するためのユーティリティ
+	 * メソッドです。
+	 * @param in 非同期入力チャネル
+	 * @param out 非同期出力チャネル
+	 * @param sink 入力データの通知先関数
+	 * @return パイプライン
+	 */
+	def newPipeline(in:SelectableChannel with ReadableByteChannel, out:SelectableChannel with WritableByteChannel)(sink:(ByteBuffer)=>Unit):Pipeline = {
+		new DefaultPipeline(in, out, sink)
+	}
+
+	// ========================================================================
+	// パイプラインの構築
+	// ========================================================================
+	/**
+	 * 指定された非同期入出力チャネルを使用するパイプラインを構築するためのユーティリティ
+	 * メソッドです。
+	 * @param channel 非同期入出力チャネル
+	 * @param sink 入力データの通知先関数
+	 * @return パイプライン
+	 */
+	def newPipeline(channel:SelectableChannel with ReadableByteChannel with WritableByteChannel)(sink:(ByteBuffer)=>Unit):Pipeline = {
+		newPipeline(channel, channel)(sink)
+	}
+
 }

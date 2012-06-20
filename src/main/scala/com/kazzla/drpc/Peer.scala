@@ -3,7 +3,7 @@
  */
 package com.kazzla.drpc
 
-import async.{RawBuffer, SocketPipeline}
+import async.{Pipeline, RawBuffer}
 import java.nio.channels.SocketChannel
 import java.nio.ByteBuffer
 import annotation.tailrec
@@ -26,7 +26,7 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 	/**
 	 * このピアと通信するための非同期ソケットです。
 	 */
-	private[this] val socket = new SocketPipeline(channel, new Listener().asyncDataReceived)
+	private[this] val socket = Pipeline.newPipeline(channel)(new Listener().asyncDataReceived)
 	node.context.begin(socket)
 
 	// ========================================================================
