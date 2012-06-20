@@ -3,10 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="a1d58914-f30a-4b91-ab07-d81a653537e1" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.sbt" afterPath="$PROJECT_DIR$/build.sbt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kazzla.iml" afterPath="$PROJECT_DIR$/kazzla.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/package.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/package.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/package.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/package.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Pipeline.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Pipeline.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/PipelineGroup.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/PipelineGroup.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/RawBuffer.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/RawBuffer.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/PipelineSpec.scala" afterPath="$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/PipelineSpec.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/RawBufferSpec.scala" afterPath="$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/RawBufferSpec.scala" />
     </list>
     <ignored path="wiredrive.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -84,7 +85,7 @@
       <file leaf-file-name="Pipeline.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Pipeline.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="225" column="52" selection-start="6408" selection-end="6408" vertical-scroll-proportion="0.0">
+            <state line="225" column="52" selection-start="6432" selection-end="6432" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="n#!!doc" expanded="true" />
               </folding>
@@ -128,10 +129,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Node.scala" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Node.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Node.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="5" column="13" selection-start="161" selection-end="161" vertical-scroll-proportion="0.016049383">
+            <state line="5" column="13" selection-start="161" selection-end="161" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RawBuffer.scala" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/RawBuffer.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="333" column="17" selection-start="10131" selection-end="10131" vertical-scroll-proportion="5.2641973">
               <folding />
             </state>
           </provider>
@@ -161,12 +171,12 @@
         <option value="$PROJECT_DIR$/src/test/resources/log4j.properties" />
         <option value="$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/RawBufferSpec.scala" />
         <option value="$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/PipelineSpec.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/RawBuffer.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/PipelineGroup.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Pipeline.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/package.scala" />
         <option value="$PROJECT_DIR$/build.sbt" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/package.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/RawBuffer.scala" />
       </list>
     </option>
   </component>
@@ -392,6 +402,108 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="kazzla" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="drpc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="drpc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="async" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="drpc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="async" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="RawBuffer.scala" />
+              <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -837,7 +949,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/Pipeline.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="225" column="52" selection-start="6408" selection-end="6408" vertical-scroll-proportion="0.0">
+        <state line="225" column="52" selection-start="6432" selection-end="6432" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="n#!!doc" expanded="true" />
           </folding>
@@ -865,16 +977,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/RawBuffer.scala">
+    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Node.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="256" column="35" selection-start="8129" selection-end="8129" vertical-scroll-proportion="0.13333334">
+        <state line="5" column="13" selection-start="161" selection-end="161" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Node.scala">
+    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/RawBuffer.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="13" selection-start="161" selection-end="161" vertical-scroll-proportion="0.016049383">
+        <state line="333" column="17" selection-start="10131" selection-end="10131" vertical-scroll-proportion="5.2641973">
           <folding />
         </state>
       </provider>

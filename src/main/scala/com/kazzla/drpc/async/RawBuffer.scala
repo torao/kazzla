@@ -76,7 +76,6 @@ class RawBuffer(val name:String, val initialSize:Int, val limitSize:Int, val blo
 	/**
 	 * このバッファ上で enqueue 待ちが発生した回数です。Int 値の範囲で循環します。
 	 */
-	@volatile
 	private[this] var _blockingCount:Int = 0
 
 	// ========================================================================
@@ -175,10 +174,11 @@ class RawBuffer(val name:String, val initialSize:Int, val limitSize:Int, val blo
 				}).mkString("\"", "", "\"") + " (" + len + "B)")
 			}
 			*/
-			logger.trace("offset=%d, length=%d".format(_offset, _length))
 			System.arraycopy(buffer, offset + concat, binary, _offset + _length, len)
+
 			this._length += len
 			concat += len
+			RawBuffer.dump(this)
 		}
 	}
 
@@ -196,6 +196,7 @@ class RawBuffer(val name:String, val initialSize:Int, val limitSize:Int, val blo
 			buffer.get(binary, _offset + _length, len)
 			this._length += len
 		} while(buffer.remaining() > 0)
+		RawBuffer.dump(this)
 	}
 
 	// ========================================================================
@@ -213,22 +214,51 @@ class RawBuffer(val name:String, val initialSize:Int, val limitSize:Int, val blo
 	// ========================================================================
 	/**
 	 * このインスタンスが保持しているバイナリから指定された長さを取得します。
-	 * 指定サイズが現在のバッファ内の有効サイズより大きい場合は例外が発生します。
+	 * 指定サイズが現在のバッファ内の有効サイズより大きい場合は有効なデータが到着するまで
+	 * 待機します。
 	 * @return 指定されたサイズのバッファ
 	 */
 	def dequeue(size:Int):ByteBuffer = mutex.synchronized{
-		if(size > _length || size < 0){
-			throw new IllegalArgumentException("invalid dequeue size: " + size + ", max " + _length)
+		val buffer = ByteBuffer.allocate(size)
+		if(size > 0){
+			dequeue(buffer)
+			buffer.flip()
 		}
-		val buffer = ByteBuffer.wrap(binary, _offset, size)
-		_length -= size
+		buffer
+	}
+
+	// ========================================================================
+	// バイナリデータの取得
+	// ========================================================================
+	/**
+	 * このインスタンスが保持している内部バッファから指定されたバッファへデータを移動します。
+	 * @param buffer 内部バッファの戦闘データを移動するバッファ
+	 */
+	@tailrec
+	private[this] def dequeue(buffer:ByteBuffer):Unit = {
+		assert(buffer.remaining() != 0)
+
+		// 内部バッファから可能なだけのデータをバッファへ移動
+		val len = scala.math.min(_length, buffer.remaining())
+		buffer.put(binary, _offset, len)
+		_length -= len
 		if(_length == 0){
 			_offset = 0
 		} else {
-			_offset += size
+			_offset += len
 		}
+
+		// バッファに空きができたことを通知
 		mutex.notify()
-		buffer
+
+		// バッファがいっぱいになったら終了
+		if(buffer.remaining() == 0){
+			return
+		}
+
+		// TODO busy loop! This should wait until buffered data available.
+		try { Thread.sleep(100) } catch { case ex:InterruptedException => None }
+		dequeue(buffer)
 	}
 
 	// ========================================================================
@@ -302,4 +332,28 @@ class RawBuffer(val name:String, val initialSize:Int, val limitSize:Int, val blo
 
 object RawBuffer {
 	private[async] val logger = Logger.getLogger(classOf[RawBuffer])
+
+	private[async] def dump(buffer:RawBuffer){
+		if(logger.isTraceEnabled){
+			for(j <- 0 until buffer.length by 16){
+				val hex = (for(i <- 0 until 16) yield {
+					if(j + i < buffer.length){
+						"%02X".format(buffer.raw.apply(buffer.offset + j + i) & 0xFF)
+					} else {
+						"  "
+					}
+				}).mkString(" ")
+				val asc = (for(i <- 0 until 16) yield {
+					if(j + i < buffer.length){
+						val b = buffer.raw.apply(buffer.offset + j + i) & 0xFF
+						if(b >= ' ' && b < 0x7F)	b.toChar
+						else											'.'
+					} else {
+						" "
+					}
+				}).mkString("")
+				logger.trace("%04X: %s | %s".format(j, hex, asc))
+			}
+		}
+	}
 }

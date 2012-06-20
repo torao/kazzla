@@ -19,7 +19,7 @@ import java.nio.ByteBuffer
  * @param sink データ読み出し時に呼び出す関数。パイプラインの入力チャネルが EOF に達して
  *             いる場合は null パラメータで呼び出される。
  */
-abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with AutoCloseable{
+abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with java.lang.AutoCloseable{
 	import Pipeline.logger
 
 	// I/O を非ブロッキングモードに設定
@@ -85,17 +85,17 @@ abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with AutoClos
 	def write(buffer:Array[Byte], offset:Int, length:Int):Unit = {
 
 		// 送信キューに送信データを連結
-		val (old,next) = writeQueue.synchronized{
+		val needNotify = writeQueue.synchronized{
 			val old = writeQueue.length
 			writeQueue.enqueue(buffer, offset, length)
-			(old, writeQueue.length)
+			(old == 0 && writeQueue.length > 0)
 		}
 		if(logger.isTraceEnabled){
-			logger.trace("enqueued %,d bytes into buffer, totally %,d bytes".format(length, next))
+			logger.trace("enqueued %,d bytes into buffer, totally %,d bytes".format(length, writeQueue.length))
 		}
 
 		// 送信待機中のデータが発生したらチャネルの書き込み可能通知を受ける
-		if(old == 0 && next > 0){
+		if(needNotify){
 			synchronized{
 				onWaitingToWrite(true)
 			}
