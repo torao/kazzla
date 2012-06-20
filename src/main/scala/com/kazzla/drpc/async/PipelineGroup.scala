@@ -51,7 +51,7 @@ class PipelineGroup extends Closeable with java.lang.AutoCloseable{
 	/**
 	 * 実行中のディスパッチャースレッドです。
 	 */
-	private[this] var workers = List[Dispatcher]()
+	private[this] var dispatchers = List[Dispatcher]()
 
 	// ========================================================================
 	// 起動中のディスパッチャースレッド数
@@ -59,7 +59,7 @@ class PipelineGroup extends Closeable with java.lang.AutoCloseable{
 	/**
 	 * 実行中のディスパッチャースレッド数を参照します。
 	 */
-	def activeThreads:Int = workers.foldLeft(0){ (n,w) => n + (if(w.isAlive) 1 else 0) }
+	def activeThreads:Int = dispatchers.foldLeft(0){ (n,w) => n + (if(w.isAlive) 1 else 0) }
 
 	// ========================================================================
 	// パイプライン数
@@ -67,7 +67,7 @@ class PipelineGroup extends Closeable with java.lang.AutoCloseable{
 	/**
 	 * 接続中のパイプライン数を参照します。
 	 */
-	def activePipelines:Int = workers.foldLeft(0){ _ + _.activePipeilnes }
+	def activePipelines:Int = dispatchers.foldLeft(0){ _ + _.activePipeilnes }
 
 	// ========================================================================
 	// パイプライン処理の開始
@@ -77,15 +77,15 @@ class PipelineGroup extends Closeable with java.lang.AutoCloseable{
 	 * @param pipeline このグループで処理を開始するパイプライン
 	 */
 	def begin(pipeline:Pipeline):Unit = synchronized{
-		if(workers.find{ _.join(pipeline) }.isEmpty){
+		if(dispatchers.find{ _.join(pipeline) }.isEmpty){
 			// 既に停止しているスレッドを除去
-			workers = workers.filter{ _.isAlive }
+			dispatchers = dispatchers.filter{ _.isAlive }
 			// 新しいスレッドを作成
 			logger.debug("creating new worker thread: " + activePipelines + " + 1 sockets")
-			val worker = new Dispatcher()
-			workers ::= worker
-			worker.start()
-			val success = worker.join(pipeline)
+			val dispatcher = new Dispatcher(this)
+			dispatchers ::= dispatcher
+			dispatcher.start()
+			val success = dispatcher.join(pipeline)
 			if(! success){
 				throw new IllegalStateException()
 			}
@@ -103,7 +103,7 @@ class PipelineGroup extends Closeable with java.lang.AutoCloseable{
 	 * @return 指定されたパイプラインが切り離された場合 true
 	 */
 	def exit(pipeline:Pipeline):Boolean = synchronized{
-		workers.find{ worker => worker.leave(pipeline) }.isDefined
+		dispatchers.find{ _.leave(pipeline) }.isDefined
 	}
 
 	// ========================================================================
@@ -113,234 +113,37 @@ class PipelineGroup extends Closeable with java.lang.AutoCloseable{
 	 * このグループを終了します。
 	 */
 	override def close():Unit = synchronized {
-		workers.foreach{ worker =>
+		dispatchers.foreach{ worker =>
 			worker.closeAll()
 			worker.interrupt()
 		}
 	}
 
-	// TODO reboot and takeover thread that works specified times
-
-	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	// Dispatcher: ディスパッチャースレッド
-	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// ========================================================================
+	// パイプライン処理のクローズ
+	// ========================================================================
 	/**
-	 * 複数のパイプラインに対する非同期入出力処理を行うスレッドです。
-	 * @author Takami Torao
+	 * このグループを終了します。
 	 */
-	private[async] class Dispatcher extends Thread(threadGroup, "PipelineDispatcher") {
+	private[async] def takeOver(dispatcher:Dispatcher):Unit = {
 
-		// ======================================================================
-		// セレクター
-		// ======================================================================
-		/**
-		 * このインスタンスが使用するセレクターです。
-		 */
-		private[this] val selector = Selector.open()
-
-		// ======================================================================
-		// 接続キュー
-		// ======================================================================
-		/**
-		 * このディスパッチャーに新しいパイプラインを追加するためのキューです。
-		 */
-		private[this] val joinQueue = new Queue[Pipeline]()
-
-		// ======================================================================
-		// イベントループ中フラグ
-		// ======================================================================
-		/**
-		 * このディスパッチャーがイベントループ中かどうかを表すフラグです。
-		 */
-		private[this] val inEventLoop = new java.util.concurrent.atomic.AtomicBoolean(true)
-
-		// ======================================================================
-		// パイプライン数の参照
-		// ======================================================================
-		/**
-		 * このディスパッチャーが担当しているパイプライン数を参照します。
-		 */
-		def activePipeilnes:Int = selector.keys().size()
-
-		// ======================================================================
-		// パイプラインの追加
-		// ======================================================================
-		/**
-		 * このディスパッチャーにパイプラインを追加します。パイプライン数が 1 スレッドあたり
-		 * の上限に達している場合は何も行わず false を返します。
-		 * @param pipeline 追加するパイプライン
-		 * @return 追加できなかった場合 false
-		 */
-		def join(pipeline:Pipeline):Boolean = {
-			// イベントループが開始していない場合や担当ソケットがいっぱいの場合は false を返す
-			if(! inEventLoop.get() || ! isAlive || activePipeilnes >= maxSocketsPerThread){
-				return false
-			}
-			// スレッドのイベントループ内で追加しないと例外が発生する
-			joinQueue.synchronized{
-				joinQueue.enqueue(pipeline)
-			}
-			selector.wakeup()
-			true
+		// ディスパッチャーをリストから除去
+		synchronized{
+			dispatchers = dispatchers.filter{ _.ne(dispatcher) }
 		}
 
-		// ======================================================================
-		// パイプラインの切り離し
-		// ======================================================================
-		/**
-		 * 指定されたパイプラインをこのスレッドから切り離します。
-		 * 該当するパイプラインが存在しない場合は false を返します。
-		 * @param pipeline 除去するパイプライン
-		 * @return パイプラインを除去した場合 true
-		 */
-		def leave(pipeline:Pipeline):Boolean = {
-			selector.keys().foreach{ key =>
-				val pipeline = key.attachment().asInstanceOf[Pipeline]
-				if(pipeline.eq(pipeline)){
-					pipeline.register(None)
-					return true
-				}
-			}
-			false
-		}
-
-		// ======================================================================
-		// パイプラインの全クローズ
-		// ======================================================================
-		/**
-		 * このディスパッチャーが管理している全てのパイプラインをクローズします。
-		 */
-		def closeAll():Unit = {
-			selector.keys().foreach{ key =>
-				val pipeline = key.attachment().asInstanceOf[Pipeline]
-				try {
-					pipeline.close()
-				} catch {
-					case ex:Exception => logger.error("fail to close pipeline: " + pipeline, ex)
-				}
-			}
-		}
-
-		// ======================================================================
-		// スレッドの実行
-		// ======================================================================
-		/**
-		 * イベントディスパッチループを開始します。
-		 */
-		override def run():Unit = {
-			inEventLoop.set(true)
-			logger.debug("start async pipeline I/O dispatcher")
-
-			// データ入力用バッファを作成 (全パイプライン共用)
-			val inBuffer = ByteBuffer.allocate(readBufferSize)
-
-			while({ select(); inEventLoop.get() }){
-
-				val keys = selector.selectedKeys()
-				val it = keys.iterator()
-				while(it.hasNext){
-
-					// 入出力可能になっパイプラインを参照
-					val key = it.next()
-					it.remove()
-					val pipeline = key.attachment().asInstanceOf[Pipeline]
-					if(logger.isTraceEnabled){
-						logger.trace("selection state: %s -> %s".format(pipeline, PipelineGroup.sk2s(key)))
-					}
-
-					if(key.isReadable){
-						// データ入力処理の実行
-						try {
-							pipeline.read(inBuffer)
-						} catch {
-							case ex:Exception =>
-								logger.error("uncaught exception in read operation, closing connection", ex)
-								pipeline.close()
-						}
-					} else if (key.isWritable){
-						// データ出力処理の実行
-						try {
-							pipeline.write()
-						} catch {
-							case ex:Exception =>
-								logger.error("uncaught exception in write operation, closing connection", ex)
-								pipeline.close()
-						}
-					} else {
-						logger.warn("unexpected selection key state: 0x%X (%s)".format(key.readyOps(), PipelineGroup.sk2s(key)))
-					}
-				}
-			}
-
-			// このスレッドをリストから除去
-			PipelineGroup.this.synchronized {
-				workers = workers.filter{ _.ne(this) }
-			}
-
-			// スレッドが終了する前に全ての処理中の非同期ソケットを別のスレッドに割り当て
-			selector.keys().foreach{ key =>
-				val pipeline = key.attachment().asInstanceOf[Pipeline]
-				pipeline.register(None)
-				PipelineGroup.this.begin(pipeline)
-			}
-
-			logger.debug("exit async pipeline I/O dispatcher")
-		}
-
-		// ======================================================================
-		// 入出力可能チャネルの待機
-		// ======================================================================
-		/**
-		 * このディスパッチャーが管理しているパイプラインのいずれかが入出力可能になるまで待機
-		 * します。イベントループの終了を検知した場合は inEventLoop を false に設定し終了
-		 * します。
-		 */
-		private def select():Unit = {
-
-			// チャネルが送受信可能になるまで待機
-			try {
-				selector.select()
-				if(logger.isTraceEnabled){
-					logger.trace("async pipeline I/O dispatcher awake")
-				}
-			} catch {
-				case ex:IOException =>
-					logger.fatal("select operatin failure: " + select, ex)
-					inEventLoop.set(false)
-					return
-			}
-
-			// スレッドが割り込まれていたら終了
-			if(Thread.currentThread().isInterrupted){
-				logger.debug("async pipeline I/O dispatcher interrupted")
-				inEventLoop.set(false)
-				return
-			}
-
-			// このスレッドへ参加するパイプラインを取り込み
-			joinQueue.synchronized {
-				while(! joinQueue.isEmpty){
-					val pipeline = joinQueue.dequeue()
-					try {
-						pipeline.register(Some(selector))
-						logger.debug("join new async socket in dispatcher")
-					} catch {
-						case ex:IOException =>
-							logger.error("register operation failed, ignore and close socket: " + pipeline, ex)
-							pipeline.close()
-					}
-				}
-			}
-		}
-
+		// スレッドが終了する前に全ての処理中の非同期ソケットを別のスレッドに割り当て
+		dispatcher.pipelines.foreach{ begin(_) }
 	}
+
+	// TODO reboot and takeover thread that works specified times
 
 }
 
 object PipelineGroup {
 	private[async] val logger = Logger.getLogger(classOf[PipelineGroup])
 
-	def sk2s(key:SelectionKey):String = {
+	private[async] def sk2s(key:SelectionKey):String = {
 		val opt = key.readyOps()
 		Seq(
 			if((opt & SelectionKey.OP_READ) != 0) "READ" else null,

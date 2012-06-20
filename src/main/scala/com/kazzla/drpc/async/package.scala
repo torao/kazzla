@@ -15,6 +15,10 @@ import org.apache.log4j.Logger
  * <div>
  *   <img src="doc-files/Pipeline.png" alt="Pipeline"/>
  * </div>
+ * <dt>
+ *   <dt>Sink</dt>
+ *   <dd>パイプランが非同期で読み込んだデータを渡す関数。</dd>
+ * </dt>
  * @author Takami Torao
  */
 package object async {
