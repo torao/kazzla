@@ -72,11 +72,11 @@ package object debug {
 			case date:java.util.Date => buffer.append(df.format(date))
 			case binary:Array[Byte] =>
 				binary.foreach{ ch => buffer.append("%02X".format(ch & 0xFF)) }
-			case array:Seq[Any] =>
+			case array:Seq[_] =>
 				buffer.append('[')
 				buffer.append(array.map{ makeDebugString(_) }.mkString(","))
 				buffer.append(']')
-			case map:Map[Any,Any] =>
+			case map:Map[_,_] =>
 				buffer.append('{')
 				buffer.append(map.map{ case(k,v)=>makeDebugString(k) + "->" + makeDebugString(v) }.mkString(","))
 				buffer.append('}')

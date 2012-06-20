@@ -9,7 +9,12 @@ import org.apache.log4j.Logger
 // package
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
- * 非同期ソケット通信のためのパッケージ。
+ * <p>
+ * 非同期入出力のパイプラインを構成するためのパッケージです。
+ * </p>
+ * <div>
+ *   <img src="doc-files/Pipeline.png" alt="Pipeline"/>
+ * </div>
  * @author Takami Torao
  */
 package object async {
