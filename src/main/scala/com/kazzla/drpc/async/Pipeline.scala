@@ -270,5 +270,5 @@ abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with AutoClos
 }
 
 object Pipeline {
-	val logger = Logger.getLogger(classOf[Pipeline])
+	private[async] val logger = Logger.getLogger(classOf[Pipeline])
 }

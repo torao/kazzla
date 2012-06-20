@@ -338,7 +338,7 @@ class PipelineGroup extends Closeable with AutoCloseable{
 }
 
 object PipelineGroup {
-	val logger = Logger.getLogger(classOf[PipelineGroup])
+	private[async] val logger = Logger.getLogger(classOf[PipelineGroup])
 
 	def sk2s(key:SelectionKey):String = {
 		val opt = key.readyOps()

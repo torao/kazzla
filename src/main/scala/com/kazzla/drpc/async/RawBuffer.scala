@@ -301,5 +301,5 @@ class RawBuffer(val name:String, val initialSize:Int, val limitSize:Int, val blo
 }
 
 object RawBuffer {
-	val logger = Logger.getLogger(classOf[RawBuffer])
+	private[async] val logger = Logger.getLogger(classOf[RawBuffer])
 }
