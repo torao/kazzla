@@ -9,8 +9,8 @@ import async.RawBuffer
 // Codec
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
- * プロシジャコールのためのプロトコルを実装するためのトレイトです。
- * インスタンスは 1 接続に対するスコープを持つため内部にバッファリングすることができます。
+ * プロシジャコールを入出力用にバイナリ化するためのトレイトです。
+ * インスタンスは 1 接続に対するスコープを持つため内部でバッファリングを行うことができます。
  * @author Takami Torao
  */
 trait Codec {
@@ -19,7 +19,7 @@ trait Codec {
 	// バッファの作成
 	// ========================================================================
 	/**
-	 * RPC のための呼び出し要求用のバイナリを作成します。
+	 * RPC のための呼び出し要求用バイナリを作成します。
 	 */
 	def pack(call:Codec.Call):Array[Byte]
 
@@ -42,7 +42,15 @@ trait Codec {
 }
 
 object Codec {
-	class Transferable private[drpc]()
+	import com.kazzla.debug.makeDebugString
+
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// Transferable
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	/**
+	 * @author Takami Torao
+	 */
+	class Transferable private[Codec]
 
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	// Call
@@ -60,7 +68,7 @@ object Codec {
 		 * @return インスタンスの文字列
 		 */
 		override def toString():String = {
-			id + ":" + name + '(' + com.kazzla.debug.makeDebugString(args) + ')'
+			id + "@" + name + '(' + makeDebugString(args) + ')'
 		}
 
 	}
@@ -81,9 +89,9 @@ object Codec {
 		 * @return インスタンスの文字列
 		 */
 		override def toString():String = {
-			id + ":" + (error match {
-				case Some(msg) => msg
-				case None => com.kazzla.debug.makeDebugString(result)
+			id + "@" + (error match {
+				case Some(msg) => "Exception(" + makeDebugString(msg) + ")"
+				case None => makeDebugString(result)
 			})
 		}
 

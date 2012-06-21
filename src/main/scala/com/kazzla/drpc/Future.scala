@@ -28,7 +28,7 @@ class Future private[drpc](id:Long) {
 	/**
 	 * RPC 呼び出し結果です。
 	 */
-	private[this] var result:Option[Protocol.Result] = None
+	private[this] var result:Option[Codec.Result] = None
 
 	// ========================================================================
 	// 結果の参照
@@ -58,7 +58,7 @@ class Future private[drpc](id:Long) {
 	 * @param timeout 応答待ち時間 (ミリ秒)
 	 * @return RPC 実行結果
 	 */
-	def get(timeout:Long):Option[Protocol.Result] = {
+	def get(timeout:Long):Option[Codec.Result] = {
 		signal.synchronized{
 			if(result.isEmpty){
 				if(timeout > 0){
@@ -78,7 +78,7 @@ class Future private[drpc](id:Long) {
 	 * RPC 実行結果を設定します。
 	 * @param value 実行結果
 	 */
-	private[drpc] def set(value:Protocol.Result):Unit = {
+	private[drpc] def set(value:Codec.Result):Unit = {
 		signal.synchronized{
 			assert(! result.isEmpty)
 			result = Some(value)

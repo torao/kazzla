@@ -17,13 +17,13 @@ import com.kazzla.drpc.Node.MetaInfo
 /**
  * @author Takami Torao
  */
-class Node(val protocol:Protocol, val threadPool:Executor, cert:Certificate) {
+class Node(val codec:Codec, val threadPool:Executor, cert:Certificate) {
 
 	// ========================================================================
-	// コンテキスト
+	// パイプライングループ
 	// ========================================================================
 	/**
-	 * このノード上で非同期 I/O 処理を行うコンテキストです。
+	 * このノード上での非同期入出力を行うパイプライングループです。
 	 */
 	private[drpc] val context = new PipelineGroup()
 
@@ -34,6 +34,8 @@ class Node(val protocol:Protocol, val threadPool:Executor, cert:Certificate) {
 	 * このノードにバインドされているサービスです。
 	 */
 	private[this] val factories = new HashMap[String,(String,Peer)=>Service]()
+
+	// デフォルトでメタ情報サービスはバインドさせる
 	factories += ("_" -> { (name:String, peer:Peer) => new MetaInfoImpl(name, peer) })
 
 	// ========================================================================
@@ -42,7 +44,7 @@ class Node(val protocol:Protocol, val threadPool:Executor, cert:Certificate) {
 	/**
 	 * このノードのプロパティです。
 	 */
-	private var properties = Map[String,String]()
+	private[this] var properties = Map[String,String]()
 
 	// ========================================================================
 	// シャットダウンフラグ
@@ -54,35 +56,36 @@ class Node(val protocol:Protocol, val threadPool:Executor, cert:Certificate) {
 	private var closing = false
 
 	// ========================================================================
-	// タイムアウトタスク
+	// タスク
 	// ========================================================================
 	/**
-	 * 実行中のタスクです。
+	 * このノード上で実行中のタスクです。
 	 */
-	private val tasks = new HashMap[Protocol.Call,Task]()
+	private val tasks = new HashMap[Codec.Call,Task]()
 
 	// ========================================================================
-	// コンテキスト
+	// タスクタイムアウト監視タイマータスク
 	// ========================================================================
 	/**
-	 * このノード上で非同期 I/O 処理を行うコンテキストです。
+	 * このノード上で実行されているタスクのタイムアウトを監視するタイマータスクです。
 	 */
-	private val timer = new Timer("RPCTimeoutWatchdog", true)
-
-	timer.scheduleAtFixedRate(new TimerTask {
+	private[this] val watchdog = new TimerTask {
 		def run() {
 			val now = System.currentTimeMillis()
 			tasks.synchronized {
-				tasks.keys.foreach{ proc =>
-					val task = tasks(proc)
-					if(task.start + proc.timeout < now){
+				tasks.keys.foreach{ call =>
+					val task = tasks(call)
+					if(task.start + call.timeout < now){
 						task.thread.interrupt()
-						tasks.remove(proc)
+						tasks.remove(call)
 					}
 				}
 			}
 		}
-	}, 3000, 3000)
+	}
+
+	// タスクの監視をタイマーに登録
+	Node.timer.scheduleAtFixedRate(watchdog, 3000, 3000)
 
 	// ========================================================================
 	//
@@ -90,7 +93,7 @@ class Node(val protocol:Protocol, val threadPool:Executor, cert:Certificate) {
 	/**
 	 *
 	 */
-	private[drpc] def addTimeout(proc:Protocol.Call, thread:Thread){
+	private[drpc] def addTimeout(proc:Codec.Call, thread:Thread){
 		tasks.synchronized {
 			tasks += (proc -> new Task(System.currentTimeMillis(), thread))
 		}
@@ -102,7 +105,7 @@ class Node(val protocol:Protocol, val threadPool:Executor, cert:Certificate) {
 	/**
 	 *
 	 */
-	private[drpc] def removeTimeout(proc:Protocol.Call){
+	private[drpc] def removeTimeout(proc:Codec.Call){
 		tasks.synchronized {
 			tasks -= proc
 		}
@@ -112,9 +115,14 @@ class Node(val protocol:Protocol, val threadPool:Executor, cert:Certificate) {
 	// ノードのシャットダウン
 	// ========================================================================
 	/**
-	 * このノードのサービスをシャットダウンします。
+	 * このノードのサービス及び全タスクをシャットダウンします。
 	 */
 	def shutdown(){
+
+		// タイムアウト監視タスクの停止
+		watchdog.cancel()
+
+		// TODO すべてのタスクを終了
 		// TODO コンテキストのクローズ
 	}
 
@@ -229,6 +237,14 @@ class Node(val protocol:Protocol, val threadPool:Executor, cert:Certificate) {
 }
 
 object Node {
+
+	// ========================================================================
+	// タイムアウト監視タイマー
+	// ========================================================================
+	/**
+	 * すべてのノード上で実行されているタスクのタイムアウトを監視するタイマーです。
+	 */
+	private[Node] val timer = new Timer("RPCTimeoutWatchdog", true)
 
 	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	// MetaInfo

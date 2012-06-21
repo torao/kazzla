@@ -17,17 +17,18 @@ import collection.mutable.{Queue, HashMap}
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
  * @author Takami Torao
+ * @param node このピアの所属するノード
  */
 class Peer private[drpc](node:Node, channel:SocketChannel) {
 
 	// ========================================================================
-	// 非同期ソケット
+	// パイプライン
 	// ========================================================================
 	/**
-	 * このピアと通信するための非同期ソケットです。
+	 * このピアと通信するためのパイプラインです。
 	 */
-	private[this] val socket = Pipeline.newPipeline(channel)(new Listener().asyncDataReceived)
-	node.context.begin(socket)
+	private[this] val pipeline = Pipeline.newPipeline(channel)(new Listener().asyncDataReceived)
+	node.context.begin(pipeline)
 
 	// ========================================================================
 	// 処理中タスクマップ
@@ -122,7 +123,7 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 			if(! tasks.contains(id)){
 				val future = new Future(id)
 				tasks += (id -> future)
-				socket.write(node.protocol.pack(Protocol.Call(id, timeout, name, args:_*)))
+				pipeline.write(node.codec.pack(Codec.Call(id, timeout, name, args:_*)))
 				return future
 			}
 		}
@@ -162,7 +163,7 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 	 * 指定された呼び出しをローカルのサービスに対して行います。
 	 * @param call 呼び出し
 	 */
-	private[Peer] def localCall(call:Protocol.Call):Protocol.Result = {
+	private[Peer] def localCall(call:Codec.Call):Codec.Result = {
 		if(logger.isDebugEnabled){
 			logger.debug("execute: " + call)
 		}
@@ -171,7 +172,7 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 			case Some(callable) => callable
 			case None =>
 				// 要求のあった呼び出し先が見つからない
-				return Protocol.Result(call.id, Some("not found: " + call.name))
+				return Codec.Result(call.id, Some("not found: " + call.name))
 		}
 
 		// サービスの呼び出し
@@ -180,11 +181,11 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 		} catch {
 			case ex:Throwable =>
 				logger.error("uncaught exeption in service" + call, ex)
-				return Protocol.Result(call.id, Some(ex.toString))
+				return Codec.Result(call.id, Some(ex.toString))
 		}
 
 		// 処理結果を返す
-		Protocol.Result(call.id, None, result:_*)
+		Codec.Result(call.id, None, result:_*)
 	}
 
 	// ========================================================================
@@ -194,7 +195,7 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 	 * 指定された RPC の実行結果を受け付けます。
 	 * @param result RPC 実行結果
 	 */
-	private[Peer] def remoteResult(result:Protocol.Result):Unit = {
+	private[Peer] def remoteResult(result:Codec.Result):Unit = {
 		if(logger.isDebugEnabled){
 			logger.debug("result: " + result)
 		}
@@ -212,7 +213,7 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 	/**
 	 *
 	 */
-	private[this] def getCallable(proc:Protocol.Call):Option[(Any*)=>Seq[Any]] = callables.synchronized{
+	private[this] def getCallable(proc:Codec.Call):Option[(Any*)=>Seq[Any]] = callables.synchronized{
 		callables.get(proc.name) match {
 			case Some(callable) => Some(callable)
 			case None =>
@@ -305,12 +306,12 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 		 */
 		def asyncDataReceived(buffer:ByteBuffer):Unit = {
 			receiveBuffer.enqueue(buffer)
-			node.protocol.unpack(receiveBuffer).foreach {
-				case call:Protocol.Call =>
+			node.codec.unpack(receiveBuffer).foreach {
+				case call:Codec.Call =>
 					scala.actors.Actor.actor{
-						node.protocol.pack(localCall(call))
+						node.codec.pack(localCall(call))
 					}
-				case result:Protocol.Result =>
+				case result:Codec.Result =>
 					remoteResult(result)
 			}
 		}
