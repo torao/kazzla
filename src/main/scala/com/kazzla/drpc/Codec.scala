@@ -6,14 +6,14 @@ package com.kazzla.drpc
 import async.RawBuffer
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// Protocol
+// Codec
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
  * プロシジャコールのためのプロトコルを実装するためのトレイトです。
  * インスタンスは 1 接続に対するスコープを持つため内部にバッファリングすることができます。
  * @author Takami Torao
  */
-trait Protocol {
+trait Codec {
 
 	// ========================================================================
 	// バッファの作成
@@ -21,7 +21,7 @@ trait Protocol {
 	/**
 	 * RPC のための呼び出し要求用のバイナリを作成します。
 	 */
-	def pack(call:Protocol.Call):Array[Byte]
+	def pack(call:Codec.Call):Array[Byte]
 
 	// ========================================================================
 	// バッファの作成
@@ -29,7 +29,7 @@ trait Protocol {
 	/**
 	 * RPC 呼び出し結果用のバイナリを作成します。
 	 */
-	def pack(result:Protocol.Result):Array[Byte]
+	def pack(result:Codec.Result):Array[Byte]
 
 	// ========================================================================
 	// バッファの復元
@@ -37,11 +37,11 @@ trait Protocol {
 	/**
 	 * 指定されたバッファから転送オブジェクトを復元します。
 	 */
-	def unpack(buffer:RawBuffer):Seq[Protocol.Transferable]
+	def unpack(buffer:RawBuffer):Seq[Codec.Transferable]
 
 }
 
-object Protocol {
+object Codec {
 	class Transferable private[drpc]()
 
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
