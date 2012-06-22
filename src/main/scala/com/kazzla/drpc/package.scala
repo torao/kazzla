@@ -4,6 +4,7 @@
 package com.kazzla
 
 import org.apache.log4j.Logger
+import java.nio.ByteBuffer
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Duplex Remote Procedure Call
@@ -13,9 +14,43 @@ import org.apache.log4j.Logger
  * @author Takami Torao
  */
 package object drpc {
+	import com.kazzla.debug.makeDebugString
 	val logger = Logger.getLogger(this.getClass)
 
-	class Transferable private[drpc]()
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// CancelException
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	/**
+	 * @author Takami Torao
+	 */
+	class CancelException(msg:String, ex:Throwable) extends Exception(msg, ex)
+
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// RemoteException
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	/**
+	 * @author Takami Torao
+	 */
+	class RemoteException(msg:String) extends Exception(msg)
+
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// Transferable
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	/**
+	 * @author Takami Torao
+	 */
+	class Transferable private[drpc]() extends java.io.Serializable {
+		private[this] var serialized:Option[Array[Byte]] = None
+		def pack(coded:Codec):Transferable = {
+			serialized match {
+				case Some(binary) => codec.pack(this)
+			}
+			this
+		}
+		def transfer(protocol:Protocol):Unit = {
+			protocol.transferUnit(ByteBuffer.wrap(serialized))
+		}
+	}
 
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	// Call
@@ -23,7 +58,7 @@ package object drpc {
 	/**
 	 * @author Takami Torao
 	 */
-	case class Call(id:Long, timeout:Long, name:String, args:Any*) extends Transferable {
+	case class Call(id:Long, timeout:Long, callback:Boolean, name:String, args:Any*) extends Transferable {
 
 		// ======================================================================
 		// インスタンスの文字列化
@@ -33,7 +68,7 @@ package object drpc {
 		 * @return インスタンスの文字列
 		 */
 		override def toString():String = {
-			id + ":" + name + '(' + com.kazzla.debug.makeDebugString(args) + ')'
+			id + ":" + name + '(' + makeDebugString(args) + ')'
 		}
 
 	}
@@ -56,9 +91,52 @@ package object drpc {
 		override def toString():String = {
 			id + ":" + (error match {
 				case Some(msg) => msg
-				case None => com.kazzla.debug.makeDebugString(result)
+				case None => makeDebugString(result)
 			})
 		}
 
 	}
+
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// Block
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	/**
+	 * @author Takami Torao
+	 */
+	case class Block(id:Long, sequence:Int, binary:Array[Byte]) extends Transferable {
+
+		// ======================================================================
+		// インスタンスの文字列化
+		// ======================================================================
+		/**
+		 * このインスタンスを文字列化します。
+		 * @return インスタンスの文字列
+		 */
+		override def toString():String = {
+			id + ":[" + sequence + ":" + makeDebugString(binary, 25) + "]"
+		}
+
+	}
+
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// Control
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	/**
+	 * @author Takami Torao
+	 */
+	case class Control(id:Long, code:Byte, args:Any*) extends Transferable {
+
+		// ======================================================================
+		// インスタンスの文字列化
+		// ======================================================================
+		/**
+		 * このインスタンスを文字列化します。
+		 * @return インスタンスの文字列
+		 */
+		override def toString():String = {
+			id + ":{" + "%05d".format(code) + ":" + makeDebugString(args) + "}"
+		}
+
+	}
+
 }

@@ -3,8 +3,7 @@
  */
 package com.kazzla.drpc
 
-import collection.mutable.HashMap
-import java.io.IOException
+import java.util.concurrent.atomic.AtomicBoolean
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Pipe
@@ -12,7 +11,7 @@ import java.io.IOException
 /**
  * @author Takami Torao
  */
-class Pipe private[drpc](id:Long) {
+class Pipe private[drpc](id:Long, codec:Codec) {
 
 	// ========================================================================
 	// シグナル
@@ -28,7 +27,16 @@ class Pipe private[drpc](id:Long) {
 	/**
 	 * RPC 呼び出し結果です。
 	 */
-	private[this] var result:Option[Protocol.Result] = None
+	private[this] var result:Option[Result] = None
+
+	// ========================================================================
+	// キャンセルフラグ
+	// ========================================================================
+	/**
+	 * このパイプがキャンセルされたかを表すフラグです。パイプのキャンセルはこちら側または
+	 * 相手側によって行われます。
+	 */
+	private[this] val canceled = new AtomicBoolean(false)
 
 	// ========================================================================
 	// 結果の参照
@@ -36,12 +44,15 @@ class Pipe private[drpc](id:Long) {
 	/**
 	 * 処理をブロックし RPC の実行結果を参照します。リモート側で例外が発生した場合は例外が
 	 * スローされます。
+	 * @param timeout 応答までのタイムアウト時間 (ミリ秒)
+	 * @throws RemoteException リモート側で例外が発生した場合
+	 * @throws CancelException 待機中に処理がキャンセルされた場合
 	 */
-	def apply():Seq[Any] = {
-		val result = get(0).get
+	def apply(timeout:Long = 0):Seq[Any] = {
+		val result = get(timeout).get
 		result.error match{
 			case Some(message) =>
-				throw new Exception(message)		// TODO appropriate exception class
+				throw new RemoteException(message)
 			case None =>
 				result.result
 		}
@@ -58,14 +69,17 @@ class Pipe private[drpc](id:Long) {
 	 * @param timeout 応答待ち時間 (ミリ秒)
 	 * @return RPC 実行結果
 	 */
-	def get(timeout:Long):Option[Protocol.Result] = {
+	def get(timeout:Long):Option[Result] = {
 		signal.synchronized{
-			if(result.isEmpty){
+			if(! canceled.get() && result.isEmpty){
 				if(timeout > 0){
 					signal.wait(timeout)
 				} else {
 					signal.wait()
 				}
+			}
+			if(canceled.get() || result.isEmpty){
+				throw new CancelException("operation canceled")
 			}
 			result
 		}
@@ -78,12 +92,35 @@ class Pipe private[drpc](id:Long) {
 	 * RPC 実行結果を設定します。
 	 * @param value 実行結果
 	 */
-	private[drpc] def set(value:Protocol.Result):Unit = {
+	private[drpc] def set(value:Result):Unit = {
 		signal.synchronized{
 			assert(! result.isEmpty)
 			result = Some(value)
 			signal.notifyAll()
 		}
 	}
+
+	// ========================================================================
+	// 処理のキャンセル
+	// ========================================================================
+	/**
+	 * このパイプを使用して行われている処理をキャンセルします。
+	 */
+	def cancel():Unit = {
+		signal.synchronized{
+			canceled.set(true)
+			signal.notify()
+		}
+		// TODO 相手へキャンセルを通知
+	}
+
+	// ========================================================================
+	// キャンセルの判定
+	// ========================================================================
+	/**
+	 * このパイプが自分または相手側によってキャンセルされているかを判定します。
+	 * @return キャンセルされている場合 true
+	 */
+	def isCanceled:Boolean = canceled.get()
 
 }
