@@ -21,7 +21,7 @@ trait Protocol {
 	/**
 	 * RPC のための呼び出し要求用のバイナリを作成します。
 	 */
-	def pack(call:Protocol.Call):Array[Byte]
+	def pack(call:Call):Array[Byte]
 
 	// ========================================================================
 	// バッファの作成
@@ -29,7 +29,7 @@ trait Protocol {
 	/**
 	 * RPC 呼び出し結果用のバイナリを作成します。
 	 */
-	def pack(result:Protocol.Result):Array[Byte]
+	def pack(result:Result):Array[Byte]
 
 	// ========================================================================
 	// バッファの復元
@@ -37,56 +37,6 @@ trait Protocol {
 	/**
 	 * 指定されたバッファから転送オブジェクトを復元します。
 	 */
-	def unpack(buffer:RawBuffer):Seq[Protocol.Transferable]
-
-}
-
-object Protocol {
-	class Transferable private[drpc]()
-
-	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	// Call
-	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	/**
-	 * @author Takami Torao
-	 */
-	case class Call(id:Long, timeout:Long, name:String, args:Any*) extends Transferable {
-
-		// ======================================================================
-		// インスタンスの文字列化
-		// ======================================================================
-		/**
-		 * このインスタンスを文字列化します。
-		 * @return インスタンスの文字列
-		 */
-		override def toString():String = {
-			id + ":" + name + '(' + com.kazzla.debug.makeDebugString(args) + ')'
-		}
-
-	}
-
-	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	// Result
-	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	/**
-	 * @author Takami Torao
-	 */
-	case class Result(id:Long, error:Option[String], result:Any*) extends Transferable {
-
-		// ======================================================================
-		// インスタンスの文字列化
-		// ======================================================================
-		/**
-		 * このインスタンスを文字列化します。
-		 * @return インスタンスの文字列
-		 */
-		override def toString():String = {
-			id + ":" + (error match {
-				case Some(msg) => msg
-				case None => com.kazzla.debug.makeDebugString(result)
-			})
-		}
-
-	}
+	def unpack(buffer:RawBuffer):Seq[Transferable]
 
 }
