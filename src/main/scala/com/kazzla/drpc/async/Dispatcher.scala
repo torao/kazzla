@@ -143,7 +143,7 @@ private[async] class Dispatcher(group:PipelineGroup) extends Thread(group.thread
 				it.remove()
 				val pipeline = key.attachment().asInstanceOf[Pipeline]
 				if(logger.isTraceEnabled){
-					logger.trace("selection state: %s -> %s".format(pipeline, PipelineGroup.sk2s(key)))
+					logger.trace("selection state: %s -> %s".format(pipeline, Dispatcher.sk2s(key)))
 				}
 
 				if(key.isReadable){
@@ -165,7 +165,7 @@ private[async] class Dispatcher(group:PipelineGroup) extends Thread(group.thread
 							pipeline.close()
 					}
 				} else {
-					logger.warn("unexpected selection key state: 0x%X (%s)".format(key.readyOps(), PipelineGroup.sk2s(key)))
+					logger.warn("unexpected selection key state: 0x%X (%s)".format(key.readyOps(), Dispatcher.sk2s(key)))
 				}
 			}
 		}
@@ -223,5 +223,16 @@ private[async] class Dispatcher(group:PipelineGroup) extends Thread(group.thread
 }
 
 object Dispatcher {
-	private[async] val logger = Logger.getLogger(classOf[Dispatcher])
+	private[Dispatcher] val logger = Logger.getLogger(classOf[Dispatcher])
+
+	private[Dispatcher] def sk2s(key:SelectionKey):String = {
+		val opt = key.readyOps()
+		Seq(
+			if((opt & SelectionKey.OP_READ) != 0) "READ" else null,
+			if((opt & SelectionKey.OP_WRITE) != 0) "WRITE" else null,
+			if((opt & SelectionKey.OP_ACCEPT) != 0) "ACCEPT" else null,
+			if((opt & SelectionKey.OP_CONNECT) != 0) "CONNECT" else null
+		).filter{ _ != null }.mkString("|")
+	}
+
 }

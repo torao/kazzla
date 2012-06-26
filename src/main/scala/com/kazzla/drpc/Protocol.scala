@@ -36,6 +36,6 @@ trait Protocol {
 	 * 指定されたデータブロックを転送します。
 	 * @param buffer 転送するデータ
 	 */
-	def transferUnit(buffer:ByteBuffer):ByteBuffer
+	def transferUnit2(buffer:ByteBuffer):ByteBuffer
 
 }

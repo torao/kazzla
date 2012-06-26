@@ -36,7 +36,7 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 	/**
 	 * このピアに対して進行中のタスクを保持するマップです。タスク番号によって管理されます。
 	 */
-	private[this] val tasks = new HashMap[Long, Future]()
+	private[this] val tasks = new HashMap[Long, Pipe]()
 
 	// ========================================================================
 	// タスク番号生成用シーケンス
@@ -91,7 +91,7 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 	 * @param name 処理名 (サービス名 + "." + メソッド名)
 	 * @param args 処理に対する引数
 	 */
-	def asyncCall(name:String, args:Any*):Future = asyncCall(0, name, args)
+	def asyncCall(name:String, args:Any*):Pipe = asyncCall(0, name, args)
 
 	// ========================================================================
 	// 非同期呼び出しの実行
@@ -102,7 +102,7 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 	 * @param name 処理名 (サービス名 + "." + メソッド名)
 	 * @param args 処理に対する引数
 	 */
-	def asyncCall(timeout:Long, name:String, args:Any*):Future = {
+	def asyncCall(timeout:Long, name:String, args:Any*):Pipe = {
 		postAsyncCall(timeout, name, args)
 	}
 
@@ -116,12 +116,12 @@ class Peer private[drpc](node:Node, channel:SocketChannel) {
 	 * @param args 処理に対する引数
 	 */
 	@tailrec
-	private[this] def postAsyncCall(timeout:Long, name:String, args:Any*):Future = {
+	private[this] def postAsyncCall(timeout:Long, name:String, args:Any*):Pipe = {
 		// タスク ID を採番してリモート呼び出しを実行
 		val id = sequence.getAndIncrement
 		tasks.synchronized{
 			if(! tasks.contains(id)){
-				val future = new Future(id)
+				val future = new Pipe(id)
 				tasks += (id -> future)
 				pipeline.write(node.codec.pack(Codec.Call(id, timeout, name, args:_*)))
 				return future
