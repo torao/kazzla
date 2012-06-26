@@ -1,9 +1,11 @@
 /* Copyright (C) 2012 BJöRFUAN
  * This source and related resources are distributed under Apache License, Version 2.0.
  */
-package com.kazzla.drpc
+package com.kazzla.irpc
 
+import async.Pipeline
 import java.util.concurrent.atomic.AtomicBoolean
+import java.io.{OutputStream, InputStream}
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Pipe
@@ -11,7 +13,90 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * @author Takami Torao
  */
-class Pipe private[drpc](id:Long, codec:Codec) {
+trait Pipe {
+
+	// ========================================================================
+	// ID
+	// ========================================================================
+	/**
+	 */
+	def id:Long
+
+	// ========================================================================
+	// 入力ストリーム
+	// ========================================================================
+	/**
+	 */
+	def in:InputStream
+
+	// ========================================================================
+	// 出力ストリーム
+	// ========================================================================
+	/**
+	 */
+	def out:OutputStream
+
+	// ========================================================================
+	// キャンセルフラグ
+	// ========================================================================
+	/**
+	 * このパイプがキャンセルされたかを表すフラグです。パイプに対するキャンセル操作はパイプ
+	 * の双方が行うことができます。
+	 * @param reason キャンセルの理由
+	 */
+	def cancel(reason:String = ""):Unit
+
+	// ========================================================================
+	// キャンセルの判定
+	// ========================================================================
+	/**
+	 * このパイプが自分または相手側によってキャンセルされているかを判定します。
+	 * @return キャンセルされている場合 true
+	 */
+	def isCanceled:Boolean
+
+	// ========================================================================
+	// 結果の参照
+	// ========================================================================
+	/**
+	 * 処理をブロックし RPC の実行結果を参照します。リモート側で例外が発生した場合は例外が
+	 * スローされます。
+	 * @param timeout 応答までのタイムアウト時間 (ミリ秒)
+	 * @throws RemoteException リモート側で例外が発生した場合
+	 * @throws CancelException 待機中に処理がキャンセルされた場合
+	 */
+	def apply(timeout:Long = 0):Seq[Any] = {
+		val result = get(timeout)
+		result.error match{
+			case Some(message) =>
+				throw new RemoteException(message)
+			case None =>
+				result.result
+		}
+	}
+
+	// ========================================================================
+	// 結果の参照
+	// ========================================================================
+	/**
+	 * 結果を参照します。指定されたタイムアウトまでに結果のリターンがなかった場合は None
+	 * を返します。指定された待ち時間までに応答がなかった場合は None を返します。
+	 * 待ち時間に 0 を指定した場合、応答があるまで永遠に待機します。この場合 None が返る
+	 * ことはありません。
+	 * @param timeout 応答待ち時間 (ミリ秒)
+	 * @return RPC 実行結果
+	 */
+	def get(timeout:Long):Option[Result]
+
+}
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// PipeImpl
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/**
+ * @author Takami Torao
+ */
+class PipeImpl private[irpc](id:Long, protocol:Protocol, codec:Codec, pipeline:Pipeline) extends Pipe{
 
 	// ========================================================================
 	// シグナル
@@ -92,7 +177,7 @@ class Pipe private[drpc](id:Long, codec:Codec) {
 	 * RPC 実行結果を設定します。
 	 * @param value 実行結果
 	 */
-	private[drpc] def set(value:Result):Unit = {
+	private[irpc] def set(value:Result):Unit = {
 		signal.synchronized{
 			assert(! result.isEmpty)
 			result = Some(value)
