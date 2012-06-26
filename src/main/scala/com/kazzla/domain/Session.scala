@@ -1,11 +1,13 @@
 /* Copyright (C) 2012 BJöRFUAN
  * This source and related resources are distributed under Apache License, Version 2.0.
  */
-package com.kazzla.irpc
+package com.kazzla.domain
 
-import async.PipelineGroup
-import java.util.{TimerTask, Timer}
 import collection.mutable.HashMap
+import org.apache.log4j.Logger
+import com.kazzla.irpc.async.PipelineGroup
+import com.kazzla.irpc._
+import com.kazzla.domain.Session.Processing
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Session
@@ -16,9 +18,7 @@ import collection.mutable.HashMap
  * </p>
  * @author Takami Torao
  */
-
-
-class Session private[irpc](val domain:Domain) {
+class Session private[irpc](val domain: Domain) {
 
 	// ========================================================================
 	// パイプライングループ
@@ -34,7 +34,7 @@ class Session private[irpc](val domain:Domain) {
 	/**
 	 * このセッション上で現在実行中の呼び出し処理です。
 	 */
-	private[this] val tasks = new HashMap[Call, Task]()
+	private[this] var localProcessing = Map[Call,Session.Processing]()
 
 	// ========================================================================
 	// ========================================================================
@@ -42,7 +42,7 @@ class Session private[irpc](val domain:Domain) {
 	 * 指定された転送単位を転送します。
 	 * 指定されたデータブロックを転送します。
 	 */
-	def lookupService[T <: Service] (name:String, interface:Class[T]):T ={
+	def lookupService[T <: Service](name: String, interface: Class[T]): T = {
 
 	}
 
@@ -70,7 +70,7 @@ class Session private[irpc](val domain:Domain) {
 	 * このセッションをクローズし使用していたリソースを全て開放します。
 	 */
 	def close() {
-		Session.remove(this)
+		domain.remove(this)
 	}
 
 	// ========================================================================
@@ -79,67 +79,14 @@ class Session private[irpc](val domain:Domain) {
 	/**
 	 * このセッション上で確保されている不必要なリソースを開放します。
 	 */
-	private[Session] def cleanup(): Unit = {
+	private[domain] def cleanup(): Unit = {
 		// TODO タイムアウトした処理の停止
 	}
 
 }
 
 object Session {
+	private[Session] val logger = Logger.getLogger(classOf[Session])
 
-	// ========================================================================
-	// タイムアウト監視タイマー
-	// ========================================================================
-	/**
-	 * 全てのセッション上で実行されている呼び出し処理のタイムアウトを監視するタイマーです。
-	 */
-	private[Session] val timer = new Timer("SessionTimeoutWatchdog", true)
-	timer.scheduleAtFixedRate(new TimerTask {
-		def run() {
-			cleanup()
-		}
-	}, 3000, 3000)
-
-	// ========================================================================
-	// セッション
-	// ========================================================================
-	/**
-	 * 実行中のセッションです。
-	 */
-	private[Session] var sessions = List[Session]()
-
-	// ========================================================================
-	// セッションの追加
-	// ========================================================================
-	/**
-	 * 指定されたセッションを監視に追加します。
-	 */
-	private[Session] def add(session: Session): Unit = synchronized {
-		sessions ::= session
-	}
-
-	// ========================================================================
-	// セッションの削除
-	// ========================================================================
-	/**
-	 * 指定されたセッションを監視から除去します。
-	 */
-	private[Session] def remove(session: Session): Unit = synchronized {
-		sessions = sessions.filter {
-			s => !s.eq(session)
-		}
-	}
-
-	// ========================================================================
-	// セッション監視タスク
-	// ========================================================================
-	/**
-	 * すべてのセッションの自己監視処理を起動します。
-	 */
-	private[this] def cleanup(): Unit = {
-		sessions.foreach {
-			_.cleanup()
-		}
-	}
-
+	private[Session] case class Processing(timeout:Long, thread:Thread)
 }
