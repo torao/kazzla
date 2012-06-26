@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6b9306d3-c06a-4578-a58f-e9907ad7246e" name="Default" comment="">
-      <change type="MOVED" beforePath="C:\Users\torao\IdeaProjects\kazzla\src\main\scala\com\kazzla\domain\irpc\Domain.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Domain.scala" />
-      <change type="MOVED" beforePath="C:\Users\torao\IdeaProjects\kazzla\src\main\scala\com\kazzla\domain\irpc\Session.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Session.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Configuration.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Configuration.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Domain.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Domain.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Session.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Session.scala" />
     </list>
     <ignored path="kazzla.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -63,19 +61,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Configuration.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Configuration.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="69" column="5" selection-start="2145" selection-end="2145" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="Domain.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Domain.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="78" column="18" selection-start="2265" selection-end="2265" vertical-scroll-proportion="0.0">
+            <state line="27" column="0" selection-start="819" selection-end="873" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="e#150#169#0" expanded="true" />
               </folding>
@@ -86,7 +75,7 @@
       <file leaf-file-name="Session.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Session.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="82" column="25" selection-start="2468" selection-end="2468" vertical-scroll-proportion="0.6666667">
+            <state line="46" column="15" selection-start="1509" selection-end="1509" vertical-scroll-proportion="0.61538464">
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="e#150#183#0" expanded="true" />
@@ -270,6 +259,40 @@
               <option name="myItemId" value="domain" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Session.scala" />
+              <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="domain" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -301,8 +324,8 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="irpc" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+              <option name="myItemId" value="Domain.scala" />
+              <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -571,14 +594,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Configuration.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="69" column="5" selection-start="2145" selection-end="2145" vertical-scroll-proportion="0.0">
+        <state line="69" column="5" selection-start="2145" selection-end="2145" vertical-scroll-proportion="0.64102566">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Domain.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="78" column="18" selection-start="2265" selection-end="2265" vertical-scroll-proportion="0.0">
+        <state line="27" column="0" selection-start="819" selection-end="873" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="e#150#169#0" expanded="true" />
           </folding>
@@ -587,7 +610,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Session.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="82" column="25" selection-start="2468" selection-end="2468" vertical-scroll-proportion="0.6666667">
+        <state line="46" column="15" selection-start="1509" selection-end="1509" vertical-scroll-proportion="0.61538464">
           <folding>
             <element signature="n#!!doc" expanded="true" />
             <element signature="e#150#183#0" expanded="true" />

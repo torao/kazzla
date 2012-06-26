@@ -8,6 +8,7 @@ import xml.XML
 import com.kazzla.{domain, KazzlaException}
 import org.apache.log4j.Logger
 import java.util.{TimerTask, Timer}
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -23,6 +24,7 @@ class Domain private[Domain](val config:Configuration, val url:URL){
 	private[Domain] var _displayName:String = null
 	private[Domain] var _authServers = Seq[String]()
 	private[Domain] var _regServers = Seq[String]()
+	private[this] val _closed = new AtomicBoolean(false)
 
 	def name = _name
 	def displayName = _displayName
@@ -60,6 +62,9 @@ class Domain private[Domain](val config:Configuration, val url:URL){
 	 * @return セッション
 	 */
 	def newSession(): Session = {
+		if(closed){
+			throw new IllegalStateException("domain closed")
+		}
 		val session = new Session(this)
 		synchronized {
 			sessions += session
@@ -74,10 +79,19 @@ class Domain private[Domain](val config:Configuration, val url:URL){
 	 * このドメインで使用していた全てのリソースをクリアします。
 	 */
 	def close(): Unit = synchronized {
+		_closed.set(true)
 		sessions.foreach { _.close() }
 		sessions = List()
 		timer.cancel()
 	}
+
+	// ========================================================================
+	// クローズ判定
+	// ========================================================================
+	/**
+	 * このドメインがクローズされているかを判定します。
+	 */
+	def closed = _closed.get()
 
 	// ========================================================================
 	// セッションのクローズ

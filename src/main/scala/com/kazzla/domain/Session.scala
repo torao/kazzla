@@ -8,6 +8,7 @@ import org.apache.log4j.Logger
 import com.kazzla.irpc.async.PipelineGroup
 import com.kazzla.irpc._
 import com.kazzla.domain.Session.Processing
+import java.util.concurrent.atomic.AtomicBoolean
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Session
@@ -43,7 +44,9 @@ class Session private[irpc](val domain: Domain) {
 	 * 指定されたデータブロックを転送します。
 	 */
 	def lookupService[T <: Service](name: String, interface: Class[T]): T = {
-
+		if(closed){
+			throw new IllegalStateException("session closed")
+		}
 	}
 
 	// ========================================================================
@@ -55,13 +58,20 @@ class Session private[irpc](val domain: Domain) {
 	def lookupNode()
 
 	// ========================================================================
-	// シャットダウンフラグ
+	// クローズフラグ
 	// ========================================================================
 	/**
-	 * このノードがシャットダウン中かを表すフラグです。
+	 * このセッションがクローズされているかを表すフラグです。
 	 */
-	@volatile
-	private var closing = false
+	private[this] val _closed = new AtomicBoolean(false)
+
+	// ========================================================================
+	// クローズ判定
+	// ========================================================================
+	/**
+	 * このセッションがクローズされているかを判定します。
+	 */
+	def closed = _closed.get()
 
 	// ========================================================================
 	// セッションのクローズ
@@ -70,6 +80,7 @@ class Session private[irpc](val domain: Domain) {
 	 * このセッションをクローズし使用していたリソースを全て開放します。
 	 */
 	def close() {
+		_closed.set(true)
 		domain.remove(this)
 	}
 
