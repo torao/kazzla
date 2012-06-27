@@ -65,7 +65,7 @@ object Domain {
 	/**
 	 * ドメインが見つからない時に発生する例外です。
 	 */
-	class NotFoundException(msg: String, ex: Seq[Throwable]) extends KazzlaException(msg, null, ex: _*)
+	class NotFoundException(msg:String, ex:Seq[Throwable]) extends KazzlaException(msg, null, ex:_*)
 
 	// ========================================================================
 	// プロフィールのキャッシュ
@@ -85,7 +85,7 @@ object Domain {
 	 * @return ドメインのインスタンス
 	 * @throws NotFoundException
 	 */
-	def getDomain(urls:URL*): Domain = {
+	def getDomain(urls:URL*):Domain = {
 		var exceptions = List[Throwable]()
 		scala.util.Random.shuffle(urls.toList).foreach {
 			url =>
