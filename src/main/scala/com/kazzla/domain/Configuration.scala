@@ -33,10 +33,10 @@ class Configuration(config:Map[String,String]) {
 	def get(name:String):Option[String] = {
 		val value = config.get(name)
 		if(logger.isDebugEnabled && ! Configuration.output.contains(name)){
-			logger.debug(name + "=" + value match {
+			logger.debug(name + "=" + (value match {
 				case Some(str) => com.kazzla.debug.makeDebugString(str)
 				case None => "None"
-			})
+			}))
 			output = output + name
 		}
 		value

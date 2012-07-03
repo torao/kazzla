@@ -4,9 +4,9 @@
 package com.kazzla.domain
 
 import org.apache.log4j.Logger
-import com.kazzla.irpc.async.PipelineGroup
 import com.kazzla.irpc._
 import java.util.concurrent.atomic.AtomicBoolean
+import com.kazzla.domain.async.PipelineGroup
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Session
@@ -18,14 +18,14 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @author Takami Torao
  */
 class Session private[domain](val domain: Domain) {
-
-	// ========================================================================
-	// 呼び出し処理
-	// ========================================================================
-	/**
-	 * このセッション上で現在実行中の呼び出し処理です。
-	 */
-	private[this] var localProcessing = Map[Call,Session.Processing]()
+/*
+パイプライングループ
+リモート呼び出し処理
+ローカル呼び出し処理
+ローカル呼び出し用スレッドプール
+接続中のピア
+サービス実装
+*/
 
 	// ========================================================================
 	// パイプライングループ
@@ -33,15 +33,7 @@ class Session private[domain](val domain: Domain) {
 	/**
 	 * このノード上での非同期入出力を行うパイプライングループです。
 	 */
-	private[irpc] val context = new PipelineGroup()
-
-	// ========================================================================
-	// 呼び出し処理
-	// ========================================================================
-	/**
-	 * このセッション上で現在実行中の呼び出し処理です。
-	 */
-	private[this] var remoteProcessing = Map[Call,Session.Processing]()
+	private[domain] val context = new PipelineGroup()
 
 	// ========================================================================
 	// ========================================================================
@@ -53,6 +45,8 @@ class Session private[domain](val domain: Domain) {
 		if(closed){
 			throw new IllegalStateException("session closed")
 		}
+		// TODO
+		null
 	}
 
 	// ========================================================================
@@ -106,4 +100,5 @@ object Session {
 	private[Session] val logger = Logger.getLogger(classOf[Session])
 
 	private[Session] case class Processing(timeout:Long, thread:Thread)
+
 }

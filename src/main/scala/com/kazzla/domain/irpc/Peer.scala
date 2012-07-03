@@ -3,16 +3,19 @@
  */
 package com.kazzla.irpc
 
-import async.{PipelineGroup, Pipeline, RawBuffer}
 import java.nio.ByteBuffer
 import annotation.tailrec
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import java.lang.reflect.{Proxy, InvocationHandler, Method}
 import java.security.cert.{X509Certificate, Certificate}
 import collection.mutable.{Queue, HashMap}
-import scala.Some
 import java.net.InetSocketAddress
 import javax.net.SocketFactory
+import com.kazzla.domain.async._
+import com.kazzla.domain.irpc._
+import scala.Some
+import com.kazzla.domain.irpc.logger
+import com.kazzla.KazzlaException
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Peer
@@ -239,7 +242,7 @@ class Peer private[irpc](address:Peer.Address, group:PipelineGroup, myCert:X509C
 	 * 指定された呼び出しをローカルのサービスに対して行います。
 	 * @param call 呼び出し
 	 */
-	private[Peer] def localCall(call:Call):Result = {
+	private[Peer] def localCall(call:Open):Close = {
 		if(logger.isDebugEnabled){
 			logger.debug("execute: " + call)
 		}
@@ -248,7 +251,7 @@ class Peer private[irpc](address:Peer.Address, group:PipelineGroup, myCert:X509C
 			case Some(callable) => callable
 			case None =>
 				// 要求のあった呼び出し先が見つからない
-				return Result(call.id, Some("not found: " + call.name))
+				return Close(call.id, Some("not found: " + call.name))
 		}
 
 		// サービスの呼び出し
@@ -257,11 +260,11 @@ class Peer private[irpc](address:Peer.Address, group:PipelineGroup, myCert:X509C
 		} catch {
 			case ex:Throwable =>
 				logger.error("uncaught exeption in service" + call, ex)
-				return Result(call.id, Some(ex.toString))
+				return Close(call.id, Some(ex.toString))
 		}
 
 		// 処理結果を返す
-		Result(call.id, None, result:_*)
+		Close(call.id, None, result:_*)
 	}
 
 	// ========================================================================
@@ -271,7 +274,7 @@ class Peer private[irpc](address:Peer.Address, group:PipelineGroup, myCert:X509C
 	 * 指定された RPC の実行結果を受け付けます。
 	 * @param result RPC 実行結果
 	 */
-	private[Peer] def remoteResult(result:Result):Unit = {
+	private[Peer] def remoteResult(result:Close):Unit = {
 		if(logger.isDebugEnabled){
 			logger.debug("result: " + result)
 		}
@@ -289,7 +292,7 @@ class Peer private[irpc](address:Peer.Address, group:PipelineGroup, myCert:X509C
 	/**
 	 *
 	 */
-	private[this] def getCallable(proc:Call):Option[(Any*)=>Seq[Any]] = callables.synchronized{
+	private[this] def getCallable(proc:Open):Option[(Any*)=>Seq[Any]] = callables.synchronized{
 		callables.get(proc.name) match {
 			case Some(callable) => Some(callable)
 			case None =>
@@ -383,11 +386,11 @@ class Peer private[irpc](address:Peer.Address, group:PipelineGroup, myCert:X509C
 		def asyncDataReceived(buffer:ByteBuffer):Unit = {
 			receiveBuffer.enqueue(buffer)
 			node.codec.unpack(receiveBuffer).foreach {
-				case call:Call =>
+				case call:Open =>
 					scala.actors.Actor.actor{
 						node.codec.pack(localCall(call))
 					}
-				case result:Result =>
+				case result:Close =>
 					remoteResult(result)
 			}
 		}
