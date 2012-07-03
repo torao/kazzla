@@ -1,7 +1,7 @@
 /* Copyright (C) 2012 BJöRFUAN
  * This source and related resources are distributed under Apache License, Version 2.0.
  */
-package com.kazzla.irpc.async
+package com.kazzla.domain.async
 
 import java.nio.channels._
 import scala.Some
@@ -59,7 +59,7 @@ abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with java.lan
 	 * このパイプライン上で出力中のデータのバッファです。出力中のバッファが存在しない場合は
 	 * None となります。
 	 */
-	private[this] var writeBuffer:Option[ByteBuffer] = None
+	private[this] var writingBuffer:Option[ByteBuffer] = None
 
 	// ========================================================================
 	// 入力元の参照
@@ -150,7 +150,7 @@ abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with java.lan
 	private[async] def write():Unit = {
 
 		// 出力中のバッファを参照
-		val buffer = writeBuffer match {
+		val buffer = writingBuffer match {
 			case Some(b) => b
 			case None =>
 				// 送信中バッファがなくなり送信キューも空なら、次の送信データが到着するまで
@@ -160,9 +160,9 @@ abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with java.lan
 						onWaitingToWrite(false)
 						return
 					}
-					writeBuffer = Some(writeQueue.dequeue())
+					writingBuffer = Some(writeQueue.dequeue())
 				}
-				writeBuffer.get
+				writingBuffer.get
 		}
 
 		// バイナリデータの出力
@@ -175,7 +175,7 @@ abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with java.lan
 		// 出力バッファ内のデータを全て出力し終えたらバッファを持たない状態にして次回の呼び
 		// 出しで出力キューから取得
 		if(buffer.remaining() == 0){
-			writeBuffer = None
+			writingBuffer = None
 		}
 	}
 
