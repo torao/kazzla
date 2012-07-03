@@ -1,26 +1,26 @@
 /* Copyright (C) 2012 BJöRFUAN
  * This source and related resources are distributed under Apache License, Version 2.0.
  */
-package com.kazzla.irpc
+package com.kazzla.domain.irpc
 
-import async.RawBuffer
+import com.kazzla.domain.async.RawBuffer
+import java.nio.{ByteOrder, ByteBuffer}
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Codec
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
- * プロシジャコールを入出力用にバイナリ化するためのトレイトです。
- * インスタンスは 1 接続に対するスコープを持つため内部でバッファリングを行うことができます。
+ * プロシジャーコールの転送単位をバイナリ化するトレイトです。
+ * インスタンスはスレッドセーフです。
  * @author Takami Torao
  */
-abstract class Codec(val name:String) {
+trait class Codec {
 
 	// ========================================================================
 	// バッファの作成
 	// ========================================================================
 	/**
-	 * RPC のための呼び出し要求用バイナリを作成します。
-	 * 引数は Call, Result, Control のいずれかの型を持ちます。
+	 * 指定された転送単位をバイナリに変換します。
 	 */
 	def pack(unit:Transferable):Array[Byte]
 
@@ -28,8 +28,8 @@ abstract class Codec(val name:String) {
 	// バッファの復元
 	// ========================================================================
 	/**
-	 * 指定されたバッファから転送オブジェクトを復元します。
-	 * オブジェクトを復元可能なデータが揃っていない場合は None を返します。
+	 * 指定されたバッファから転送単位を復元します。バッファにオブジェクトを復元可能なデータ
+	 * が揃っていない場合は None を返します。
 	 */
 	def unpack(buffer:RawBuffer):Option[Transferable]
 
@@ -41,20 +41,20 @@ object Codec {
 	// ファクトリ
 	// ========================================================================
 	/**
-	 * 名前にマッピングされたコーデック生成関数です。
+	 * 名前にマッピングされたコーデックのインスタンスです。
 	 */
-	private[this] var factories = Map[String,()=>Codec]()
+	private[this] var codecs = Map[String,Codec]()
 
 	// ========================================================================
 	// コーデックの登録
 	// ========================================================================
 	/**
-	 * 指定された生に対するコーデック生成関数を登録します。
+	 * 指定された名前に対するコーデックを登録します。
 	 * @param name コーデック名
-	 * @param factory コーデック生成関数
+	 * @param codec コーデック
 	 */
-	def register(name:String, factory:()=>Codec):Unit = synchronized{
-		factories += (name -> factory)
+	def register(name:String, codec:Codec):Unit = synchronized{
+		codecs += (name.toLowerCase() -> codec)
 	}
 
 	// ========================================================================
@@ -66,11 +66,79 @@ object Codec {
 	 * @param name コーデック名
 	 * @return コーデック
 	 */
-	def newCodec(name:String):Option[Codec] = {
-		factories.get(name) match {
-			case Some(factory) => Some(factory.apply())
-			case None => None
+	def getCodec(name:String):Option[Codec] = codecs.get(name.toLowerCase())
+
+}
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// JavaCodec
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/**
+ * プロシジャーコールの転送単位をバイナリ化する抽象クラスです。
+ * インスタンスはスレッドセーフです。
+ * @author Takami Torao
+ */
+object JavaCodec extends Codec {
+	import java.io._
+	Codec.register("java-serialize", this)
+
+	// ========================================================================
+	// バッファの作成
+	// ========================================================================
+	/**
+	 * 指定された転送単位をバイナリに変換します。
+	 */
+	def pack(unit:Transferable):Array[Byte] = {
+
+		// 先頭に 4 バイト追加
+		val buffer = new ByteArrayOutputStream()
+		for(i <- 0 until 4){ buffer.write(0) }
+
+		// オブジェクトのシリアライズ
+		val out = new ObjectOutputStream(buffer)
+		out.writeObject(out)
+		out.flush()
+
+		// 先頭に長さを設定
+		val binary = buffer.toByteArray
+		val len = binary.length
+		for(i <- 0 until 4){
+			binarh(i) = ((len >> (8 * i)) & 0xFF).toByte
 		}
+
+		binary
+	}
+
+	// ========================================================================
+	// バッファの復元
+	// ========================================================================
+	/**
+	 * 指定されたバッファから転送単位を復元します。バッファにオブジェクトを復元可能なデータ
+	 * が揃っていない場合は None を返します。
+	 */
+	def unpack(buffer:RawBuffer):Option[Transferable] = {
+
+		// 先頭の 4 バイトで長さを参照
+		if(buffer.size() < 4){
+
+			return None
+		}
+		val buffer = new ByteArrayOutputStream()
+		(0 until 4).foreach { buffer.write(0) }
+
+		// オブジェクトのシリアライズ
+		val out = new ObjectOutputStream(buffer)
+		out.writeObject(out)
+		out.flush()
+
+		// 先頭に長さを設定
+		val binary = buffer.toByteArray
+		val len = binary.length
+		for(i <- 0 until 4){
+			binarh(i) = ((len >> (8 * i)) & 0xFF).toByte
+		}
+
+		binary
 	}
 
 }
