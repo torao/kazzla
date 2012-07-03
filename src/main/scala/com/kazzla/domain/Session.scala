@@ -3,11 +3,9 @@
  */
 package com.kazzla.domain
 
-import collection.mutable.HashMap
 import org.apache.log4j.Logger
 import com.kazzla.irpc.async.PipelineGroup
 import com.kazzla.irpc._
-import com.kazzla.domain.Session.Processing
 import java.util.concurrent.atomic.AtomicBoolean
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -19,7 +17,15 @@ import java.util.concurrent.atomic.AtomicBoolean
  * </p>
  * @author Takami Torao
  */
-class Session private[irpc](val domain: Domain) {
+class Session private[domain](val domain: Domain) {
+
+	// ========================================================================
+	// 呼び出し処理
+	// ========================================================================
+	/**
+	 * このセッション上で現在実行中の呼び出し処理です。
+	 */
+	private[this] var localProcessing = Map[Call,Session.Processing]()
 
 	// ========================================================================
 	// パイプライングループ
@@ -35,7 +41,7 @@ class Session private[irpc](val domain: Domain) {
 	/**
 	 * このセッション上で現在実行中の呼び出し処理です。
 	 */
-	private[this] var localProcessing = Map[Call,Session.Processing]()
+	private[this] var remoteProcessing = Map[Call,Session.Processing]()
 
 	// ========================================================================
 	// ========================================================================

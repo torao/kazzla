@@ -5,7 +5,7 @@ package com.kazzla.domain
 
 import java.net.URL
 import xml.XML
-import com.kazzla.{domain, KazzlaException}
+import com.kazzla.KazzlaException
 import org.apache.log4j.Logger
 import java.util.{TimerTask, Timer}
 import java.util.concurrent.atomic.AtomicBoolean
@@ -40,7 +40,7 @@ class Domain private[Domain](val config:Configuration, val url:URL){
 	private[this] val timer = new Timer("SessionTimeoutWatchdog", true)
 
 	{
-		val interval = config("domain.cleanup.interval", 3000)
+		val interval = config("domain.monitor.interval", 3000)
 		timer.scheduleAtFixedRate(new TimerTask{
 			def run():Unit = cleanup()
 		}, interval, interval)
@@ -126,7 +126,7 @@ object Domain {
 	/**
 	 * ドメインが見つからない時に発生する例外です。
 	 */
-	class NotFoundException(msg: String, ex: Seq[Throwable]) extends KazzlaException(msg, null, ex: _*)
+	class NotFoundException(msg:String, ex:Seq[Throwable]) extends KazzlaException(msg, null, ex:_*)
 
 	// ========================================================================
 	// ドメインのインスタンス
