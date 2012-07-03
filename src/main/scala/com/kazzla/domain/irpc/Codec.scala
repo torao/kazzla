@@ -141,7 +141,7 @@ object JsonCodec extends Codec {
 		out.write("{")
 		unit match {
 			case call:Call =>
-				
+
 		}
 		out.write("}")
 		out.flush()
