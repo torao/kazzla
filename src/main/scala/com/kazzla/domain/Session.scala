@@ -18,6 +18,14 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @author Takami Torao
  */
 class Session private[domain](val domain: Domain) {
+/*
+パイプライングループ
+リモート呼び出し処理
+ローカル呼び出し処理
+ローカル呼び出し用スレッドプール
+接続中のピア
+サービス実装
+*/
 
 	// ========================================================================
 	// 呼び出し処理
@@ -106,4 +114,22 @@ object Session {
 	private[Session] val logger = Logger.getLogger(classOf[Session])
 
 	private[Session] case class Processing(timeout:Long, thread:Thread)
+
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// CallPool
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	/**
+	 * 呼び出し中の処理を保持するクラスです。
+	 */
+	private[Session] class CallPool {
+
+		// ======================================================================
+		// 呼び出し処理
+		// ======================================================================
+		/**
+		 * このセッション上で現在実行中の呼び出し処理です。
+		 */
+		private[this] var processing = Map[Call,Session.Processing]()
+	}
+
 }
