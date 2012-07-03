@@ -5,6 +5,7 @@ package com.kazzla.domain
 
 import org.apache.log4j.Logger
 import java.nio.ByteBuffer
+import com.kazzla.KazzlaException
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Interactive Remote Procedure Call

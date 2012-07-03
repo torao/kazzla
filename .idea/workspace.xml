@@ -2,20 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6b9306d3-c06a-4578-a58f-e9907ad7246e" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/ServiceContext.scala" />
-      <change type="MOVED" beforePath="C:\Users\torao\IdeaProjects\kazzla\src\main\scala\com\kazzla\domain\async\PipelineSpec.scala" afterPath="$PROJECT_DIR$/src/test/scala/com/kazzla/domain/irpc/PipelineSpec.scala" />
-      <change type="MOVED" beforePath="C:\Users\torao\IdeaProjects\kazzla\src\main\scala\com\kazzla\domain\async\RawBufferSpec.scala" afterPath="$PROJECT_DIR$/src/test/scala/com/kazzla/domain/irpc/RawBufferSpec.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/doc-files/Pipeline.eps" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/doc-files/Pipeline.eps" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/doc-files/Pipeline.png" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/doc-files/Pipeline.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/Dispatcher.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/Dispatcher.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/Pipeline.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/Pipeline.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/PipelineGroup.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/PipelineGroup.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/RawBuffer.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/RawBuffer.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/package.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/package.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Codec.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Codec.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Pipe.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Pipe.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Protocol.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Protocol.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/package.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/package.scala" />
     </list>
     <ignored path="kazzla.iws" />
@@ -107,9 +94,9 @@
       <file leaf-file-name="Codec.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Codec.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="123" column="0" selection-start="3390" selection-end="3391" vertical-scroll-proportion="0.65178573">
+            <state line="143" column="8" selection-start="4331" selection-end="4331" vertical-scroll-proportion="0.66964287">
               <folding>
-                <element signature="e#155#195#0" expanded="true" />
+                <element signature="e#155#171#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -118,7 +105,7 @@
       <file leaf-file-name="package.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/package.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="3" column="25" selection-start="148" selection-end="148" vertical-scroll-proportion="0.0">
+            <state line="34" column="59" selection-start="1157" selection-end="1157" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -158,8 +145,8 @@
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/PipelineGroup.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/RawBuffer.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Protocol.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/package.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/ServiceContext.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/package.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Codec.scala" />
       </list>
     </option>
@@ -828,7 +815,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/package.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="25" selection-start="148" selection-end="148" vertical-scroll-proportion="0.0">
+        <state line="34" column="59" selection-start="1157" selection-end="1157" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -842,9 +829,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Codec.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="123" column="0" selection-start="3390" selection-end="3391" vertical-scroll-proportion="0.65178573">
+        <state line="143" column="8" selection-start="4331" selection-end="4331" vertical-scroll-proportion="0.66964287">
           <folding>
-            <element signature="e#155#195#0" expanded="true" />
+            <element signature="e#155#171#0" expanded="true" />
           </folding>
         </state>
       </provider>
