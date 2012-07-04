@@ -1,26 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a1d58914-f30a-4b91-ab07-d81a653537e1" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/ServiceContext.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Transferable.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/util/JSON.scala" />
-      <change type="MOVED" beforePath="C:\Documents and Settings\t_takami\IdeaProjects\kazzla\src\main\scala\com\kazzla\domain\async\PipelineSpec.scala" afterPath="$PROJECT_DIR$/src/test/scala/com/kazzla/domain/irpc/PipelineSpec.scala" />
-      <change type="MOVED" beforePath="C:\Documents and Settings\t_takami\IdeaProjects\kazzla\src\main\scala\com\kazzla\domain\async\RawBufferSpec.scala" afterPath="$PROJECT_DIR$/src/test/scala/com/kazzla/domain/irpc/RawBufferSpec.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/doc-files/Pipeline.eps" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/doc-files/Pipeline.eps" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/doc-files/Pipeline.png" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/doc-files/Pipeline.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kazzla.iml" afterPath="$PROJECT_DIR$/kazzla.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/Dispatcher.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/Dispatcher.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/Pipeline.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/Pipeline.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/PipelineGroup.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/PipelineGroup.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/RawBuffer.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/RawBuffer.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/package.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/package.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Codec.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Codec.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Pipe.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Pipe.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Protocol.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Protocol.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/package.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/package.scala" />
-    </list>
+    <list default="true" id="a1d58914-f30a-4b91-ab07-d81a653537e1" name="Default" comment="" />
     <ignored path="wiredrive.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -97,7 +78,7 @@
       <file leaf-file-name="Codec.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Codec.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="196" column="17" selection-start="5645" selection-end="5645" vertical-scroll-proportion="0.1654321">
+            <state line="245" column="5" selection-start="7111" selection-end="7111" vertical-scroll-proportion="0.95185184">
               <folding />
             </state>
           </provider>
@@ -916,7 +897,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Codec.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="196" column="17" selection-start="5645" selection-end="5645" vertical-scroll-proportion="0.1654321">
+        <state line="245" column="5" selection-start="7111" selection-end="7111" vertical-scroll-proportion="0.95185184">
           <folding />
         </state>
       </provider>
