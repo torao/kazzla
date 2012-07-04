@@ -12,10 +12,11 @@ package com.kazzla.domain.irpc;
 public final class Close extends Transferable{
 
 	public enum Code {
-		EXIT_SUCCESS((byte)1),
-		CANCEL((byte)2),
-		WARN((byte)3),
-		ERROR((byte)4),
+		NONE((byte)0),
+		EXIT((byte)1),
+		WARN((byte)50),
+		CANCEL((byte)51),
+		ERROR((byte)100),
 		FATAL((byte)127)
 		;
 		public final byte id;
