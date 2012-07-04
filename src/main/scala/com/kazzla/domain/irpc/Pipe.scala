@@ -3,9 +3,9 @@
  */
 package com.kazzla.domain.irpc
 
-import async.Pipeline
 import java.util.concurrent.atomic.AtomicBoolean
 import java.io.{OutputStream, InputStream}
+import com.kazzla.domain.async.Pipeline
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Pipe
@@ -65,14 +65,15 @@ trait Pipe {
 	 * @throws RemoteException リモート側で例外が発生した場合
 	 * @throws CancelException 待機中に処理がキャンセルされた場合
 	 */
-	def apply(timeout:Long = 0):Seq[Any] = {
-		val result = get(timeout)
-		result.error match{
-			case Some(message) =>
-				throw new RemoteException(message)
-			case None =>
-				result.result
-		}
+	def apply(timeout:Long = 0):Seq[Any] = get(timeout) match {
+		case Some(close) =>
+			close.code match {
+				case Close.Code.CLOSE => close.args
+				case Close.Code.ERROR | Close.Code.FATAL | Close.Code.CANCEL =>
+					throw new RemoteException(close.message)
+			}
+		case None =>
+			throw new RemoteException("return timeout")
 	}
 
 	// ========================================================================
@@ -86,7 +87,7 @@ trait Pipe {
 	 * @param timeout 応答待ち時間 (ミリ秒)
 	 * @return RPC 実行結果
 	 */
-	def get(timeout:Long):Option[Result]
+	def get(timeout:Long):Option[Close]
 
 }
 
@@ -112,7 +113,7 @@ class PipeImpl private[irpc](id:Long, protocol:Protocol, codec:Codec, pipeline:P
 	/**
 	 * RPC 呼び出し結果です。
 	 */
-	private[this] var result:Option[Result] = None
+	private[this] var close:Option[Close] = None
 
 	// ========================================================================
 	// キャンセルフラグ
@@ -154,7 +155,7 @@ class PipeImpl private[irpc](id:Long, protocol:Protocol, codec:Codec, pipeline:P
 	 * @param timeout 応答待ち時間 (ミリ秒)
 	 * @return RPC 実行結果
 	 */
-	def get(timeout:Long):Option[Result] = {
+	def get(timeout:Long):Option[Close] = {
 		signal.synchronized{
 			if(! canceled.get() && result.isEmpty){
 				if(timeout > 0){
@@ -177,7 +178,7 @@ class PipeImpl private[irpc](id:Long, protocol:Protocol, codec:Codec, pipeline:P
 	 * RPC 実行結果を設定します。
 	 * @param value 実行結果
 	 */
-	private[irpc] def set(value:Result):Unit = {
+	private[irpc] def set(value:Close):Unit = {
 		signal.synchronized{
 			assert(! result.isEmpty)
 			result = Some(value)

@@ -67,7 +67,7 @@ class Domain private[Domain](val config:Configuration, val url:URL){
 		}
 		val session = new Session(this)
 		synchronized {
-			sessions += session
+			sessions ::= session
 		}
 		session
 	}
@@ -151,7 +151,7 @@ object Domain {
 		var exceptions = List[Throwable]()
 		scala.util.Random.shuffle(urls.toList).foreach { url =>
 			try {
-				return getDomain(create(url))
+				return create(conf, url)
 			} catch {
 				case ex:Throwable => exceptions ::= ex
 			}
@@ -167,7 +167,7 @@ object Domain {
 	 * 全てのドメインをクローズし使用していたリソースを開放します。
 	 */
 	def shutdown(): Unit = synchronized {
-		activeDomains.values.foreach { _.close() }
+		activeDomains.foreach { _.close() }
 		activeDomains = List()
 	}
 
@@ -204,7 +204,7 @@ object Domain {
 
 		// 完成したドメインを登録
 		synchronized{
-			activeDomains += domain
+			activeDomains ::= domain
 		}
 		domain
 	}

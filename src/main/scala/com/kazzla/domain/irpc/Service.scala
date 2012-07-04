@@ -24,7 +24,8 @@ object Service {
 	 * @return サービスのインスタンス
 	 */
 	def lookup[T <: Service](serviceName:String, spec:Class[T], option:String*):Option[T] = {
-
+		// TODO
+		null
 	}
 
 }

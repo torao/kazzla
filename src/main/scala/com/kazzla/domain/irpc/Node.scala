@@ -3,7 +3,6 @@
  */
 package com.kazzla.irpc
 
-import irpc._
 import java.net.Socket
 import collection.mutable.HashMap
 import java.security.cert.X509Certificate

@@ -8,7 +8,7 @@ import java.nio.ByteBuffer
 import java.io.ByteArrayOutputStream
 import java.nio.channels.SocketChannel
 import java.net.InetSocketAddress
-import com.kazzla.irpc.async._
+import com.kazzla.domain.async.{Pipeline, PipelineGroup}
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // PipelineSpec

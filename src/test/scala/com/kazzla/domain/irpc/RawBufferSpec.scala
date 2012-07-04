@@ -8,7 +8,7 @@ import java.util.Arrays
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import scala.actors.Actor
-import com.kazzla.irpc.async.{logger, RawBuffer}
+import com.kazzla.domain.async.RawBuffer
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // RawBufferSpec
