@@ -4,7 +4,7 @@
 package com.kazzla.domain.irpc
 
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong, AtomicBoolean}
-import java.io.{OutputStream, InputStream}
+import java.io.{IOException, OutputStream, InputStream}
 import java.nio.ByteBuffer
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -189,7 +189,15 @@ class ServiceContext(stream:Endpoint, bulk:Endpoint) {
 		/**
 		 * ブロック転送のためのシーケンス値です。
 		 */
-		private[this] val sequence = new AtomicInteger()
+		private[this] val sequence = new AtomicInteger(0)
+
+		// ======================================================================
+		// クローズフラグ
+		// ======================================================================
+		/**
+		 * このストリームがクローズされているかのフラグです。
+		 */
+		private[this] val closed = new AtomicBoolean(false)
 
 		// ======================================================================
 		// バッファ
@@ -199,22 +207,48 @@ class ServiceContext(stream:Endpoint, bulk:Endpoint) {
 		 */
 		private[this] val buffer = ByteBuffer.allocate(bufSize)
 
+		// ======================================================================
+		// バイト値の出力
+		// ======================================================================
+		/**
+		 * バイト値を出力します。
+		 */
 		def write(b:Int):Unit = {
+			ensureOpened()
 			if(buffer.remaining() == 0){
 				flush()
 			}
 			buffer.put(b.toByte)
 		}
 
+		// ======================================================================
+		// バイナリの出力
+		// ======================================================================
+		/**
+		 * バイナリを出力します。
+		 */
 		def write(b:Array[Byte]):Unit = write(b, 0, b.length)
 
+		// ======================================================================
+		// バイナリの出力
+		// ======================================================================
+		/**
+		 * バイナリを出力します。
+		 */
 		def write(b:Array[Byte], offset:Int, length:Int):Unit = {
+			ensureOpened()
 			if(buffer.remaining() == 0){
 				flush()
 			}
 			buffer.put(b.toByte)
 		}
 
+		// ======================================================================
+		// ストリームのフラッシュ
+		// ======================================================================
+		/**
+		 * バッファに保存されているデータをフラッシュします。
+		 */
 		def flush():Unit = {
 			if(buffer.position() > 0){
 				val seq = sequence.getAndIncrement
@@ -222,6 +256,16 @@ class ServiceContext(stream:Endpoint, bulk:Endpoint) {
 				buffer.flip()
 				buffer.get(binary)
 				endpoint.send(new Block(id, seq, binary))
+			}
+		}
+
+		def close():Unit = {
+			closed.set(true)
+		}
+
+		private[this] def ensureOpened():Unit = {
+			if(closed.get()){
+				throw new IOException("stream closed")
 			}
 		}
 
