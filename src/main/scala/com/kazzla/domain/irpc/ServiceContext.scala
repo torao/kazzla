@@ -9,6 +9,7 @@ import java.nio.ByteBuffer
 import java.util.concurrent.Executor
 import org.koiroha.wiredrive.util.Logger
 import com.kazzla.domain.async.RawBuffer
+import javax.security.cert.X509Certificate
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ServiceContext
@@ -16,7 +17,7 @@ import com.kazzla.domain.async.RawBuffer
 /**
  * @author Takami Torao
  */
-class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=>Any], executor:Executor) {
+class ServiceContext(myCert:X509Certificate, protocol:Protocol, bulk:Protocol, services:Map[String,(Any*)=>Any], executor:Executor) {
 	import ServiceContext.{logger, scalaArgsToJava}
 
 	stream.dispatch = dispatch
@@ -45,6 +46,20 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 	 * このコンテキストがクローズ済みかどうかを判定します。
 	 */
 	private[this] val _closed = new AtomicBoolean(false)
+
+	// ========================================================================
+	// 相手側証明書
+	// ========================================================================
+	/**
+	 * この通信相手の証明書です。証明書の交換が行われていない場合は None となります。
+	 */
+	private[this] var peerCert:Option[X509Certificate] = None
+
+	{
+		// 証明書の送信
+		val control = new Control(0, Control.CERT_EXCHANGE, myCert.getEncoded)
+		stream.send(control)
+	}
 
 	// ========================================================================
 	// パイプのオープン
@@ -143,12 +158,23 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 					logger.warn("abandand block: " + block)
 			}
 
+		// 通信制御系処理
 		case control:Control =>
 			control.code match {
 
 				// 操作なし
 				case Control.NOOP =>
 					logger.debug("noop caught")
+
+				// 証明書の交換
+				case Control.CERT_EXCHANGE =>
+					if(peerCert.isDefined){
+						close()
+					} else {
+						// 証明書の復元
+						val certbin = control.args(0).asInstanceOf[Array[Byte]]
+						peerCert = Some(X509Certificate.getInstance(certbin))
+					}
 
 				// ローカル処理のキャンセル
 				case Control.CANCEL =>

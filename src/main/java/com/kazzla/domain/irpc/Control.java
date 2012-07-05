@@ -13,7 +13,11 @@ import com.kazzla.debug.package$;
  */
 public final class Control extends Transferable{
 	public static final byte NOOP = 0;
-	public static final byte CANCEL = 1;
+
+	/** 証明書の交換 (0:証明書) */
+	public static final byte CERT_EXCHANGE = 1;
+
+	public static final byte CANCEL = 100;
 	public final byte code;
 	public final Object[] args;
 	public Control(long pipeId, byte code, Object... args) {
