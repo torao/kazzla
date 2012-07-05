@@ -13,6 +13,7 @@ import com.kazzla.debug.package$;
  */
 public final class Control extends Transferable{
 	public static final byte NOOP = 0;
+	public static final byte CANCEL = 1;
 	public final byte code;
 	public final Object[] args;
 	public Control(long pipeId, byte code, Object... args) {

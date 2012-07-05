@@ -12,10 +12,12 @@ package com.kazzla.domain.irpc;
 public final class Close extends Transferable{
 
 	public enum Code {
+		/** コールバック不要の処理結果を示すために内部的に使用 */
 		NONE((byte)0),
+		/** 正常終了し結果が保持されている */
 		EXIT((byte)1),
-		WARN((byte)50),
-		CANCEL((byte)51),
+		/** 処理がキャンセルされた */
+		CANCEL((byte)10),
 		ERROR((byte)100),
 		FATAL((byte)127)
 		;

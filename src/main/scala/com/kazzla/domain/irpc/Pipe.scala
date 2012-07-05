@@ -78,7 +78,7 @@ trait Pipe {
 		case Some(close) =>
 			close.code match {
 				case Close.Code.EXIT => close.args
-				case Close.Code.ERROR | Close.Code.FATAL | Close.Code.CANCEL =>
+				case Close.Code.ERROR | Close.Code.FATAL | Close.Code.CANCEL | Close.Code.NONE =>
 					throw new RemoteException(close.message)
 			}
 		case None =>
@@ -101,7 +101,7 @@ trait Pipe {
 }
 
 object Pipe {
-	private[this] var pipe:Option[Pipe] = None
-	def apply():Option[Pipe] = pipe
-	private[irpc] def setPipe(pipe:Option[Pipe]) = { this.pipe = pipe }
+	private[this] val pipe = new ThreadLocal[Pipe]()
+	def apply():Option[Pipe] = Option(pipe.get())
+	private[irpc] def setPipe(pipe:Option[Pipe]) = { this.pipe.set(pipe.getOrElse(null)) }
 }

@@ -3,13 +3,11 @@
  */
 package com.kazzla.domain.irpc;
 
+import com.kazzla.debug.package$;
+
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Block
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-import com.kazzla.debug.*;
-import com.kazzla.debug.package$;
-
 /**
  * @author Takami Torao
  */

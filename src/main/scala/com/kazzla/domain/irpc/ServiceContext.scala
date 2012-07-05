@@ -17,7 +17,8 @@ import com.kazzla.domain.async.RawBuffer
  * @author Takami Torao
  */
 class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=>Any], executor:Executor) {
-	import ServiceContext.logger
+	import ServiceContext.{logger, scalaArgsToJava}
+
 	stream.dispatch = dispatch
 	bulk.dispatch = dispatch
 
@@ -27,7 +28,7 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 	/**
 	 * リモート処理中のパイプです。
 	 */
-	val remoteProcessing = new PipePool()
+	val remoteProcessing = new PipePool(false)
 
 	// ========================================================================
 	// ローカル処理中パイプ
@@ -35,20 +36,53 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 	/**
 	 * ローカル処理中のパイプです。
 	 */
-	val localProcessing = new PipePool()
+	val localProcessing = new PipePool(true)
+
+	// ========================================================================
+	// クローズフラグ
+	// ========================================================================
+	/**
+	 * このコンテキストがクローズ済みかどうかを判定します。
+	 */
+	private[this] val _closed = new AtomicBoolean(false)
 
 	// ========================================================================
 	// パイプのオープン
 	// ========================================================================
 	/**
-	 * このインスタンスが使用するセレクターです。
+	 * <p>
+	 * パイプをオープンします。
+	 * </p>
+	 * <p>
+	 * `timeout` はリモートで実行する処理が自主的に Cancel 状態で終了しても良いタイムア
+	 * ウト時間をミリ秒表します。
+	 * </p>
+	 * <p>
+	 * `callback` はリモートサービスの処理が終了した時に Close コールバックが必要かどう
+	 * かを表すフラグです。処理の呼び出しのみで結果を待つ必要がない場合に false を指定する
+	 * とクローズ状態の Pipe が返されます。このパイプに対しての apply() はエラーとなります。
+	 * </p>
+	 * @param name サービス名
+	 * @param args サービスの引数
+	 * @param timeout 処理のタイムアウト時間 (ミリ秒)
+	 * @param callback コールバック (終了時の Close リターン) の有無
 	 */
 	def open(name:String, args:Array[Any], timeout:Long, callback:Boolean):Pipe = {
+
+		// 既にクローズされていたら例外
+		if(_closed.get()){
+			throw new IllegalStateException("closed")
+		}
+
+		// パイプの作成
 		val pipe = remoteProcessing.create()
 		try {
-			val open = new Open(pipe.id, timeout, callback, name, ServiceContext.scalaArgsToJava(args:_*))
+
+			// オープンの送信
+			val open = new Open(pipe.id, timeout, callback, name, scalaArgsToJava(args:_*))
 			pipe.open = Some(open)
 			stream.send(open)
+
 		} catch {
 			case ex:Throwable =>
 				remoteProcessing.close(pipe.id)
@@ -62,20 +96,36 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 	}
 
 	// ========================================================================
+	// コンテキストのクローズ
+	// ========================================================================
+	/**
+	 * <p>
+	 * このコンテキストの処理を終了します。
+	 * </p>
+	 */
+	def close():Unit = {
+		_closed.set(true)
+		remoteProcessing.closeAll()
+		localProcessing.closeAll()
+	}
+
+	// ========================================================================
 	// 転送ユニットのディスパッチ
 	// ========================================================================
 	/**
 	 * 指定された転送ユニットを受信した時に呼び出されます。
 	 */
 	private[this] def dispatch(unit:Transferable):Unit = unit match {
+
+		// パイプを生成しスレッドプール上でサービスを実行
 		case open:Open =>
-			// パイプを生成しスレッドプール上でサービスを実行
 			val pipe = localProcessing.create()
 			executor.execute(new Runnable {
 				def run():Unit = runService(pipe, open)
 			})
+
+		// ローカル実行中のスレッドに割り込みをかけパイプをプールから除去
 		case close:Close =>
-			// ローカル実行中のスレッドに割り込みをかけパイプをプールから除去
 			localProcessing.get(close.pipeId) match {
 				case Some(pipe) =>
 					pipe.setCloseState(close)
@@ -83,18 +133,31 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 				case None =>
 					logger.debug("abandand close: " + close)
 			}
+
+		// ローカル実行中のパイプにブロックデータを設定
 		case block:Block =>
-			// ローカル実行中のパイプにブロックデータを設定
 			localProcessing.get(block.pipeId) match {
 				case Some(pipe) =>
 					pipe.in.asInstanceOf[PipeInputStream].enqueue(block)
 				case None =>
 					logger.warn("abandand block: " + block)
 			}
+
 		case control:Control =>
 			control.code match {
+
+				// 操作なし
 				case Control.NOOP =>
 					logger.debug("noop caught")
+
+				// ローカル処理のキャンセル
+				case Control.CANCEL =>
+					localProcessing.get(control.pipeId) match {
+						case Some(pipe) => pipe.cancelLocalThread()
+						case None => logger.warn("abandand cancel control: " + control)
+					}
+
+				// 未定義のコントロールコード
 				case unknown =>
 					logger.warn("unsupported control code: 0x%02X".format(control.code & 0xFF))
 			}
@@ -114,11 +177,15 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 			services.get(open.name) match {
 				case Some(service) =>
 					val result = service(open.args)
-					new Close(pipe.id, Close.Code.EXIT, "", ServiceContext.scalaArgsToJava(result))
+					new Close(pipe.id, Close.Code.EXIT, "", scalaArgsToJava(result))
 				case None =>
 					new Close(pipe.id, Close.Code.ERROR, "unknown service: " + com.kazzla.debug.makeDebugString(open.name))
 			}
 		} catch {
+			case ex:InterruptedException =>
+				new Close(pipe.id, Close.Code.CANCEL, ex.getMessage)
+			case ex:CancelException =>
+				new Close(pipe.id, Close.Code.CANCEL, ex.getMessage)
 			case ex:Throwable =>
 				new Close(pipe.id, Close.Code.ERROR, ex.toString)
 		} finally {
@@ -138,6 +205,7 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 	 * @author Takami Torao
 	 */
 	private[ServiceContext] class PipeImpl(id:Long, pool:PipePool) extends Pipe{
+		assert(id != 0)
 
 		// ======================================================================
 		// シグナル
@@ -154,6 +222,14 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 		 * パイプ処理の結果です。
 		 */
 		var open:Option[Open] = None
+
+		// ======================================================================
+		// キャンセルフラグ
+		// ======================================================================
+		/**
+		 * このパイプがリモートによってキャンセル命令を受けているかのフラグです。
+		 */
+		private[this] val canceled = new AtomicBoolean(false)
 
 		// ======================================================================
 		// 処理結果
@@ -192,6 +268,13 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 		/**
 		 */
 		lazy val out:OutputStream = new PipeOutputStream(id, 4 * 1024, stream, sequence)
+
+		// ======================================================================
+		// ローカル呼び出しパイプ判定
+		// ======================================================================
+		/**
+		 */
+		def local:Boolean = pool.local
 
 		// ========================================================================
 		// バルク転送
@@ -240,12 +323,25 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 		 */
 		def cancel(reason:String = "operation canceled"):Unit = {
 
-			// 相手へキャンセルを通知
-			val close = new Close(id, Close.Code.CANCEL, reason)
-			stream.send(close)
+			// キャンセル命令が行えるのはリモートからのみ
+			if(local){
+				throw new IllegalStateException("pipe for local service cannot cancel")
+			}
 
-			// 内部をクローズ状態に設定
-			setCloseState(close)
+			// キャンセルの制御を送信
+			canceled.set(true)
+			stream.send(new Control(id, Control.CANCEL, scalaArgsToJava(reason)))
+		}
+
+		// ======================================================================
+		// 処理のキャンセル
+		// ======================================================================
+		/**
+		 * このパイプのローカル処理をキャンセルします。
+		 */
+		def cancelLocalThread(){
+			canceled.set(true)
+			thread.foreach{ _.interrupt() }
 		}
 
 		// ======================================================================
@@ -255,14 +351,7 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 		 * このパイプが自分または相手側によってキャンセルされているかを判定します。
 		 * @return キャンセルされている場合 true
 		 */
-		def isCanceled:Boolean = {
-			close.foreach{ close =>
-				if(close.code == Close.Code.CANCEL){
-					return true
-				}
-			}
-			false
-		}
+		def isCanceled:Boolean = canceled.get()
 
 		// ======================================================================
 		// 結果の設定
@@ -271,14 +360,14 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 		 * このパイプをクローズ状態にします。
 		 */
 		def setCloseState(code:Close.Code, msg:String, args:Any*):Unit = {
-			setCloseState(new Close(id, code, msg, ServiceContext.scalaArgsToJava(args:_*)))
+			setCloseState(new Close(id, code, msg, scalaArgsToJava(args:_*)))
 		}
 
 		// ======================================================================
 		// 結果の設定
 		// ======================================================================
 		/**
-		 * このパイプをクローズ状態にします。
+		 * このパイプをクローズ状態にします。転送ユニットの送信は行われません。
 		 */
 		def setCloseState(unit:Close):Unit = {
 
@@ -434,7 +523,7 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 	/**
 	 * @author Takami Torao
 	 */
-	class PipePool private[irpc] () {
+	class PipePool private[irpc] (val local:Boolean) {
 
 		// ======================================================================
 		// リモート処理中パイプ
@@ -450,7 +539,7 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 		/**
 		 * 次のパイプ ID 要求で返す値です。
 		 */
-		private[this] var nextPipeId:Long = 0
+		private[this] var nextPipeId:Long = 1
 
 		// ======================================================================
 		// パイプ数の参照
@@ -476,11 +565,12 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 		private[ServiceContext] def create():PipeImpl = synchronized{
 
 			// 新しいパイプ ID の取得
+			// パイプ ID 0 は制御のため予約されている
 			while(processing.contains(nextPipeId)){
-				nextPipeId += 1
+				nextPipeId += (if(nextPipeId + 1 == 0) 2 else 1)
 			}
 			val pipeId = nextPipeId
-			nextPipeId += 1
+			nextPipeId += (if(nextPipeId + 1 == 0) 2 else 1)
 
 			// パイプの作成
 			val pipe = new PipeImpl(pipeId, this)
@@ -495,7 +585,27 @@ class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=
 		 * 指定されたパイプ ID の処理が終了した時に呼び出されます。
 		 */
 		private[ServiceContext] def close(pipeId:Long):Unit = synchronized{
-			processing = processing - pipeId
+			processing -= pipeId
+		}
+
+		// ======================================================================
+		// パイプ処理の終了
+		// ======================================================================
+		/**
+		 * 指定されたパイプ ID の処理が終了した時に呼び出されます。
+		 */
+		private[ServiceContext] def closeAll():Unit = synchronized{
+			processing.values.foreach{ pipe =>
+				try{
+					if(local){
+						pipe.cancelLocalThread()
+					} else {
+						pipe.cancel()
+					}
+				} catch {
+					case ex:Exception => logger.error("fail to close pipe: " + pipe, ex)
+				}
+			}
 		}
 
 	}
