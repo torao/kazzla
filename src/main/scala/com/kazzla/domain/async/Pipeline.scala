@@ -146,8 +146,8 @@ abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with java.lan
 	 */
 	def writeWithFuture(buffer:Array[Byte], offset:Int, length:Int):Pipeline.Future = {
 		futuresMutex.synchronized{
-			val length = write(buffer, offset, length)
-			val future = new Pipeline.Future(length)
+			val len = write(buffer, offset, length)
+			val future = new Pipeline.Future(len)
 			futures ::= future
 			future
 		}
@@ -338,7 +338,7 @@ object Pipeline {
 	 * アプリケーションがパイプラインへ出力したデータが出力チャネルに書き込まれた通知を受け
 	 * るための `Future` です。
 	 */
-	class Future private[this](private[this] var size:Int) {
+	class Future private[Pipeline](private[this] var size:Int) {
 
 		// ======================================================================
 		// 完了シグナル

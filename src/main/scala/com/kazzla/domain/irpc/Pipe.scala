@@ -4,6 +4,7 @@
 package com.kazzla.domain.irpc
 
 import java.io.{OutputStream, InputStream}
+import java.nio.ByteBuffer
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Pipe
@@ -35,11 +36,21 @@ trait Pipe {
 	def out:OutputStream
 
 	// ========================================================================
+	// バルク転送
+	// ========================================================================
+	/**
+	 * 指定されたバイナリデータをバルク転送します。
+	 */
+	def bulkTransfer(buffer:ByteBuffer):Unit
+
+	// ========================================================================
 	// キャンセルフラグ
 	// ========================================================================
 	/**
 	 * このパイプがキャンセルされたかを表すフラグです。パイプに対するキャンセル操作はパイプ
 	 * の双方が行うことができます。
+	 * このメソッドを呼び出すことにより Cancel コードの Close が相手に転送されパイプは
+	 * クローズされます。
 	 * @param reason キャンセルの理由
 	 */
 	def cancel(reason:String = "operation canceled"):Unit
@@ -66,7 +77,7 @@ trait Pipe {
 	def apply(timeout:Long = 0):Seq[Any] = get(timeout) match {
 		case Some(close) =>
 			close.code match {
-				case Close.Code.CLOSE => close.args
+				case Close.Code.EXIT => close.args
 				case Close.Code.ERROR | Close.Code.FATAL | Close.Code.CANCEL =>
 					throw new RemoteException(close.message)
 			}
@@ -87,4 +98,10 @@ trait Pipe {
 	 */
 	def get(timeout:Long):Option[Close]
 
+}
+
+object Pipe {
+	private[this] var pipe:Option[Pipe] = None
+	def apply():Option[Pipe] = pipe
+	private[irpc] def setPipe(pipe:Option[Pipe]) = { this.pipe = pipe }
 }

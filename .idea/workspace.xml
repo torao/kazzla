@@ -2,11 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a1d58914-f30a-4b91-ab07-d81a653537e1" name="Default" comment="">
-      <change type="DELETED" beforePath="C:\Documents and Settings\t_takami\IdeaProjects\kazzla\src\main\scala\com\kazzla\domain\async\Flush.scala" afterPath="" />
-      <change type="DELETED" beforePath="C:\Documents and Settings\t_takami\IdeaProjects\kazzla\src\main\scala\com\kazzla\domain\irpc\Endpoint.scala" afterPath="" />
+      <change type="DELETED" beforePath="C:\Documents and Settings\t_takami\IdeaProjects\kazzla\src\main\scala\com\kazzla\domain\Address.scala" afterPath="" />
+      <change type="DELETED" beforePath="C:\Documents and Settings\t_takami\IdeaProjects\kazzla\src\main\scala\com\kazzla\domain\irpc\ReconnectableAddress.scala" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Codec.java" afterPath="$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Codec.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Control.java" afterPath="$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Control.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/Pipeline.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/Pipeline.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Node.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Node.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Pipe.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Pipe.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Protocol.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Protocol.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/ServiceContext.scala" afterPath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/ServiceContext.scala" />
     </list>
@@ -86,16 +88,16 @@
       <file leaf-file-name="Node.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Node.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="85" column="16" selection-start="2525" selection-end="2525" vertical-scroll-proportion="0.0">
+            <state line="85" column="16" selection-start="2523" selection-end="2523" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ServiceContext.scala" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="ServiceContext.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/ServiceContext.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="81" column="11" selection-start="2559" selection-end="2559" vertical-scroll-proportion="0.72405064">
+            <state line="412" column="49" selection-start="12263" selection-end="12263" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="e#155#220#0" expanded="true" />
@@ -104,13 +106,33 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="Pipeline.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/Pipeline.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="340" column="31" selection-start="10006" selection-end="10006" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="Protocol.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Protocol.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="46" column="0" selection-start="1450" selection-end="1450" vertical-scroll-proportion="0.0">
+            <state line="65" column="33" selection-start="1950" selection-end="1950" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="e#155#181#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Control.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Control.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="14" column="35" selection-start="475" selection-end="475" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="e#0#1084#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -125,11 +147,13 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Pipe.scala" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="Pipe.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Pipe.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="28" column="0" selection-start="792" selection-end="792" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="79" column="42" selection-start="2436" selection-end="2436" vertical-scroll-proportion="0.484994">
+              <folding>
+                <element signature="e#155#197#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -148,22 +172,22 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Block.java" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Transferable.scala" />
         <option value="$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Transferable.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/MsgPackCodec.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Control.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Open.java" />
         <option value="$PROJECT_DIR$/src/test/scala/com/kazzla/domain/irpc/RawBufferSpec.scala" />
         <option value="$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Close.java" />
-        <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Pipe.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/Future.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/package.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Endpoint.scala" />
         <option value="$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Codec.java" />
-        <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/Pipeline.scala" />
+        <option value="$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Control.java" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Protocol.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/Pipeline.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Node.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/ServiceContext.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Pipe.scala" />
       </list>
     </option>
   </component>
@@ -401,6 +425,44 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="irpc" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="domain" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="irpc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Pipe.scala" />
+              <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -748,24 +810,24 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-4" y="-4" width="1608" height="1180" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21256039" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.21256039" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="SBT Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.19323671" sideWeight="0.49695587" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18743962" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.22439024" sideWeight="0.4977169" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32753623" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.17101449" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.17101449" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19188668" sideWeight="0.39806762" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19188668" sideWeight="0.41932368" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19188668" sideWeight="0.38260868" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19188668" sideWeight="0.40289855" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -856,39 +918,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Close.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="19" selection-start="512" selection-end="512" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#0#1533#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Open.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="86" selection-start="558" selection-end="630" vertical-scroll-proportion="0.24455446">
-          <folding>
-            <element signature="e#0#1200#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Block.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="19" column="18" selection-start="588" selection-end="588" vertical-scroll-proportion="0.24455446">
           <folding>
             <element signature="e#0#1009#0" expanded="true" />
             <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Control.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="0" selection-start="606" selection-end="606" vertical-scroll-proportion="0.24455446">
-          <folding>
-            <element signature="e#0#1048#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -904,23 +939,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Node.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="85" column="16" selection-start="2525" selection-end="2525" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/package.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="14" column="0" selection-start="386" selection-end="386" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Pipe.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="0" selection-start="792" selection-end="792" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -938,20 +959,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/Pipeline.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="161" column="17" selection-start="5319" selection-end="5319" vertical-scroll-proportion="0.31296572">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/RawBuffer.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="6" selection-start="973" selection-end="973" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Codec.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="82" column="5" selection-start="2509" selection-end="2509" vertical-scroll-proportion="1.1481012">
@@ -962,9 +969,43 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Close.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="39" column="69" selection-start="949" selection-end="990" vertical-scroll-proportion="0.5227848">
+          <folding>
+            <element signature="e#0#1533#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Open.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="19" column="86" selection-start="571" selection-end="630" vertical-scroll-proportion="0.31265822">
+          <folding>
+            <element signature="e#0#1200#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/RawBuffer.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="32" column="6" selection-start="973" selection-end="973" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/kazzla/domain/irpc/Control.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="14" column="35" selection-start="475" selection-end="475" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#0#1084#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Protocol.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="46" column="0" selection-start="1450" selection-end="1450" vertical-scroll-proportion="0.0">
+        <state line="65" column="33" selection-start="1950" selection-end="1950" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="n#!!doc" expanded="true" />
             <element signature="e#155#181#0" expanded="true" />
@@ -972,12 +1013,35 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/async/Pipeline.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="340" column="31" selection-start="10006" selection-end="10006" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/ServiceContext.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="81" column="11" selection-start="2559" selection-end="2559" vertical-scroll-proportion="0.72405064">
+        <state line="412" column="49" selection-start="12263" selection-end="12263" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="n#!!doc" expanded="true" />
             <element signature="e#155#220#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Node.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="85" column="16" selection-start="2523" selection-end="2523" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/com/kazzla/domain/irpc/Pipe.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="79" column="42" selection-start="2436" selection-end="2436" vertical-scroll-proportion="0.484994">
+          <folding>
+            <element signature="e#155#197#0" expanded="true" />
           </folding>
         </state>
       </provider>

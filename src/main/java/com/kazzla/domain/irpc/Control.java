@@ -12,6 +12,7 @@ import com.kazzla.debug.package$;
  * @author Takami Torao
  */
 public final class Control extends Transferable{
+	public static final byte NOOP = 0;
 	public final byte code;
 	public final Object[] args;
 	public Control(long pipeId, byte code, Object... args) {

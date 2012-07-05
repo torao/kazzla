@@ -82,7 +82,7 @@ class Node(cert: X509Certificate) {
 	 * @param socket ノードにアタッチするソケット
 	 * @return ピア (通信相手) を表すインスタンス
 	 */
-	def attach(socket: Socket): Peer = {
+	def attach(socket:Socket):Peer = {
 		new Peer(this, socket.getChannel)
 	}
 

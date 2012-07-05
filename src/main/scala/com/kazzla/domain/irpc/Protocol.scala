@@ -63,7 +63,7 @@ abstract class Protocol(factory:((ByteBuffer)=>Unit)=>Pipeline){
 	 * 通信を終了します。
 	 */
 	def destroy(){
-		pipeline.close()
+		pipeline.foreach{ _.close() }
 		pipeline = None
 	}
 
@@ -92,6 +92,7 @@ abstract class Protocol(factory:((ByteBuffer)=>Unit)=>Pipeline){
 	private[this] def receive(buffer:ByteBuffer):Unit = {
 		if(buffer == null){
 			destroy()
+			// TODO 再接続のロジックをどうするか?
 		} else {
 			readBuffer.enqueue(buffer)
 			receive(readBuffer).foreach{ dispatch(_) }

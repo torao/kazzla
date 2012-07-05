@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.{AtomicInteger, AtomicBoolean}
 import java.io.{IOException, OutputStream, InputStream}
 import java.nio.ByteBuffer
 import java.util.concurrent.Executor
+import org.koiroha.wiredrive.util.Logger
+import com.kazzla.domain.async.RawBuffer
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ServiceContext
@@ -14,9 +16,10 @@ import java.util.concurrent.Executor
 /**
  * @author Takami Torao
  */
-class ServiceContext(stream:Protocol, bulk:Protocol, executor:Executor) {
-	stream.dispatch = dispatch1
-	bulk.dispatch = dispatch1
+class ServiceContext(stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=>Any], executor:Executor) {
+	import ServiceContext.logger
+	stream.dispatch = dispatch
+	bulk.dispatch = dispatch
 
 	// ========================================================================
 	// リモート処理中パイプ
@@ -27,6 +30,14 @@ class ServiceContext(stream:Protocol, bulk:Protocol, executor:Executor) {
 	val remoteProcessing = new PipePool()
 
 	// ========================================================================
+	// ローカル処理中パイプ
+	// ========================================================================
+	/**
+	 * ローカル処理中のパイプです。
+	 */
+	val localProcessing = new PipePool()
+
+	// ========================================================================
 	// パイプのオープン
 	// ========================================================================
 	/**
@@ -35,39 +46,89 @@ class ServiceContext(stream:Protocol, bulk:Protocol, executor:Executor) {
 	def open(name:String, args:Array[Any], timeout:Long, callback:Boolean):Pipe = {
 		val pipe = remoteProcessing.create()
 		try {
-			stream.send(new Open(pipe.id, timeout, callback, name, args:_*))
+			val open = new Open(pipe.id, timeout, callback, name, ServiceContext.scalaArgsToJava(args:_*))
+			pipe.open = Some(open)
+			stream.send(open)
 		} catch {
 			case ex:Throwable =>
+				remoteProcessing.close(pipe.id)
 				throw ex
 		} finally {
 			if(! callback){
-				pipe.set(new Close(pipe.id, Close.Code.NONE, "resulting callback disabled"))
+				pipe.setCloseState(new Close(pipe.id, Close.Code.NONE, "resulting callback disabled"))
 			}
 		}
 		pipe
 	}
 
 	// ========================================================================
-	// パイプのオープン
+	// 転送ユニットのディスパッチ
 	// ========================================================================
 	/**
-	 * このインスタンスが使用するセレクターです。
+	 * 指定された転送ユニットを受信した時に呼び出されます。
 	 */
-	private[this] def dispatch1(unit:Transferable):Unit = executor.execute(new Runnable {
-		def run() { dispatch2(unit) }
-	})
+	private[this] def dispatch(unit:Transferable):Unit = unit match {
+		case open:Open =>
+			// パイプを生成しスレッドプール上でサービスを実行
+			val pipe = localProcessing.create()
+			executor.execute(new Runnable {
+				def run():Unit = runService(pipe, open)
+			})
+		case close:Close =>
+			// ローカル実行中のスレッドに割り込みをかけパイプをプールから除去
+			localProcessing.get(close.pipeId) match {
+				case Some(pipe) =>
+					pipe.setCloseState(close)
+					pipe.thread.foreach{ _.interrupt() }
+				case None =>
+					logger.debug("abandand close: " + close)
+			}
+		case block:Block =>
+			// ローカル実行中のパイプにブロックデータを設定
+			localProcessing.get(block.pipeId) match {
+				case Some(pipe) =>
+					pipe.in.asInstanceOf[PipeInputStream].enqueue(block)
+				case None =>
+					logger.warn("abandand block: " + block)
+			}
+		case control:Control =>
+			control.code match {
+				case Control.NOOP =>
+					logger.debug("noop caught")
+				case unknown =>
+					logger.warn("unsupported control code: 0x%02X".format(control.code & 0xFF))
+			}
+	}
 
 	// ========================================================================
-	// パイプのオープン
+	// サービスの実行
 	// ========================================================================
 	/**
-	 * このインスタンスが使用するセレクターです。
+	 * 指定されたサービスを実行します。このメソッドはスレッドプール内のスレッドで実行される
+	 * 事を想定しています。
 	 */
-	private[this] def dispatch2(unit:Transferable):Unit = unit match {
-		case open:Open =>
-		case close:Close =>
-		case block:Block =>
-		case control:Control =>
+	private[this] def runService(pipe:PipeImpl, open:Open):Unit = {
+		val close = try {
+			Pipe.setPipe(Some(pipe))
+			pipe.thread = Some(Thread.currentThread())
+			services.get(open.name) match {
+				case Some(service) =>
+					val result = service(open.args)
+					new Close(pipe.id, Close.Code.EXIT, "", ServiceContext.scalaArgsToJava(result))
+				case None =>
+					new Close(pipe.id, Close.Code.ERROR, "unknown service: " + com.kazzla.debug.makeDebugString(open.name))
+			}
+		} catch {
+			case ex:Throwable =>
+				new Close(pipe.id, Close.Code.ERROR, ex.toString)
+		} finally {
+			Pipe.setPipe(None)
+			pipe.thread = None
+		}
+
+		if(open.callback){
+			stream.send(close)
+		}
 	}
 
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -87,6 +148,14 @@ class ServiceContext(stream:Protocol, bulk:Protocol, executor:Executor) {
 		private[this] val signal = new Object()
 
 		// ======================================================================
+		// 開始処理
+		// ======================================================================
+		/**
+		 * パイプ処理の結果です。
+		 */
+		var open:Option[Open] = None
+
+		// ======================================================================
 		// 処理結果
 		// ======================================================================
 		/**
@@ -95,21 +164,48 @@ class ServiceContext(stream:Protocol, bulk:Protocol, executor:Executor) {
 		private[this] var close:Option[Close] = None
 
 		// ======================================================================
+		// 処理スレッド
+		// ======================================================================
+		/**
+		 * このパイプの処理を行なっているスレッドです。
+		 */
+		var thread:Option[Thread] = None
+
+		// ======================================================================
+		// 出力シーケンス番号
+		// ======================================================================
+		/**
+		 * ブロック転送のためのシーケンス値です。
+		 */
+		private[this] val sequence = new AtomicInteger(0)
+
+		// ======================================================================
 		// 入力ストリーム
 		// ======================================================================
 		/**
 		 */
-		def in:InputStream = {
-
-		}
+		lazy val in:InputStream = new PipeInputStream()
 
 		// ======================================================================
 		// 出力ストリーム
 		// ======================================================================
 		/**
 		 */
-		def out:OutputStream = {
+		lazy val out:OutputStream = new PipeOutputStream(id, 4 * 1024, stream, sequence)
 
+		// ========================================================================
+		// バルク転送
+		// ========================================================================
+		/**
+		 * 指定されたバイナリデータをバルク転送します。
+		 * バルク転送は到着と順序の保証がない高速な転送です。ストリーミングやブロックデバイスの
+		 * 転送に使用することができます。
+		 * <p>
+		 * データのサイズは 40kb 以下の必要があります。
+		 */
+		def bulkTransfer(buffer:ByteBuffer):Unit = {
+			val block = new Block(id, sequence.getAndIncrement, buffer.array())
+			bulk.send(block)
 		}
 
 		// ======================================================================
@@ -174,8 +270,8 @@ class ServiceContext(stream:Protocol, bulk:Protocol, executor:Executor) {
 		/**
 		 * このパイプをクローズ状態にします。
 		 */
-		def setCloseState(code:Close.CodeClose, msg:String, args:Any*):Unit = {
-			setCloseState(new Close(id, code, msg, args:_*))
+		def setCloseState(code:Close.Code, msg:String, args:Any*):Unit = {
+			setCloseState(new Close(id, code, msg, ServiceContext.scalaArgsToJava(args:_*)))
 		}
 
 		// ======================================================================
@@ -202,20 +298,38 @@ class ServiceContext(stream:Protocol, bulk:Protocol, executor:Executor) {
 	}
 
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	// PipeImpl
+	// PipeOutputStream
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	/**
 	 * @author Takami Torao
 	 */
-	private[ServiceContext] class PipeOutputStream(pipeId:Long, bufSize:Int, endpoint:Endpoint) extends OutputStream {
+	private[ServiceContext] class PipeInputStream extends InputStream {
+		private[this] val buffer = new RawBuffer("PipeInputStream")
+		def read():Int = {
+			// TODO 未実装
+			throw new IOException("not implemented")
+		}
+		def read(b:Array[Byte]):Int = {
+			// TODO 未実装
+			throw new IOException("not implemented")
+		}
+		def read(b:Array[Byte], offset:Int, length:Int):Int = {
+			// TODO 未実装
+			throw new IOException("not implemented")
+		}
+		def enqueue(block:Block) = {
+			// TODO ブロックの順序性の確認
+			buffer.enqueue(block.binary)
+		}
+	}
 
-		// ======================================================================
-		// シーケンス値
-		// ======================================================================
-		/**
-		 * ブロック転送のためのシーケンス値です。
-		 */
-		private[this] val sequence = new AtomicInteger(0)
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// PipeOutputStream
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	/**
+	 * @author Takami Torao
+	 */
+	private[ServiceContext] class PipeOutputStream(pipeId:Long, bufSize:Int, protocol:Protocol, sequence:AtomicInteger) extends OutputStream {
 
 		// ======================================================================
 		// クローズフラグ
@@ -239,7 +353,7 @@ class ServiceContext(stream:Protocol, bulk:Protocol, executor:Executor) {
 		/**
 		 * バイト値を出力します。
 		 */
-		def write(b:Int):Unit = {
+		def write(b:Int):Unit = buffer.synchronized{
 			ensureOpened()
 			if(buffer.remaining() == 0){
 				flush(false)
@@ -261,12 +375,19 @@ class ServiceContext(stream:Protocol, bulk:Protocol, executor:Executor) {
 		/**
 		 * バイナリを出力します。
 		 */
-		def write(b:Array[Byte], offset:Int, length:Int):Unit = {
-			ensureOpened()
-			if(buffer.remaining() == 0){
-				flush(false)
-			}
-			buffer.put(b.toByte)
+		def write(b:Array[Byte], offset:Int, length:Int):Unit = buffer.synchronized{
+			var start = offset
+			var left = length
+			do {
+				ensureOpened()
+				if(buffer.remaining() == 0){
+					flush(false)
+				}
+				val len = scala.math.min(buffer.remaining(), left)
+				buffer.put(b, start, left)
+				left += len
+				start += len
+			} while(left > 0)
 		}
 
 		// ======================================================================
@@ -283,15 +404,14 @@ class ServiceContext(stream:Protocol, bulk:Protocol, executor:Executor) {
 		/**
 		 * バッファに保存されているデータをフラッシュします。
 		 */
-		private[this] def flush(waitFinish:Boolean):Unit = {
+		private[this] def flush(waitFinish:Boolean):Unit = buffer.synchronized{
 			if(waitFinish || buffer.position() > 0){
-					val seq = sequence.getAndIncrement
-					val binary = new Array(buffer.position())
-					buffer.flip()
-					buffer.get(binary)
-					val future = endpoint.send(new Block(id, seq, binary))
-					future()
-				}
+				val seq = sequence.getAndIncrement
+				val binary = new Array[Byte](buffer.position())
+				buffer.flip()
+				buffer.get(binary)
+				val future = stream.send(new Block(pipeId, seq, binary))
+				future()
 			}
 		}
 
@@ -341,6 +461,13 @@ class ServiceContext(stream:Protocol, bulk:Protocol, executor:Executor) {
 		def pooledPipeCount = processing.size
 
 		// ======================================================================
+		//
+		// ======================================================================
+		/**
+		 */
+		def get(pipeId:Long):Option[PipeImpl] = processing.get(pipeId)
+
+		// ======================================================================
 		// パイプの作成
 		// ======================================================================
 		/**
@@ -356,7 +483,7 @@ class ServiceContext(stream:Protocol, bulk:Protocol, executor:Executor) {
 			nextPipeId += 1
 
 			// パイプの作成
-			val pipe = new PipeImpl(pipeId)
+			val pipe = new PipeImpl(pipeId, this)
 			processing += (pipeId -> pipe)
 			pipe
 		}
@@ -371,6 +498,24 @@ class ServiceContext(stream:Protocol, bulk:Protocol, executor:Executor) {
 			processing = processing - pipeId
 		}
 
+	}
+
+}
+
+object ServiceContext {
+	private[ServiceContext] val logger = Logger.getLogger(classOf[ServiceContext])
+
+	private[ServiceContext] def scalaArgsToJava(args:Any*):Array[Object] = {
+		(args.map{
+			case flag:Boolean => java.lang.Boolean.valueOf(flag)
+			case num:Byte => java.lang.Byte.valueOf(num)
+			case num:Short => java.lang.Short.valueOf(num)
+			case num:Int => java.lang.Integer.valueOf(num)
+			case num:Long => java.lang.Long.valueOf(num)
+			case num:Float => java.lang.Float.valueOf(num)
+			case num:Double => java.lang.Double.valueOf(num)
+			case value:AnyRef => value
+		}).toArray[Object]
 	}
 
 }
