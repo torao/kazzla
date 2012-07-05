@@ -3,9 +3,10 @@
  */
 package com.kazzla.domain.irpc
 
-import java.util.concurrent.atomic.{AtomicInteger, AtomicLong, AtomicBoolean}
+import java.util.concurrent.atomic.{AtomicInteger, AtomicBoolean}
 import java.io.{IOException, OutputStream, InputStream}
 import java.nio.ByteBuffer
+import java.util.concurrent.Executor
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ServiceContext
@@ -13,7 +14,9 @@ import java.nio.ByteBuffer
 /**
  * @author Takami Torao
  */
-class ServiceContext(stream:Endpoint, bulk:Endpoint) {
+class ServiceContext(stream:Protocol, bulk:Protocol, executor:Executor) {
+	stream.dispatch = dispatch1
+	bulk.dispatch = dispatch1
 
 	// ========================================================================
 	// リモート処理中パイプ
@@ -42,6 +45,29 @@ class ServiceContext(stream:Endpoint, bulk:Endpoint) {
 			}
 		}
 		pipe
+	}
+
+	// ========================================================================
+	// パイプのオープン
+	// ========================================================================
+	/**
+	 * このインスタンスが使用するセレクターです。
+	 */
+	private[this] def dispatch1(unit:Transferable):Unit = executor.execute(new Runnable {
+		def run() { dispatch2(unit) }
+	})
+
+	// ========================================================================
+	// パイプのオープン
+	// ========================================================================
+	/**
+	 * このインスタンスが使用するセレクターです。
+	 */
+	private[this] def dispatch2(unit:Transferable):Unit = unit match {
+		case open:Open =>
+		case close:Close =>
+		case block:Block =>
+		case control:Control =>
 	}
 
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -216,7 +242,7 @@ class ServiceContext(stream:Endpoint, bulk:Endpoint) {
 		def write(b:Int):Unit = {
 			ensureOpened()
 			if(buffer.remaining() == 0){
-				flush()
+				flush(false)
 			}
 			buffer.put(b.toByte)
 		}
@@ -238,7 +264,7 @@ class ServiceContext(stream:Endpoint, bulk:Endpoint) {
 		def write(b:Array[Byte], offset:Int, length:Int):Unit = {
 			ensureOpened()
 			if(buffer.remaining() == 0){
-				flush()
+				flush(false)
 			}
 			buffer.put(b.toByte)
 		}
@@ -249,17 +275,28 @@ class ServiceContext(stream:Endpoint, bulk:Endpoint) {
 		/**
 		 * バッファに保存されているデータをフラッシュします。
 		 */
-		def flush():Unit = {
-			if(buffer.position() > 0){
-				val seq = sequence.getAndIncrement
-				val binary = new Array(buffer.position())
-				buffer.flip()
-				buffer.get(binary)
-				endpoint.send(new Block(id, seq, binary))
+		def flush():Unit = flush(true)
+
+		// ======================================================================
+		// ストリームのフラッシュ
+		// ======================================================================
+		/**
+		 * バッファに保存されているデータをフラッシュします。
+		 */
+		private[this] def flush(waitFinish:Boolean):Unit = {
+			if(waitFinish || buffer.position() > 0){
+					val seq = sequence.getAndIncrement
+					val binary = new Array(buffer.position())
+					buffer.flip()
+					buffer.get(binary)
+					val future = endpoint.send(new Block(id, seq, binary))
+					future()
+				}
 			}
 		}
 
 		def close():Unit = {
+			flush(false)
 			closed.set(true)
 		}
 

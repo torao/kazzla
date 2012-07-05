@@ -4,7 +4,7 @@
 package com.kazzla.domain.irpc
 
 import java.nio.ByteBuffer
-import com.kazzla.domain.async.Pipeline
+import com.kazzla.domain.async.{RawBuffer, Pipeline}
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Protocol
@@ -19,8 +19,7 @@ import com.kazzla.domain.async.Pipeline
  * </p>
  * @author Takami Torao
  */
-abstract class Protocol(pipeline:Pipeline){
-	init()
+abstract class Protocol(factory:((ByteBuffer)=>Unit)=>Pipeline){
 
 	// ========================================================================
 	// 通信の初期化
@@ -28,7 +27,34 @@ abstract class Protocol(pipeline:Pipeline){
 	/**
 	 * 通信を初期化します。
 	 */
-	def init()
+	private[this] val readBuffer = new RawBuffer("protocol")
+
+	// ========================================================================
+	// パイプライン
+	// ========================================================================
+	/**
+	 * 使用中のパイプラインです。
+	 */
+	protected var pipeline:Option[Pipeline] = None
+
+	// ========================================================================
+	// ディスパッチャー
+	// ========================================================================
+	/**
+	 * 転送ユニットの準じに呼び出されるディスパッチャーです。
+	 */
+	private[irpc] var dispatch:(Transferable)=>Unit = null
+
+	// ========================================================================
+	// 通信の初期化
+	// ========================================================================
+	/**
+	 * 通信を初期化します。
+	 */
+	def init(){
+		readBuffer.clear()
+		pipeline = Some(factory(receive))
+	}
 
 	// ========================================================================
 	// 通信の終了
@@ -36,16 +62,40 @@ abstract class Protocol(pipeline:Pipeline){
 	/**
 	 * 通信を終了します。
 	 */
-	def destroy()
+	def destroy(){
+		pipeline.close()
+		pipeline = None
+	}
 
 	// ========================================================================
-	// データの転送
+	// 転送ユニットの転送
 	// ========================================================================
 	/**
-	 * 指定された転送単位を転送します。
-	 * 指定されたデータブロックを転送します。
-	 * @param buffer 転送するデータ
+	 * 指定された転送ユニットを出力します。
 	 */
-	def transfer(buffer:ByteBuffer):Unit
+	def send(transferable:Transferable):Pipeline.Future
+
+	// ========================================================================
+	// データ受信通知
+	// ========================================================================
+	/**
+	 * 内部バッファにデータを受信した時に呼び出されます。
+	 */
+	protected def receive(buffer:RawBuffer):Seq[Transferable]
+
+	// ========================================================================
+	// データ受信通知
+	// ========================================================================
+	/**
+	 * 内部バッファにデータを受信した時に呼び出されます。
+	 */
+	private[this] def receive(buffer:ByteBuffer):Unit = {
+		if(buffer == null){
+			destroy()
+		} else {
+			readBuffer.enqueue(buffer)
+			receive(readBuffer).foreach{ dispatch(_) }
+		}
+	}
 
 }

@@ -81,6 +81,16 @@ abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with java.lan
 	// データの非同期出力
 	// ========================================================================
 	/**
+	 * 指定されたバッファに格納さされている全てのデータを非同期で出力します。
+	 * @param buffer 送信バッファ
+	 * @return バッファリングされているデータの全サイズ
+	 */
+	def write(buffer:Array[Byte]):Int = write(buffer, 0, buffer.length)
+
+	// ========================================================================
+	// データの非同期出力
+	// ========================================================================
+	/**
 	 * 指定されたバイナリデータをこのパイプラインに非同期で出力します。呼び出しは直ちに
 	 * 完了しますが、呼び出し完了時点でデータが出力を完了している保証はありません。
 	 * 出力が完了していないデータと指定されたデータの合計サイズが出力バッファの最大サイズを
@@ -88,14 +98,16 @@ abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with java.lan
 	 * @param buffer バッファ
 	 * @param offset バッファ内での送信データの開始位置
 	 * @param length 送信データの長さ
+	 * @return バッファリングされているデータの全サイズ
 	 */
-	def write(buffer:Array[Byte], offset:Int, length:Int):Unit = {
+	def write(buffer:Array[Byte], offset:Int, length:Int):Int = {
+		// ※バッファフラッシュの目的で 0 バイトのデータが渡ってくることに注意
 
 		// 送信キューに送信データを連結
-		val needNotify = writeQueue.synchronized{
+		val (needNotify, bufferingSize) = writeQueue.synchronized{
 			val old = writeQueue.length
 			writeQueue.enqueue(buffer, offset, length)
-			(old == 0 && writeQueue.length > 0)
+			((old == 0 && writeQueue.length > 0), writeQueue.length + writingBuffer.size)
 		}
 		if(logger.isTraceEnabled){
 			logger.trace("enqueued %,d bytes into buffer, totally %,d bytes".format(length, writeQueue.length))
@@ -107,23 +119,47 @@ abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with java.lan
 				onWaitingToWrite(true)
 			}
 		}
+		bufferingSize
 	}
 
 	// ========================================================================
 	// データの非同期出力
 	// ========================================================================
 	/**
-	 * 指定されたバッファに格納さされている全てのデータを非同期で出力します。
-	 * @param buffer 送信バッファ
+	 * 指定されたバイナリデータをこのパイプラインに非同期出力します。返値の `Future` を
+	 * 使用してデータがパイプラインに送信されるまで待機することができます。
+	 * @param buffer バッファ
+	 * @return 指定データの出力完了確認用
 	 */
-	def write(buffer:Array[Byte]):Unit = write(buffer, 0, buffer.length)
+	def writeWithFuture(buffer:Array[Byte]):Pipeline.Future = writeWithFuture(buffer, 0, buffer.length)
+
+	// ========================================================================
+	// データの非同期出力
+	// ========================================================================
+	/**
+	 * 指定されたバイナリデータをこのパイプラインに非同期出力します。返値の `Future` を
+	 * 使用してデータがパイプラインに送信されるまで待機することができます。
+	 * @param buffer バッファ
+	 * @param offset バッファ内での送信データの開始位置
+	 * @param length 送信データの長さ
+	 * @return 指定データの出力完了確認用
+	 */
+	def writeWithFuture(buffer:Array[Byte], offset:Int, length:Int):Pipeline.Future = {
+		futuresMutex.synchronized{
+			val length = write(buffer, offset, length)
+			val future = new Pipeline.Future(length)
+			futures ::= future
+			future
+		}
+	}
 
 	// ========================================================================
 	// パイプラインのクローズ
 	// ========================================================================
 	/**
 	 * このパイプラインをクローズします。
-	 * スーパークラスのメソッドではセレクタへ登録されているキーを解放する
+	 * スーパークラスのメソッドではセレクタへ登録されているキーを解放するのみでチャネルの
+	 * クローズは行われません。
 	 */
 	override def close():Unit = {
 		try{
@@ -170,6 +206,11 @@ abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with java.lan
 		val len = out.write(buffer)
 		if(logger.isTraceEnabled){
 			logger.trace("write %,d bytes".format(len))
+		}
+
+		// 出力待機している Future に通知
+		futuresMutex.synchronized {
+			futures = futures.filter{ _.consume(len) }
 		}
 
 		// 出力バッファ内のデータを全て出力し終えたらバッファを持たない状態にして次回の呼び
@@ -282,10 +323,67 @@ abstract class Pipeline(sink:(ByteBuffer)=>Unit) extends Closeable with java.lan
 		}
 	}
 
+	private[this] val futuresMutex = new Object()
+	private[this] var futures = List[Pipeline.Future]()
+
 }
 
 object Pipeline {
 	private[async] val logger = Logger.getLogger(classOf[Pipeline])
+
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// Future
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	/**
+	 * アプリケーションがパイプラインへ出力したデータが出力チャネルに書き込まれた通知を受け
+	 * るための `Future` です。
+	 */
+	class Future private[this](private[this] var size:Int) {
+
+		// ======================================================================
+		// 完了シグナル
+		// ======================================================================
+		/**
+		 * 出力が完了したことを通知するためのシグナルです。
+		 */
+		private[this] val signal = new Object()
+
+		// ======================================================================
+		// バッファの消費
+		// ======================================================================
+		/**
+		 * 指定されたサイズのバッファデータが消費された時に呼び出されます。
+		 * @return この Future が終了した場合 false
+		 */
+		private[Pipeline] def consume(sz:Int):Boolean = {
+			size = scala.math.min(0, size - sz)
+			if(size == 0){
+				signal.synchronized { signal.notify() }
+				false
+			} else {
+				true
+			}
+		}
+
+		// ======================================================================
+		// 出力待機
+		// ======================================================================
+		/**
+		 * この Future が生成された時のデータが全て出力されるまで処理をブロックします。
+		 * @param timeout ブロックの最大時間 (ミリ秒)
+		 * @return 指定時間内に出力が完了しなかった場合 false
+		 */
+		def apply(timeout:Long = 0):Boolean = {
+			signal.synchronized{
+				if(size > 0){
+					signal.wait(timeout)
+					size == 0
+				} else {
+					true
+				}
+			}
+		}
+	}
 
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	// DefaultPipeline

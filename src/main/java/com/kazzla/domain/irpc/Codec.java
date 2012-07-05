@@ -89,11 +89,13 @@ public abstract class Codec {
 	// ========================================================================
 	/**
 	 * 指定された名前に対するコーデックを登録します。
-	 * @param name コーデック名
+	 * @param names コーデック名
 	 * @param codec コーデック
 	 */
-	public static void register(String name, Codec codec){
-		codecs.put(name.toLowerCase(), codec);
+	public static void register(Codec codec, String... names){
+		for(String name: names){
+			codecs.put(name.toLowerCase(), codec);
+		}
 	}
 
 	// ========================================================================
@@ -110,7 +112,7 @@ public abstract class Codec {
 	}
 
 	static {
-		Codec.register("messagepack", new MsgPackCodec());
+		Codec.register(new MsgPackCodec(), "msgpack", "application/x-msgpack");
 	}
 
 }
