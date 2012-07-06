@@ -5,6 +5,7 @@ package com.kazzla.domain.irpc
 
 import java.nio.ByteBuffer
 import com.kazzla.domain.async.{RawBuffer, Pipeline}
+import scala.annotation.tailrec
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Protocol
@@ -41,7 +42,7 @@ abstract class Protocol(factory:((ByteBuffer)=>Unit)=>Pipeline){
 	// ディスパッチャー
 	// ========================================================================
 	/**
-	 * 転送ユニットの準じに呼び出されるディスパッチャーです。
+	 * 転送ユニットの受信時に呼び出されるディスパッチャーです。
 	 */
 	private[irpc] var dispatch:(Transferable)=>Unit = null
 
@@ -51,7 +52,7 @@ abstract class Protocol(factory:((ByteBuffer)=>Unit)=>Pipeline){
 	/**
 	 * 通信を初期化します。
 	 */
-	def init(){
+	def open(){
 		readBuffer.clear()
 		pipeline = Some(factory(receive))
 	}
@@ -62,9 +63,10 @@ abstract class Protocol(factory:((ByteBuffer)=>Unit)=>Pipeline){
 	/**
 	 * 通信を終了します。
 	 */
-	def destroy(){
+	def close(){
 		pipeline.foreach{ _.close() }
 		pipeline = None
+		readBuffer.clear()
 	}
 
 	// ========================================================================
@@ -72,6 +74,7 @@ abstract class Protocol(factory:((ByteBuffer)=>Unit)=>Pipeline){
 	// ========================================================================
 	/**
 	 * 指定された転送ユニットを出力します。
+	 * @todo 必要な時だけ Future を返すように修正
 	 */
 	def send(transferable:Transferable):Pipeline.Future
 
@@ -80,6 +83,7 @@ abstract class Protocol(factory:((ByteBuffer)=>Unit)=>Pipeline){
 	// ========================================================================
 	/**
 	 * 内部バッファにデータを受信した時に呼び出されます。
+	 * @todo バッファからひとつも取得できなかった場合
 	 */
 	protected def receive(buffer:RawBuffer):Seq[Transferable]
 
@@ -96,6 +100,58 @@ abstract class Protocol(factory:((ByteBuffer)=>Unit)=>Pipeline){
 		} else {
 			readBuffer.enqueue(buffer)
 			receive(readBuffer).foreach{ dispatch(_) }
+		}
+	}
+
+}
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// Protocol
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/**
+ * <p>
+ * プロトコルは Codec と実際の I/O ストリームの間に存在し、入出力ストリーム上のデータ表現
+ * を
+ * プロトコルは Code によって符号化された転送単位 (Transfer Unit) と実際の転送ストリー
+ * ム上での入出力をマッピングするレイヤーです。
+ * インスタンスはパイプラインの接続に対してスコープを持ちます。
+ * </p>
+ * @author Takami Torao
+ */
+class DefaultProtocol(factory:((ByteBuffer)=>Unit)=>Pipeline) extends Protocol(factory){
+
+	// ========================================================================
+	// コーデック
+	// ========================================================================
+	/**
+	 * 通信に使用するコーデックです。
+	 */
+	private[this] val codec:Codec = new MsgPackCodec()
+
+	// ========================================================================
+	// 転送ユニットの転送
+	// ========================================================================
+	/**
+	 * 指定された転送ユニットを出力します。
+	 */
+	def send(transferable:Transferable):Pipeline.Future = {
+		pipeline.get.writeWithFuture(codec.pack(transferable))
+	}
+
+	// ========================================================================
+	// データ受信通知
+	// ========================================================================
+	/**
+	 * 内部バッファにデータを受信した時に呼び出されます。
+	 */
+	protected final def receive(buffer:RawBuffer):Seq[Transferable] = {
+		val list = List[Transferable]()
+		while(true){
+			val unit = codec.unpack(buffer)
+			if(unit == null){
+				return list.reverse
+			}
+			list ::= unit
 		}
 	}
 
