@@ -15,23 +15,5 @@ import com.kazzla.KazzlaException
  * @author Takami Torao
  */
 package object irpc {
-	import com.kazzla.debug.makeDebugString
 	val logger = Logger.getLogger(this.getClass)
-
-	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	// CancelException
-	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	/**
-	 * @author Takami Torao
-	 */
-	class CancelException(msg:String, ex:Throwable) extends Exception(msg, ex)
-
-	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	// RemoteException
-	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	/**
-	 * @author Takami Torao
-	 */
-	class RemoteException(msg:String) extends KazzlaException(msg)
-
 }

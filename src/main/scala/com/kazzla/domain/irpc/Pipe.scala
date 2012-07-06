@@ -3,9 +3,8 @@
  */
 package com.kazzla.domain.irpc
 
-import java.util.concurrent.atomic.AtomicBoolean
 import java.io.{OutputStream, InputStream}
-import com.kazzla.domain.async.Pipeline
+import java.nio.ByteBuffer
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Pipe
@@ -19,6 +18,8 @@ trait Pipe {
 	// ID
 	// ========================================================================
 	/**
+	 * このパイプの ID を参照します。この ID はパイプを開始した接続上でユニークな値を取り
+	 * ます。
 	 */
 	def id:Long
 
@@ -37,14 +38,24 @@ trait Pipe {
 	def out:OutputStream
 
 	// ========================================================================
+	// バルク転送
+	// ========================================================================
+	/**
+	 * 指定されたバイナリデータをバルク転送します。
+	 */
+	def bulkTransfer(buffer:ByteBuffer):Unit
+
+	// ========================================================================
 	// キャンセルフラグ
 	// ========================================================================
 	/**
 	 * このパイプがキャンセルされたかを表すフラグです。パイプに対するキャンセル操作はパイプ
 	 * の双方が行うことができます。
+	 * このメソッドを呼び出すことにより Cancel コードの Close が相手に転送されパイプは
+	 * クローズされます。
 	 * @param reason キャンセルの理由
 	 */
-	def cancel(reason:String = ""):Unit
+	def cancel(reason:String = "operation canceled"):Unit
 
 	// ========================================================================
 	// キャンセルの判定
@@ -68,8 +79,8 @@ trait Pipe {
 	def apply(timeout:Long = 0):Seq[Any] = get(timeout) match {
 		case Some(close) =>
 			close.code match {
-				case Close.Code.CLOSE => close.args
-				case Close.Code.ERROR | Close.Code.FATAL | Close.Code.CANCEL =>
+				case Close.Code.EXIT => close.args
+				case Close.Code.ERROR | Close.Code.FATAL | Close.Code.CANCEL | Close.Code.NONE =>
 					throw new RemoteException(close.message)
 			}
 		case None =>
@@ -91,122 +102,8 @@ trait Pipe {
 
 }
 
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// PipeImpl
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-/**
- * @author Takami Torao
- */
-class PipeImpl private[irpc](id:Long, protocol:Protocol, codec:Codec, pipeline:Pipeline) extends Pipe{
-
-	// ========================================================================
-	// シグナル
-	// ========================================================================
-	/**
-	 * RPC 呼び出し結果が到着したことを通知するシグナルです。
-	 */
-	private[this] val signal = new Object()
-
-	// ========================================================================
-	// 呼び出し結果
-	// ========================================================================
-	/**
-	 * RPC 呼び出し結果です。
-	 */
-	private[this] var close:Option[Close] = None
-
-	// ========================================================================
-	// キャンセルフラグ
-	// ========================================================================
-	/**
-	 * このパイプがキャンセルされたかを表すフラグです。パイプのキャンセルはこちら側または
-	 * 相手側によって行われます。
-	 */
-	private[this] val canceled = new AtomicBoolean(false)
-
-	// ========================================================================
-	// 結果の参照
-	// ========================================================================
-	/**
-	 * 処理をブロックし RPC の実行結果を参照します。リモート側で例外が発生した場合は例外が
-	 * スローされます。
-	 * @param timeout 応答までのタイムアウト時間 (ミリ秒)
-	 * @throws RemoteException リモート側で例外が発生した場合
-	 * @throws CancelException 待機中に処理がキャンセルされた場合
-	 */
-	def apply(timeout:Long = 0):Seq[Any] = {
-		val result = get(timeout).get
-		result.error match{
-			case Some(message) =>
-				throw new RemoteException(message)
-			case None =>
-				result.result
-		}
-	}
-
-	// ========================================================================
-	// 結果の参照
-	// ========================================================================
-	/**
-	 * 結果を参照します。指定されたタイムアウトまでに結果のリターンがなかった場合は None
-	 * を返します。指定された待ち時間までに応答がなかった場合は None を返します。
-	 * 待ち時間に 0 を指定した場合、応答があるまで永遠に待機します。この場合 None が返る
-	 * ことはありません。
-	 * @param timeout 応答待ち時間 (ミリ秒)
-	 * @return RPC 実行結果
-	 */
-	def get(timeout:Long):Option[Close] = {
-		signal.synchronized{
-			if(! canceled.get() && result.isEmpty){
-				if(timeout > 0){
-					signal.wait(timeout)
-				} else {
-					signal.wait()
-				}
-			}
-			if(canceled.get() || result.isEmpty){
-				throw new CancelException("operation canceled")
-			}
-			result
-		}
-	}
-
-	// ========================================================================
-	// 結果の設定
-	// ========================================================================
-	/**
-	 * RPC 実行結果を設定します。
-	 * @param value 実行結果
-	 */
-	private[irpc] def set(value:Close):Unit = {
-		signal.synchronized{
-			assert(! result.isEmpty)
-			result = Some(value)
-			signal.notifyAll()
-		}
-	}
-
-	// ========================================================================
-	// 処理のキャンセル
-	// ========================================================================
-	/**
-	 * このパイプを使用して行われている処理をキャンセルします。
-	 */
-	def cancel():Unit = {
-		signal.synchronized{
-			canceled.set(true)
-			signal.notify()
-		}
-		// TODO 相手へキャンセルを通知
-	}
-
-	// ========================================================================
-	// キャンセルの判定
-	// ========================================================================
-	/**
-	 * このパイプが自分または相手側によってキャンセルされているかを判定します。
-	 * @return キャンセルされている場合 true
-	 */
-	def isCanceled:Boolean = canceled.get()
-
+object Pipe {
+	private[this] val pipe = new ThreadLocal[Pipe]()
+	def apply():Option[Pipe] = Option(pipe.get())
+	private[irpc] def setPipe(pipe:Option[Pipe]) = { this.pipe.set(pipe.getOrElse(null)) }
 }
