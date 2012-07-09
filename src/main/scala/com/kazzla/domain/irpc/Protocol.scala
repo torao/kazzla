@@ -95,7 +95,8 @@ abstract class Protocol(factory:((ByteBuffer)=>Unit)=>Pipeline){
 	 */
 	private[this] def receive(buffer:ByteBuffer):Unit = {
 		if(buffer == null){
-			destroy()
+			// パイプラインがクローズされた場合
+			close()
 			// TODO 再接続のロジックをどうするか?
 		} else {
 			readBuffer.enqueue(buffer)
@@ -145,7 +146,7 @@ class DefaultProtocol(factory:((ByteBuffer)=>Unit)=>Pipeline) extends Protocol(f
 	 * 内部バッファにデータを受信した時に呼び出されます。
 	 */
 	protected final def receive(buffer:RawBuffer):Seq[Transferable] = {
-		val list = List[Transferable]()
+		var list = List[Transferable]()
 		while(true){
 			val unit = codec.unpack(buffer)
 			if(unit == null){
@@ -153,6 +154,7 @@ class DefaultProtocol(factory:((ByteBuffer)=>Unit)=>Pipeline) extends Protocol(f
 			}
 			list ::= unit
 		}
+		Nil
 	}
 
 }
