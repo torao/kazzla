@@ -3,7 +3,7 @@
  */
 package com.kazzla.domain
 
-import java.net.URL
+import java.net._
 import xml.XML
 import com.kazzla.KazzlaException
 import org.apache.log4j.Logger
@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 class Domain private[Domain](val config:Configuration, val url:URL){
 	private[Domain] var _name:String = null
 	private[Domain] var _displayName:String = null
-	private[Domain] var _authServers = Seq[String]()
-	private[Domain] var _regServers = Seq[String]()
+	private[Domain] var _authServers = Iterable[URI]()
+	private[Domain] var _regServers = Iterable[URI]()
 	private[this] val _closed = new AtomicBoolean(false)
 
 	def name = _name
@@ -117,6 +117,8 @@ class Domain private[Domain](val config:Configuration, val url:URL){
 
 object Domain {
 	private[Domain] val logger = Logger.getLogger(classOf[Domain])
+
+	val DEFAULT_PORT = 58371
 
 	// シャットダウンフックを登録し正常終了時には必ず全ドメインをシャットダウン
 	Runtime.getRuntime.addShutdownHook(new Thread("DomainShutdown") {
