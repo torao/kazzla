@@ -24,11 +24,8 @@ import java.nio.channels.SocketChannel
 class Session private[domain](val domain: Domain, config:Configuration) {
 /*
 パイプライングループ
-リモート呼び出し処理
-ローカル呼び出し処理
-ローカル呼び出し用スレッドプール
-接続中のピア
-サービス実装
+スレッドプール
+ローカルサービス(共通)
 */
 
 	// ========================================================================
@@ -38,13 +35,13 @@ class Session private[domain](val domain: Domain, config:Configuration) {
 	 * このセッション上でサービスの処理を行うためのスレッドプールです。
 	 */
 	private[this] val executor = new ThreadPoolExecutor(
-		config.get("threads.corePoolSize", 5),
-		config.get("threads.maximumPoolSize", 5),
-		config.get("threads.keepAliveTime", 10 * 1000L),
+		config("threads.corePoolSize", 5),
+		config("threads.maximumPoolSize", 5),
+		config("threads.keepAliveTime", 10 * 1000L),
 		TimeUnit.MILLISECONDS,
 		new ArrayBlockingQueue[Runnable](
-			config.get("threads.queue.capacity", Int.MaxValue),
-			config.get("threads.queue.fair", false)
+			config("threads.queue.capacity", Int.MaxValue),
+			config("threads.queue.fair", false)
 		)
 	)
 
@@ -55,6 +52,8 @@ class Session private[domain](val domain: Domain, config:Configuration) {
 	 * このセッション上での非同期入出力を行うパイプライングループです。
 	 */
 	private[domain] val context = new PipelineGroup()
+	context.maxSocketsPerThread = config("pipelines.maxSocketsPerThread", Int.MaxValue)
+	context.readBufferSize = config("pipelines.readBufferSize", 8 * 1024)
 
 	// ========================================================================
 	// レジストリサービス
@@ -62,7 +61,7 @@ class Session private[domain](val domain: Domain, config:Configuration) {
 	/**
 	 * このセッションが使用しているレジストリサービスです。
 	 */
-	private[this] var _registryService:Option[RegistryService] = None
+	// private[this] var _registryService:Option[RegistryService] = None
 
 	// ========================================================================
 	// レジストリサービスの参照
@@ -70,6 +69,7 @@ class Session private[domain](val domain: Domain, config:Configuration) {
 	/**
 	 * このセッションが使用しているレジストリサービスです。
 	 */
+	/*
 	def registryService:RegistryService = {
 		_registryService.get match {
 			case Some(reg) => reg
@@ -81,12 +81,13 @@ class Session private[domain](val domain: Domain, config:Configuration) {
 				}
 		}
 	}
+	*/
 
 	// ========================================================================
-	// レジストリサービスの参照
+	// 接続の実行
 	// ========================================================================
 	/**
-	 * このセッションが使用しているレジストリサービスです。
+	 * このセッション上で指定された URI のノードと接続します。
 	 */
 	private[this] def connect(uri:URI):Pipeline = {
 
@@ -96,7 +97,7 @@ class Session private[domain](val domain: Domain, config:Configuration) {
 		val address = new InetSocketAddress(host, port)
 		val channel = SocketChannel.open(address)
 
-		new Pipeline({}){
+		new Pipeline({ _ => }){
 			def in = channel
 			def out = channel
 		}
@@ -218,7 +219,6 @@ object Session {
 	//
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	/**
-	 * このドメインのサービス処理を行うスレッドプールです。
 	 */
 	private[Session] class ServiceInvoker(serviceName:String) extends InvocationHandler {
 		override def invoke(proxy:Any, method:Method, args:Array[AnyRef]):AnyRef = {

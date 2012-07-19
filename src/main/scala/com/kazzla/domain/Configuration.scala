@@ -28,7 +28,7 @@ class Configuration(config:Map[String,String]) {
 	// 値の参照
 	// ========================================================================
 	/**
-	 * 指定された名前の値を参照します。
+	 * 指定された名前に対する値を参照します。該当する値が存在しない場合は None を返します。
 	 */
 	def get(name:String):Option[String] = {
 		val value = config.get(name)
@@ -46,7 +46,7 @@ class Configuration(config:Map[String,String]) {
 	// 値の参照
 	// ========================================================================
 	/**
-	 * 指定された名前の値を参照します。
+	 * 指定された名前に対する値を参照します。
 	 */
 	def apply(name:String, default: =>String):String = {
 		val value = config.getOrElse(name, default)
@@ -61,11 +61,51 @@ class Configuration(config:Map[String,String]) {
 	// 値の参照
 	// ========================================================================
 	/**
-	 * 指定された名前の値を参照します。
+	 * 指定された名前に対する値を参照します。
+	 */
+	def apply(name:String, default: =>Boolean):Boolean = {
+		get(name) match {
+			case Some(value) => value.toBoolean
+			case None => default
+		}
+	}
+
+	// ========================================================================
+	// 値の参照
+	// ========================================================================
+	/**
+	 * 指定された名前に対する値を参照します。
 	 */
 	def apply(name:String, default: =>Int):Int = {
 		get(name) match {
-			case Some(value) => value.toInt
+			case Some(value) =>
+				try {
+					value.toInt
+				} catch {
+					case ex:NumberFormatException =>
+						logger.warn("configuration is not int: " + name + "=" + value + "; " + ex)
+						default
+				}
+			case None => default
+		}
+	}
+
+	// ========================================================================
+	// 値の参照
+	// ========================================================================
+	/**
+	 * 指定された名前に対する値を参照します。
+	 */
+	def apply(name:String, default: =>Long):Long = {
+		get(name) match {
+			case Some(value) =>
+				try {
+					value.toLong
+				} catch {
+					case ex:NumberFormatException =>
+						logger.warn("configuration is not long: " + name + "=" + value + "; " + ex)
+						default
+				}
 			case None => default
 		}
 	}

@@ -3,7 +3,7 @@
  */
 package com.kazzla.domain
 
-import java.net.SocketAddress
+import java.net.{URI, SocketAddress}
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // RegistryServer

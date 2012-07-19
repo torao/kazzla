@@ -12,16 +12,34 @@ import com.kazzla.domain.async.RawBuffer
 import javax.security.cert.X509Certificate
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ServiceContext
+// Peer
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
+ * <p>
+ * リモートノードを表すクラス。
+ * </p>
  * @author Takami Torao
  */
-class ServiceContext(myCert:X509Certificate, stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=>Any], executor:Executor) {
-	import ServiceContext.{logger, scalaArgsToJava}
+class Peer(myCert:X509Certificate, stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=>Any], executor:Executor) {
+	import Peer.{logger, scalaArgsToJava}
+/*
+パイプライン
+リモート実行中の処理
+ローカル実行中の処理
+リモートサービス一覧
+ローカルサービス(固有)
+プロパティ等
+ノード証明書
+ */
 
-	stream.dispatch = dispatch
-	bulk.dispatch = dispatch
+	{
+		// ストリーム接続、バルク接続それぞれにディスパッチャーを設定
+		stream.dispatch = dispatch
+		bulk.dispatch = dispatch
+		// 証明書の送信
+		val control = new Control(0, Control.CERT_EXCHANGE, myCert.getEncoded)
+		stream.send(control)
+	}
 
 	// ========================================================================
 	// リモート処理中パイプ
@@ -43,7 +61,7 @@ class ServiceContext(myCert:X509Certificate, stream:Protocol, bulk:Protocol, ser
 	// クローズフラグ
 	// ========================================================================
 	/**
-	 * このコンテキストがクローズ済みかどうかを判定します。
+	 * このコンテキストがクローズ済みかどうかを表すフラグです。
 	 */
 	private[this] val _closed = new AtomicBoolean(false)
 
@@ -54,12 +72,6 @@ class ServiceContext(myCert:X509Certificate, stream:Protocol, bulk:Protocol, ser
 	 * この通信相手の証明書です。証明書の交換が行われていない場合は None となります。
 	 */
 	private[this] var peerCert:Option[X509Certificate] = None
-
-	{
-		// 証明書の送信
-		val control = new Control(0, Control.CERT_EXCHANGE, myCert.getEncoded)
-		stream.send(control)
-	}
 
 	// ========================================================================
 	// パイプのオープン
@@ -86,7 +98,7 @@ class ServiceContext(myCert:X509Certificate, stream:Protocol, bulk:Protocol, ser
 
 		// 既にクローズされていたら例外
 		if(_closed.get()){
-			throw new IllegalStateException("closed")
+			throw new IllegalStateException("connection closed")
 		}
 
 		// パイプの作成
@@ -104,6 +116,7 @@ class ServiceContext(myCert:X509Certificate, stream:Protocol, bulk:Protocol, ser
 				throw ex
 		} finally {
 			if(! callback){
+				// コールバックが不要な場合はパイプをクローズ受信済みにする
 				pipe.setCloseState(new Close(pipe.id, Close.Code.NONE, "resulting callback disabled"))
 			}
 		}
@@ -111,11 +124,11 @@ class ServiceContext(myCert:X509Certificate, stream:Protocol, bulk:Protocol, ser
 	}
 
 	// ========================================================================
-	// コンテキストのクローズ
+	// ピアのクローズ
 	// ========================================================================
 	/**
 	 * <p>
-	 * このコンテキストの処理を終了します。
+	 * このピアとの接続を終了します。
 	 * </p>
 	 */
 	def close():Unit = {
@@ -198,8 +211,10 @@ class ServiceContext(myCert:X509Certificate, stream:Protocol, bulk:Protocol, ser
 	 */
 	private[this] def runService(pipe:PipeImpl, open:Open):Unit = {
 		val close = try {
+			// この実行スレッドにこのパイプを結びつける
 			Pipe.setPipe(Some(pipe))
 			pipe.thread = Some(Thread.currentThread())
+			// 名前に該当するサービスを参照して実行
 			services.get(open.name) match {
 				case Some(service) =>
 					val result = service(open.args)
@@ -215,10 +230,12 @@ class ServiceContext(myCert:X509Certificate, stream:Protocol, bulk:Protocol, ser
 			case ex:Throwable =>
 				new Close(pipe.id, Close.Code.ERROR, ex.toString)
 		} finally {
+			// パイプをスレッドから切り離し
 			Pipe.setPipe(None)
 			pipe.thread = None
 		}
 
+		// コールバックが必要であればクローズを送信する
 		if(open.callback){
 			stream.send(close)
 		}
@@ -228,9 +245,12 @@ class ServiceContext(myCert:X509Certificate, stream:Protocol, bulk:Protocol, ser
 	// PipeImpl
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	/**
+	 * <p>
+	 * パイプの実装クラスです。
+	 * </p>
 	 * @author Takami Torao
 	 */
-	private[ServiceContext] class PipeImpl(id:Long, pool:PipePool) extends Pipe{
+	private[Peer] class PipeImpl(id:Long, pool:PipePool) extends Pipe{
 		assert(id != 0)
 
 		// ======================================================================
@@ -418,7 +438,7 @@ class ServiceContext(myCert:X509Certificate, stream:Protocol, bulk:Protocol, ser
 	/**
 	 * @author Takami Torao
 	 */
-	private[ServiceContext] class PipeInputStream extends InputStream {
+	private[Peer] class PipeInputStream extends InputStream {
 		private[this] val buffer = new RawBuffer("PipeInputStream")
 		def read():Int = {
 			// TODO 未実装
@@ -444,7 +464,7 @@ class ServiceContext(myCert:X509Certificate, stream:Protocol, bulk:Protocol, ser
 	/**
 	 * @author Takami Torao
 	 */
-	private[ServiceContext] class PipeOutputStream(pipeId:Long, bufSize:Int, protocol:Protocol, sequence:AtomicInteger) extends OutputStream {
+	private[Peer] class PipeOutputStream(pipeId:Long, bufSize:Int, protocol:Protocol, sequence:AtomicInteger) extends OutputStream {
 
 		// ======================================================================
 		// クローズフラグ
@@ -588,7 +608,7 @@ class ServiceContext(myCert:X509Certificate, stream:Protocol, bulk:Protocol, ser
 		/**
 		 * 新規にパイプを作成しこのプールに追加します。
 		 */
-		private[ServiceContext] def create():PipeImpl = synchronized{
+		private[Peer] def create():PipeImpl = synchronized{
 
 			// 新しいパイプ ID の取得
 			// パイプ ID 0 は制御のため予約されている
@@ -610,7 +630,7 @@ class ServiceContext(myCert:X509Certificate, stream:Protocol, bulk:Protocol, ser
 		/**
 		 * 指定されたパイプ ID の処理が終了した時に呼び出されます。
 		 */
-		private[ServiceContext] def close(pipeId:Long):Unit = synchronized{
+		private[Peer] def close(pipeId:Long):Unit = synchronized{
 			processing -= pipeId
 		}
 
@@ -620,7 +640,7 @@ class ServiceContext(myCert:X509Certificate, stream:Protocol, bulk:Protocol, ser
 		/**
 		 * 指定されたパイプ ID の処理が終了した時に呼び出されます。
 		 */
-		private[ServiceContext] def closeAll():Unit = synchronized{
+		private[Peer] def closeAll():Unit = synchronized{
 			processing.values.foreach{ pipe =>
 				try{
 					if(local){
@@ -638,10 +658,10 @@ class ServiceContext(myCert:X509Certificate, stream:Protocol, bulk:Protocol, ser
 
 }
 
-object ServiceContext {
-	private[ServiceContext] val logger = Logger.getLogger(classOf[ServiceContext])
+object Peer {
+	private[Peer] val logger = Logger.getLogger(classOf[Peer])
 
-	private[ServiceContext] def scalaArgsToJava(args:Any*):Array[Object] = {
+	private[Peer] def scalaArgsToJava(args:Any*):Array[Object] = {
 		(args.map{
 			case flag:Boolean => java.lang.Boolean.valueOf(flag)
 			case num:Byte => java.lang.Byte.valueOf(num)
