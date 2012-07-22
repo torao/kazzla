@@ -14,8 +14,8 @@ import com.kazzla.debug.package$;
 public final class Control extends Transferable{
 	public static final byte NOOP = 0;
 
-	/** 証明書の交換 (0:証明書) */
-	public static final byte CERT_EXCHANGE = 1;
+	/** 初期化 (0:証明書, 1:プロパティ) */
+	public static final byte INITIALIZE = 1;
 
 	public static final byte CANCEL = 100;
 	public final byte code;

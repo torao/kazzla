@@ -7,10 +7,13 @@ import org.apache.log4j.Logger
 import java.util.concurrent.atomic.AtomicBoolean
 import com.kazzla.domain.async.{Pipeline, PipelineGroup}
 import java.lang.reflect.{Method, InvocationHandler}
-import com.kazzla.domain.irpc.Alias
+import com.kazzla.domain.irpc._
 import java.util.concurrent._
-import java.net.{InetSocketAddress, URI}
-import java.nio.channels.SocketChannel
+import java.net._
+import java.nio.channels._
+import javax.security.cert.X509Certificate
+import java.nio.ByteBuffer
+import scala.Some
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Session
@@ -21,8 +24,9 @@ import java.nio.channels.SocketChannel
  * </p>
  * @author Takami Torao
  */
-class Session private[domain](val domain: Domain, config:Configuration) {
+class Session private[domain](val domain: Domain, val myCertification:X509Certificate, config:Configuration) {
 /*
+ノード証明書(ローカル)
 パイプライングループ
 スレッドプール
 ローカルサービス(共通)
@@ -44,6 +48,36 @@ class Session private[domain](val domain: Domain, config:Configuration) {
 			config("threads.queue.fair", false)
 		)
 	)
+
+	// ========================================================================
+	// サービス
+	// ========================================================================
+	/**
+	 * このセッション上の接続で共通して提供されるサービスです。
+	 */
+	private[this] var services = Map[String,Service]()
+
+	// ========================================================================
+	// サービスの設定
+	// ========================================================================
+	/**
+	 * 指定された名前に新しいサービスをバインドします。この変更は既に生成されている `Peer`
+	 * には影響しません。
+	 */
+	def bind(name:String, service:Service):Unit = synchronized{
+		services += (name -> service)
+	}
+
+	// ========================================================================
+	// サービスの削除
+	// ========================================================================
+	/**
+	 * 指定された名前にバインドされているサービスを削除します。この変更は既に生成されている
+	 * `Peer` には影響しません。
+	 */
+	def unbind(name:String):Unit = synchronized{
+		services -= name
+	}
 
 	// ========================================================================
 	// パイプライングループ
@@ -84,23 +118,50 @@ class Session private[domain](val domain: Domain, config:Configuration) {
 	*/
 
 	// ========================================================================
+	// ピア接続の実行
+	// ========================================================================
+	/**
+	 * 指定されたピアと接続を行います。
+	 */
+	def connect(uri:URI):Peer = {
+
+		// ストリームプロトコルの作成
+		val stream = connect(uri, { addr:SocketAddress =>
+			val channel = SocketChannel.open()
+			channel.connect(addr)
+			channel
+		})
+
+		// バルクプロトコルの作成
+		// TODO UDP チャネルの生成が遅延評価で行われること
+		val bulk =connect(uri, { addr:SocketAddress =>
+			val channel = DatagramChannel.open()
+			channel.connect(addr)
+			channel
+		})
+
+		// ピアの作成
+		new Peer(uri, myCertification, stream, bulk, services, executor)
+	}
+
+	// ========================================================================
 	// 接続の実行
 	// ========================================================================
 	/**
 	 * このセッション上で指定された URI のノードと接続します。
 	 */
-	private[this] def connect(uri:URI):Pipeline = {
-
-		// ソケット経由の接続を実行
-		val host = uri.getHost
-		val port = if(uri.getPort >= 0) uri.getPort else Domain.DEFAULT_PORT
-		val address = new InetSocketAddress(host, port)
-		val channel = SocketChannel.open(address)
-
-		new Pipeline({ _ => }){
-			def in = channel
-			def out = channel
+	private[this] def connect(uri:URI, f:(SocketAddress)=>SelectableChannel with ReadableByteChannel with WritableByteChannel):Protocol = {
+		def factory:((ByteBuffer)=>Unit)=>Pipeline = { dispatcher =>
+			val host = uri.getHost
+			val port = if(uri.getPort >= 0) uri.getPort else Domain.DEFAULT_PORT
+			val address = new InetSocketAddress(host, port)
+			val channel = f(address)
+			new Pipeline(dispatcher){
+				def in = channel
+				def out = channel
+			}
 		}
+		new DefaultProtocol(factory)
 	}
 
 	// ========================================================================

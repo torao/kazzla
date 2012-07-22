@@ -10,6 +10,8 @@ import java.util.concurrent.Executor
 import org.koiroha.wiredrive.util.Logger
 import com.kazzla.domain.async.RawBuffer
 import javax.security.cert.X509Certificate
+import java.net.URI
+import com.kazzla.domain.Service
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Peer
@@ -20,7 +22,7 @@ import javax.security.cert.X509Certificate
  * </p>
  * @author Takami Torao
  */
-class Peer(myCert:X509Certificate, stream:Protocol, bulk:Protocol, services:Map[String,(Any*)=>Any], executor:Executor) {
+class Peer(val uri:URI, myCertification:X509Certificate, stream:Protocol, bulk:Protocol, var services:Map[String,(Any*)=>Any], executor:Executor) {
 	import Peer.{logger, scalaArgsToJava}
 /*
 パイプライン
@@ -29,15 +31,16 @@ class Peer(myCert:X509Certificate, stream:Protocol, bulk:Protocol, services:Map[
 リモートサービス一覧
 ローカルサービス(固有)
 プロパティ等
-ノード証明書
+ノード証明書(リモート)
  */
 
+	// 初期化処理
 	{
 		// ストリーム接続、バルク接続それぞれにディスパッチャーを設定
 		stream.dispatch = dispatch
 		bulk.dispatch = dispatch
-		// 証明書の送信
-		val control = new Control(0, Control.CERT_EXCHANGE, myCert.getEncoded)
+		// ノード証明書の送信
+		val control = new Control(0, Control.INITIALIZE, myCertification.getEncoded)
 		stream.send(control)
 	}
 
@@ -71,7 +74,60 @@ class Peer(myCert:X509Certificate, stream:Protocol, bulk:Protocol, services:Map[
 	/**
 	 * この通信相手の証明書です。証明書の交換が行われていない場合は None となります。
 	 */
-	private[this] var peerCert:Option[X509Certificate] = None
+	private[this] var _peerCert:Option[X509Certificate] = None
+
+	// ========================================================================
+	// 初期化官僚通知用シグナル
+	// ========================================================================
+	/**
+	 * 相手側と初期化処理が完了状態になった時に通知を行うためのシグナルです。
+	 */
+	private[this] val initSignal = new Object()
+
+	// ========================================================================
+	// サービスの設定
+	// ========================================================================
+	/**
+	 * 指定された名前に新しいサービスをバインドします。この変更は既に生成されている `Peer`
+	 * には影響しません。
+	 */
+	def bind(name:String, service:Service):Unit = synchronized{
+		services += (name -> service)
+	}
+
+	// ========================================================================
+	// サービスの削除
+	// ========================================================================
+	/**
+	 * 指定された名前にバインドされているサービスを削除します。この変更は既に生成されている
+	 * `Peer` には影響しません。
+	 */
+	def unbind(name:String):Unit = synchronized{
+		services -= name
+	}
+
+	// ========================================================================
+	// リモート証明書の参照
+	// ========================================================================
+	/**
+	 * このピアのノード証明書を参照します。ノード証明書を受信していない場合は指定された
+	 * タイムアウト時間まで受信を待機します。タイムアウト時間を過ぎても証明書が受信できない
+	 * 場合は例外が発生します。
+	 * @param timeout 証明書受信までのタイムアウト時間 (ミリ秒)
+	 */
+	def getCertification(timeout:Long) = initSignal.synchronized{
+		_peerCert match {
+			case Some(cert) => cert
+			case None =>
+				initSignal.wait(timeout)
+				if(_peerCert.isDefined){
+					// TODO 例外クラス追加
+					throw new Exception("certification exchange timeout")
+				} else {
+					_peerCert.get
+				}
+		}
+	}
 
 	// ========================================================================
 	// パイプのオープン
@@ -105,7 +161,7 @@ class Peer(myCert:X509Certificate, stream:Protocol, bulk:Protocol, services:Map[
 		val pipe = remoteProcessing.create()
 		try {
 
-			// オープンの送信
+			// オープン命令の送信
 			val open = new Open(pipe.id, timeout, callback, name, scalaArgsToJava(args:_*))
 			pipe.open = Some(open)
 			stream.send(open)
@@ -145,7 +201,7 @@ class Peer(myCert:X509Certificate, stream:Protocol, bulk:Protocol, services:Map[
 	 */
 	private[this] def dispatch(unit:Transferable):Unit = unit match {
 
-		// パイプを生成しスレッドプール上でサービスを実行
+		// RPC 要求の場合はパイプを生成しスレッドプール上でサービスを実行
 		case open:Open =>
 			val pipe = localProcessing.create()
 			executor.execute(new Runnable {
@@ -179,14 +235,17 @@ class Peer(myCert:X509Certificate, stream:Protocol, bulk:Protocol, services:Map[
 				case Control.NOOP =>
 					logger.debug("noop caught")
 
-				// 証明書の交換
-				case Control.CERT_EXCHANGE =>
-					if(peerCert.isDefined){
+				// 通信の初期化
+				case Control.INITIALIZE =>
+					if(_peerCert.isDefined){
+						logger.warn("multiple certification specified from peer")
 						close()
-					} else {
+					} else initSignal.synchronized {
 						// 証明書の復元
-						val certbin = control.args(0).asInstanceOf[Array[Byte]]
-						peerCert = Some(X509Certificate.getInstance(certbin))
+						// TODO 証明書の指定がない場合などのプロトコル違反ケース
+						val cert = X509Certificate.getInstance(control.args(0).asInstanceOf[Array[Byte]])
+						_peerCert = Some(cert)
+						initSignal.notifyAll()
 					}
 
 				// ローカル処理のキャンセル
