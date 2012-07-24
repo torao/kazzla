@@ -3,9 +3,11 @@
  */
 package com.kazzla.domain
 
-import java.security.{Signature, PrivateKey}
 import java.util.Properties
 import org.apache.log4j.Logger
+import java.io.File
+import java.net.URI
+import scala.collection.JavaConversions._
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Configuration
@@ -115,4 +117,41 @@ class Configuration(config:Map[String,String]) {
 object Configuration {
 	private[Configuration] val logger = Logger.getLogger(classOf[Configuration])
 	private[Configuration] var output = Set[String]()
+
+	// ========================================================================
+	// インスタンスの参照
+	// ========================================================================
+	/**
+	 * 指定されたパスからインスタンスを作成します。パスが絶対 URL とみなすことが出来る場合
+	 * はその URL から参照されます。相対パスの場合はローカルファイルシステム上のカレント
+	 * ディレクトリからの参照されます。
+	 */
+	def newInstance(path:String):Configuration = {
+
+		// 設定ファイルの場所を URI として参照
+		val uri = {
+			val u = new URI(path)
+			if(! u.isAbsolute){
+				new File(path).toURI
+			} else {
+				u
+			}
+		}
+
+		// プロパティファイルの読み込み
+		val prop = new Properties()
+		val in = uri.toURL.openStream()
+		try {
+			prop.load(in)
+		} finally {
+			in.close()
+		}
+
+		// プロパティからマップへ変換してコンフィギュレーションを構築
+		val param = prop.foldLeft(Map[String,String]()){ case(map, elem) =>
+			map + (elem._1.toString -> elem._2.toString)
+		}
+		new Configuration(param)
+	}
+
 }
