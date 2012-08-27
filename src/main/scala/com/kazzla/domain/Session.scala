@@ -20,6 +20,7 @@ import scala.Some
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
  * <p>
+ * ドメインに対する一覧の処理を行うための状態を表すセッションです。
  * 異なるセッション間で接続が共有されることはありません。
  * </p>
  * @author Takami Torao
@@ -53,7 +54,7 @@ class Session private[domain](val domain: Domain, val myCertification:X509Certif
 	// サービス
 	// ========================================================================
 	/**
-	 * このセッション上の接続で共通して提供されるサービスです。
+	 * このセッション上の全接続で共通して提供されるサービスです。
 	 */
 	private[this] var services = Map[String,Service]()
 
@@ -61,8 +62,9 @@ class Session private[domain](val domain: Domain, val myCertification:X509Certif
 	// サービスの設定
 	// ========================================================================
 	/**
-	 * 指定された名前に新しいサービスをバインドします。この変更は既に生成されている `Peer`
-	 * には影響しません。
+	 * 指定された名前に対する新しいサービスをバインドします。この変更は既に生成されている
+	 * `Peer` には影響しません。既に同じ名前に別のサービスがバインドされている場合は新しい
+	 * サービスに置き換えられます。
 	 */
 	def bind(name:String, service:Service):Unit = synchronized{
 		services += (name -> service)
@@ -73,7 +75,8 @@ class Session private[domain](val domain: Domain, val myCertification:X509Certif
 	// ========================================================================
 	/**
 	 * 指定された名前にバインドされているサービスを削除します。この変更は既に生成されている
-	 * `Peer` には影響しません。
+	 * `Peer` には影響しません。名前に対するサービスがバインドされていない場合はなにも起き
+	 * ません。
 	 */
 	def unbind(name:String):Unit = synchronized{
 		services -= name
@@ -83,7 +86,7 @@ class Session private[domain](val domain: Domain, val myCertification:X509Certif
 	// パイプライングループ
 	// ========================================================================
 	/**
-	 * このセッション上での非同期入出力を行うパイプライングループです。
+	 * このセッション上での非同期入出力を行うためのパイプライングループです。
 	 */
 	private[domain] val context = new PipelineGroup()
 	context.maxSocketsPerThread = config("pipelines.maxSocketsPerThread", Int.MaxValue)
@@ -121,7 +124,7 @@ class Session private[domain](val domain: Domain, val myCertification:X509Certif
 	// ピア接続の実行
 	// ========================================================================
 	/**
-	 * 指定されたピアと接続を行います。
+	 * 指定された URL のピアと接続します。
 	 */
 	def connect(uri:URI):Peer = {
 
