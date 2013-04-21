@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>Welcome to Kazzla - Sign In, Sign Up or Learn More</title>
+  <link href="/css/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="/css/kazzla.css" rel="stylesheet"/>
+  <%= stylesheet_link_tag    "application", :media => "all" %>
+  <%= javascript_include_tag "application" %>
+  <script type="text/javascript" src="/css/bootstrap/js/bootstrap.min.js"></script>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+
+<header>
+  <a href="/"><img src="/img/logo.png" alt="Kazzla" /></a>
+</header>
+
+<div class="container">
+<%= yield %>
+</div>
+
+<footer>
+<ul>
+  <li>About</li>
+  <li>Help</li>
+  <li>Blog</li>
+  <li>Status</li>
+  <li>Jobs</li>
+  <li>Terms</li>
+  <li>Privacy</li>
+  <li>Advertisers</li>
+  <li>Businesses</li>
+  <li>Media</li>
+  <li>Developers</li>
+  <li>Resources</li>
+  <li>Directory</li>
+  <li>&copy; 2013 Kazzla</li>
+</ul>
+</footer>
+
+</body>
+</html>
