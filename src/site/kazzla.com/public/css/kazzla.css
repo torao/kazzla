@@ -31,6 +31,10 @@ header img {
 	padding-top: 60px;
 }
 
+footer {
+  margin-top: 2.5em;
+}
+
 footer ul {
 	text-align: center;
 }

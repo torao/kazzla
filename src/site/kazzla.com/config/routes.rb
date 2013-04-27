@@ -1,17 +1,11 @@
 KazzlaCom::Application.routes.draw do
-  get "auth/signup"
+  get "dashboard/index"
 
-  get "auth/withdraw"
-
-  get "auth/signin"
-
-  get "auth/signout"
-
-  get "signup/withdraw"
-
-  get "signup/signin"
-
-  get "signup/signout"
+  get  "auth/signup"
+	post "auth/signup"
+  post "auth/withdraw"
+  post "auth/signin"
+  get  "auth/signout"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
@@ -63,6 +57,7 @@ KazzlaCom::Application.routes.draw do
   # You can have the root of your site routed with "root"
   # just remember to delete public/index.html.
   # root :to => 'welcome#index'
+  root :to => 'dashboard#index'
 
   # See how all your routes lay out with "rake routes"
 

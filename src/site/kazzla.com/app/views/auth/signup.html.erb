@@ -1,2 +1,25 @@
-<h1>Auth#signup</h1>
-<p>Find me in app/views/auth/signup.html.erb</p>
+<div class="row">
+  <div class="span4">
+    <%= form_tag("/auth/signup", :method => :post) do %>
+      <fieldset>
+        <legend>Sign up</legend>
+        <%= text_field_tag(:account, "", :placeholder => :email) %>
+        <%= password_field_tag(:password, "", :placeholder => :password) %>
+				<select id="locale" name="locale">
+					<option value="en-US">English</option>
+					<option value="ja-JP">日本語 (Japanese)</option>
+				</select>
+				<select id="timezone" name="timezone">
+					<option value="Asia/Tokyo">+09:00 Asia/Tokyo</option>
+				</select>
+        <label class="checkbox">
+          <%= check_box_tag(:confirm) %>
+          I read and accept your term of use.
+        </label>
+        <div>
+          <%= submit_tag("Sign up", :class => "btn btn-primary") %>
+        </div>
+      </fieldset>
+    <% end %>
+  </div>
+</div>
