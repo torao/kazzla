@@ -15,10 +15,20 @@
 
 <header>
   <a href="/"><img src="/img/logo.png" alt="Kazzla" /></a>
+	
 </header>
 
 <div class="container">
-<%= yield %>
+
+	<% unless @messages.nil? || @messages.empty? %>
+		<ul>
+		<% @messages.each{ |msg| %>
+			<li class="text-info"><%= h msg %></li>
+		<% } %>
+		</ul>
+	<% end %>
+
+	<%= yield %>
 </div>
 
 <footer>

@@ -5,7 +5,12 @@ KazzlaCom::Application.routes.draw do
 	post "auth/signup"
   post "auth/withdraw"
   post "auth/signin"
+	get  "auth/signin"
   get  "auth/signout"
+	post "auth/reset_password"
+	get  "auth/reset_password"
+	post "auth/change_password"
+	get  "auth/change_password"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
