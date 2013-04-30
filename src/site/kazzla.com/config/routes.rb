@@ -1,5 +1,6 @@
 KazzlaCom::Application.routes.draw do
-  get "dashboard/index"
+  get  "dashboard/index"
+	post "dashboard/lang"
 
   get  "auth/signup"
 	post "auth/signup"

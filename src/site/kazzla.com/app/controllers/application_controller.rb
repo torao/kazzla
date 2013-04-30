@@ -2,14 +2,25 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
 
   def signin?
-    ! session[:account_id].nil?
+		if @signin_.nil?
+			unless session[:account_id].nil?
+				@current_account = Auth::Account.find_by_id(session[:account_id])
+				if @current_account.nil?
+					reset_session
+					@signin_ = false
+				else
+					@signin_ = true
+				end
+			else
+				@signin_ = false
+			end
+		end
+		@siginin_
   end
 
   def current_account
-		if @current_account_.nil?
-			@current_account_ = Auth::Account.find(session[:account_id])
-		end
-		@current_account_
+		signin?
+		@current_account
   end
 
 	def add_message(msg)

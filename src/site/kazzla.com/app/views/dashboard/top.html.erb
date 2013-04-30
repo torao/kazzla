@@ -1,0 +1,62 @@
+<div class="hero-unit">
+  <h1>Kazzla</h1>
+  <p>
+  Personal plug-in cloud platform to use your diskspace anytime, anywhere.
+  (ShareThis here)
+  </p>
+</div>
+
+<div class="row">
+  <div class="span7">
+    <h2>Welcome Kazzla</h2>
+    <p>It's free and always will be.</p>
+  </div>
+
+  <div class="span3">
+    <%= form_tag("/auth/signin", :method => :post) do %>
+      <fieldset>
+        <legend>Sign in</legend>
+        <%= text_field_tag(:account, "", :placeholder => :email) %>
+        <%= password_field_tag(:password, "", :placeholder => :password) %>
+        <div>
+          <%= submit_tag("Sign in", :class => "btn btn-primary") %>
+        </div>
+        <p>
+          Please <%= link_to("sign-up", { :controller => :auth, :action => :signup }) %> if you don't
+					have any kazzla account. If you forget your password, you can
+					<%= link_to("reset it", { :controller => :auth, :action => :reset_password }) %> by one of
+					registered mail addresses. 
+        </>
+      </fieldset>
+    <% end %>
+  </div>
+
+  <div class="span2">
+    <fieldset>
+      <legend>or with Social</legend>
+      <div class="form-action">
+        <button class="btn btn-block disabled">Facebook</button>
+        <button class="btn btn-block disabled">Twitter</button>
+        <button class="btn btn-block disabled">Google+</button>
+      </div>
+    <fieldset>
+  </div>
+
+</div>
+
+<div>
+<script type="text/javascript">var switchTo5x=true;</script>
+<script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
+<script type="text/javascript">stLight.options({publisher: "d66e8f87-2284-46d7-a0d8-4cb73c04e838", doNotHash: false, doNotCopy: false, hashAddressBar: false});</script>
+<span class='st_facebook' displayText='Facebook'></span>
+<span class='st_twitter' displayText='Tweet'></span>
+<span class='st_tumblr' displayText='Tumblr'></span>
+<span class='st_googleplus' displayText='Google +'></span>
+<span class='st_hatena' displayText='Hatena'></span>
+<span class='st_blogger' displayText='Blogger'></span>
+<span class='st_linkedin' displayText='LinkedIn'></span>
+<span class='st_sharethis' displayText='ShareThis'></span>
+<span class='st_pinterest' displayText='Pinterest'></span>
+<span class='st_email' displayText='Email'></span>
+</div>
+

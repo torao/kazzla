@@ -1,0 +1,5 @@
+
+<%= form_tag("/auth/withdraw", :method => :post) do %>
+<%= link_to "Sign out", { :controller => :auth, :action => :signout }, { :class => "btn btn-mini" } %>
+<%= submit_tag "Withdraw", { :class => "btn btn-mini", :confirm => "Do you really want to withdraw your account!?" } %>
+<% end %>

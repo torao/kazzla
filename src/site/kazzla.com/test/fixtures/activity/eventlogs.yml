@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  account_id: 1
+  level: 1
+  code: 1
+  message: MyString
+
+two:
+  account_id: 1
+  level: 1
+  code: 1
+  message: MyString
