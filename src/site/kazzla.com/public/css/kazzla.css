@@ -1,6 +1,7 @@
 body {
 	background-color: white;
 	color: black;
+	padding-top: 60px;
 }
 
 header img {
@@ -20,9 +21,6 @@ header form {
 header select {
 	font-size: 8px;
 	float: right;
-}
-
-.container {
 }
 
 footer {

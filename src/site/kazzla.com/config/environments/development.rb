@@ -50,4 +50,7 @@ KazzlaCom::Application.configure do
 		:enable_starttls_auto => true,
 	}
 
+  # sql logging
+	config.log_level = :info
+
 end

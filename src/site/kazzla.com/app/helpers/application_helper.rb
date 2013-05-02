@@ -2,13 +2,13 @@ module ApplicationHelper
 
 	# refer user localized message without html escape
 	def msg(code)
-		Code::Message.message(user_language, "msg.#{code}") || "UNDEF[msg.#{code}]"
+		Code::Message.message(user_language, "#{code}") || "UNDEF[msg.#{code}]"
 	end
 
 	# refer user selected language code
 	def user_language
 		if not @current_account.nil?
-			@current_account.locale
+			@current_account.language
 		elsif not cookies[:lang].nil?
 			cookies[:lang]
 		elsif not request.headers["Accept-Language"].nil?
@@ -56,6 +56,22 @@ module ApplicationHelper
 			@@_selectable_languages[lang] = select
 		end
 		select
+	end
+
+	def timezone_options_for_select(lang)
+		@@_selectable_timezones ||= { }
+		select = @@_selectable_timezones[lang]
+		if select.nil?
+			select = Code::Timezone.timezones.map { |tz|
+				name = Code::Message.message(lang, "timezone.#{tz.code.downcase}")
+				hour = format("%02d", tz.utc_offset.abs / 1000 / 60 / 60)
+				min = format("%02d", tz.utc_offset.abs / 1000 / 60 % 60)
+				offset = "#{tz.utc_offset < 0? "-": "+"}#{hour}:#{min}"
+				[ "#{offset} #{name} (#{tz.code})", tz.code ]
+			}
+			@@_selectable_timezones[lang] = select
+		end
+		options_for_select(select, lang)
 	end
 
 end

@@ -1,8 +1,9 @@
 class DashboardController < ApplicationController
-  def index
+
+	def index
 		if not signin?
       render :action => "top"
-		elsif current_account.hashed_password.empty?
+		elsif @current_account.hashed_password.empty?
 			redirect_to "/auth/change_password"
     end
   end

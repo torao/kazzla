@@ -1,16 +1,17 @@
-require "auth"
+require "kazzla"
+include Kazzla
 
 class AuthController < ApplicationController
-  def signup
+
+	def signup
     if request.post?
       uri = "mailto:" + params[:account].downcase
       unless Auth::Contact.exists?(:uri => uri)
         account = Auth::Account.new
         account.plain_password = params[:password]
         account.name = ""
-        account.locale = params[:locale]
+        account.language = params[:language]
         account.timezone = params[:timezone]
-        account.last_login = Time::now
         contact = Auth::Contact.new
         contact.account = account
         contact.uri = uri
@@ -43,7 +44,6 @@ class AuthController < ApplicationController
 			unless issue.nil?
 				account = issue.account
 				account.hashed_password = ""
-				account.last_login = Time::now
 				account.save()
 				session[:account_id] = account.id
 				issue.destroy()
@@ -57,15 +57,16 @@ class AuthController < ApplicationController
 			return
 		end
 
+		# password authentication
     contact = Auth::Contact.find_by_uri("mailto:" + params[:account].downcase)
     if ! contact.nil? and contact.account.authenticate(params[:password])
       account = contact.account
-      account.last_login = Time::now
       account.save()
       session[:account_id] = account.id
       redirect_to "/"
 			eventlog("sign-in success")
     else
+			eventlog("sign-in failure")
       reset_session
     end
   end

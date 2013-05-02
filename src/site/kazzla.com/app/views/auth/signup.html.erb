@@ -5,13 +5,8 @@
         <legend>Sign up</legend>
         <%= text_field_tag(:account, params[:account], :placeholder => :email) %>
         <%= password_field_tag(:password, "", :placeholder => :password) %>
-				<select id="locale" name="locale">
-					<option value="en-US">English</option>
-					<option value="ja-JP">日本語 (Japanese)</option>
-				</select>
-				<select id="timezone" name="timezone">
-					<option value="Asia/Tokyo">+09:00 Asia/Tokyo</option>
-				</select>
+				<%= select_tag("language", language_options_for_select(user_language), { }) %>
+				<%= select_tag("timezone", timezone_options_for_select(user_language), { }) %>
         <label class="checkbox">
           <%= check_box_tag(:confirm) %>
           I read and accept your term of use.

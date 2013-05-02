@@ -7,6 +7,19 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
+Dir.glob(File.dirname(__FILE__) + "/fixtures/**.yml").each { |file|
+	print "reading #{file}...\n"
+	fixture = File.read("#{file}")
+	data = YAML.load(ERB.new(fixture).result)
+	p data.keys
+	data.keys.each{ |table|
+		modelname = "Code::" + table.classify
+		print "  #{modelname}\n"
+		(modelname.constantize).create(data[table])
+	}
+}
+p "yaml fixtures finished"
+
 # code: [2 letter ISO639]{-[vatiant]}
 Code::Language.create([
 	{ code: "de", name: "German" },
@@ -19,148 +32,45 @@ Code::Language.create([
 	{ code: "zh-traditional", name: "Traditional Chinese" },
 ])
 
-# code: [2 letter ISO 3166-1]
-Code::Country.create([
-	{ code: "CA", name: "Canada" },
-	{ code: "CN", name: "China" },
-	{ code: "DE", name: "Germany" },
-	{ code: "FR", name: "France" },
-	{ code: "GB", name: "United Kingdom" },
-	{ code: "JP", name: "Japan" },
-	{ code: "KR", name: "South Korea" },
-	{ code: "TW", name: "Taiwan" },
-	{ code: "US", name: "United States" },
+Code::Continent.create([
+	{ code: "af", name: "africa" },
+	{ code: "eu", name: "europe" },
+	{ code: "as", name: "asia" },
+	{ code: "na", name: "north_america" },
+	{ code: "sa", name: "south_america" },
+	{ code: "au", name: "australia" },
+	{ code: "an", name: "antarctica" },
+	{ code: "", name: "other" },
 ])
 
+# code: [2 letter ISO 3166-1]
+# These are created by fixture.
+# Code::Country.create([ ])
+
 Code::Message.create([
-	{ language: "de", code: "language.de", content: "Deutsch" },
-	{ language: "de", code: "language.en", content: "Englisch" },
-	{ language: "de", code: "language.fr", content: "Französisch" },
-	{ language: "de", code: "language.it", content: "Italienisch" },
-	{ language: "de", code: "language.ja", content: "Japanisch" },
-	{ language: "de", code: "language.ko", content: "Koreanisch" },
-	{ language: "de", code: "language.zh", content: "Chinesisch" },
-	{ language: "de", code: "country.CA", content: "Kanada" },
-	{ language: "de", code: "country.CN", content: "China" },
-	{ language: "de", code: "country.DE", content: "Deutschland" },
-	{ language: "de", code: "country.FR", content: "Frankreich" },
-	{ language: "de", code: "country.GB", content: "Vereinigtes Königreich" },
-	{ language: "de", code: "country.JP", content: "Japan" },
-	{ language: "de", code: "country.KR", content: "Südkorea" },
-	{ language: "de", code: "country.TW", content: "Taiwan" },
-	{ language: "de", code: "country.US", content: "Vereinigte Staaten von Amerika" },
-	{ language: "de", code: "msg.language", content: "Sprache" },
+	{ language: "de", code: "language", content: "Sprache" },
 
-	{ language: "en", code: "language.de", content: "German" },
-	{ language: "en", code: "language.en", content: "English" },
-	{ language: "en", code: "language.fr", content: "French" },
-	{ language: "en", code: "language.it", content: "Italian" },
-	{ language: "en", code: "language.ja", content: "Japanese" },
-	{ language: "en", code: "language.ko", content: "Korean" },
-	{ language: "en", code: "language.zh", content: "Chinese" },
-	{ language: "en", code: "language.zh", content: "Chinese" },
 	{ language: "en", code: "language.zh-traditional", content: "Traditional Chinese" },
-	{ language: "en", code: "country.CA", content: "Canada" },
-	{ language: "en", code: "country.CN", content: "China" },
-	{ language: "en", code: "country.DE", content: "Germany" },
-	{ language: "en", code: "country.FR", content: "France" },
-	{ language: "en", code: "country.GB", content: "United Kingdom" },
-	{ language: "en", code: "country.JP", content: "Japan" },
-	{ language: "en", code: "country.KR", content: "South Korea" },
-	{ language: "en", code: "country.TW", content: "Taiwan" },
-	{ language: "en", code: "country.US", content: "United States" },
-	{ language: "en", code: "msg.language", content: "Language" },
+	{ language: "en", code: "language", content: "Language" },
+	{ language: "en", code: "continent.af", content: "Africa" },
+	{ language: "en", code: "continent.eu", content: "Europe" },
+	{ language: "en", code: "continent.as", content: "Asia" },
+	{ language: "en", code: "continent.na", content: "North America" },
+	{ language: "en", code: "continent.sa", content: "South America" },
+	{ language: "en", code: "continent.au", content: "Australia" },
+	{ language: "en", code: "continent.an", content: "Antarctica" },
+	{ language: "en", code: "continent.", content: "Other" },
 
-	{ language: "fr", code: "language.de", content: "allemand" },
-	{ language: "fr", code: "language.en", content: "anglais" },
-	{ language: "fr", code: "language.fr", content: "français" },
-	{ language: "fr", code: "language.it", content: "italien" },
-	{ language: "fr", code: "language.ja", content: "japonais" },
-	{ language: "fr", code: "language.ko", content: "coréen" },
-	{ language: "fr", code: "language.zh", content: "chinois" },
-	{ language: "fr", code: "country.CA", content: "Canada" },
-	{ language: "fr", code: "country.CN", content: "Chine" },
-	{ language: "fr", code: "country.DE", content: "Allemagne" },
-	{ language: "fr", code: "country.FR", content: "France" },
-	{ language: "fr", code: "country.GB", content: "Royaume-Uni" },
-	{ language: "fr", code: "country.JP", content: "Japon" },
-	{ language: "fr", code: "country.KR", content: "Corée du Sud" },
-	{ language: "fr", code: "country.TW", content: "Taiwan" },
-	{ language: "fr", code: "country.US", content: "Etats-Unis" },
-	{ language: "fr", code: "msg.language", content: "Langage" },
+	{ language: "fr", code: "language", content: "Langage" },
 
-	{ language: "it", code: "language.de", content: "tedesco" },
-	{ language: "it", code: "language.en", content: "inglese" },
-	{ language: "it", code: "language.fr", content: "francese" },
-	{ language: "it", code: "language.it", content: "italiano" },
-	{ language: "it", code: "language.ja", content: "giapponese" },
-	{ language: "it", code: "language.ko", content: "coreano" },
-	{ language: "it", code: "language.zh", content: "cinese" },
-	{ language: "it", code: "country.CA", content: "Canada" },
-	{ language: "it", code: "country.CN", content: "Cina" },
-	{ language: "it", code: "country.DE", content: "Germania" },
-	{ language: "it", code: "country.FR", content: "Francia" },
-	{ language: "it", code: "country.GB", content: "Regno Unito" },
-	{ language: "it", code: "country.JP", content: "Giappone" },
-	{ language: "it", code: "country.KR", content: "Corea del Sud" },
-	{ language: "it", code: "country.TW", content: "Taiwan" },
-	{ language: "it", code: "country.US", content: "Stati Uniti" },
-	{ language: "it", code: "msg.language", content: "Linguaggio" },
+	{ language: "it", code: "language", content: "Linguaggio" },
 
-	{ language: "ja", code: "language.de", content: "ドイツ語" },
-	{ language: "ja", code: "language.en", content: "英語" },
-	{ language: "ja", code: "language.fr", content: "フランス語" },
-	{ language: "ja", code: "language.it", content: "イタリア語" },
-	{ language: "ja", code: "language.ja", content: "日本語" },
-	{ language: "ja", code: "language.ko", content: "韓国語" },
-	{ language: "ja", code: "language.zh", content: "中国語" },
 	{ language: "ja", code: "language.zh-traditional", content: "繁体中国語" },
-	{ language: "ja", code: "country.CA", content: "カナダ" },
-	{ language: "ja", code: "country.CN", content: "中華人民共和国" },
-	{ language: "ja", code: "country.DE", content: "ドイツ" },
-	{ language: "ja", code: "country.FR", content: "フランス" },
-	{ language: "ja", code: "country.GB", content: "イギリス" },
-	{ language: "ja", code: "country.JP", content: "日本" },
-	{ language: "ja", code: "country.KR", content: "大韓民国" },
-	{ language: "ja", code: "country.TW", content: "台湾" },
-	{ language: "ja", code: "country.US", content: "アメリカ合衆国" },
-	{ language: "ja", code: "msg.language", content: "言語" },
+	{ language: "ja", code: "language", content: "言語" },
 
-	{ language: "ko", code: "language.de", content: "독일어" },
-	{ language: "ko", code: "language.en", content: "영어" },
-	{ language: "ko", code: "language.fr", content: "프랑스어" },
-	{ language: "ko", code: "language.it", content: "이탈리아어" },
-	{ language: "ko", code: "language.ja", content: "일본어" },
-	{ language: "ko", code: "language.ko", content: "한국어" },
-	{ language: "ko", code: "language.zh", content: "중국어" },
-	{ language: "ko", code: "country.CA", content: "캐나다" },
-	{ language: "ko", code: "country.CN", content: "중국" },
-	{ language: "ko", code: "country.DE", content: "독일" },
-	{ language: "ko", code: "country.FR", content: "프랑스" },
-	{ language: "ko", code: "country.GB", content: "영국" },
-	{ language: "ko", code: "country.JP", content: "일본" },
-	{ language: "ko", code: "country.KR", content: "대한민국" },
-	{ language: "ko", code: "country.TW", content: "대만" },
-	{ language: "ko", code: "country.US", content: "미국" },
-	{ language: "ko", code: "msg.language", content: "언어" },
+	{ language: "ko", code: "language", content: "언어" },
 
-	{ language: "zh", code: "language.de", content: "德文" },
-	{ language: "zh", code: "language.en", content: "英文" },
-	{ language: "zh", code: "language.fr", content: "法文" },
-	{ language: "zh", code: "language.it", content: "意大利文" },
-	{ language: "zh", code: "language.ja", content: "日文" },
-	{ language: "zh", code: "language.ko", content: "朝鲜文" },
-	{ language: "zh", code: "language.zh", content: "中文" },
 	{ language: "zh", code: "language.zh-traditional", content: "正體中文" },
-	{ language: "zh", code: "country.CA", content: "加拿大" },
-	{ language: "zh", code: "country.CN", content: "中国" },
-	{ language: "zh", code: "country.DE", content: "德国" },
-	{ language: "zh", code: "country.FR", content: "法国" },
-	{ language: "zh", code: "country.GB", content: "英国" },
-	{ language: "zh", code: "country.JP", content: "日本" },
-	{ language: "zh", code: "country.KR", content: "韩国" },
-	{ language: "zh", code: "country.TW", content: "台湾地区" },
-	{ language: "zh", code: "country.US", content: "美国" },
-	{ language: "zh", code: "msg.language", content: "語言" },
+	{ language: "zh", code: "language", content: "語言" },
 ])
 

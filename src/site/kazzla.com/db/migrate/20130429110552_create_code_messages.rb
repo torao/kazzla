@@ -8,5 +8,6 @@ class CreateCodeMessages < ActiveRecord::Migration
 
       t.timestamps
     end
+		add_index(:code_messages, [ :language, :country, :code ], :unique => true)
   end
 end

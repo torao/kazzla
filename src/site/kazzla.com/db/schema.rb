@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130430023018) do
+ActiveRecord::Schema.define(:version => 20130502021351) do
 
   create_table "activity_eventlogs", :force => true do |t|
     t.integer  "account_id"
@@ -27,9 +27,9 @@ ActiveRecord::Schema.define(:version => 20130430023018) do
     t.string   "hashed_password", :null => false
     t.string   "salt",            :null => false
     t.string   "name",            :null => false
-    t.string   "locale",          :null => false
+    t.string   "language",        :null => false
     t.string   "timezone",        :null => false
-    t.datetime "last_login",      :null => false
+    t.integer  "role_id"
     t.datetime "created_at",      :null => false
     t.datetime "updated_at",      :null => false
   end
@@ -52,6 +52,22 @@ ActiveRecord::Schema.define(:version => 20130430023018) do
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
+
+  create_table "auth_roles", :force => true do |t|
+    t.string   "name",        :null => false
+    t.string   "permissions", :null => false
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
+
+  create_table "code_continents", :force => true do |t|
+    t.string   "code",       :limit => 2, :null => false
+    t.string   "name",                    :null => false
+    t.datetime "created_at",              :null => false
+    t.datetime "updated_at",              :null => false
+  end
+
+  add_index "code_continents", ["code"], :name => "index_code_continents_on_code", :unique => true
 
   create_table "code_countries", :force => true do |t|
     t.string   "code",       :limit => 2, :null => false
@@ -79,5 +95,18 @@ ActiveRecord::Schema.define(:version => 20130430023018) do
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
+
+  add_index "code_messages", ["language", "country", "code"], :name => "index_code_messages_on_language_and_country_and_code", :unique => true
+
+  create_table "code_timezones", :force => true do |t|
+    t.string   "code",            :null => false
+    t.string   "name",            :null => false
+    t.integer  "utc_offset",      :null => false
+    t.integer  "daylight_saving", :null => false
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
+  add_index "code_timezones", ["code"], :name => "index_code_timezones_on_code", :unique => true
 
 end

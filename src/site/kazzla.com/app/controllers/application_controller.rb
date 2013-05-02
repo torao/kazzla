@@ -2,20 +2,20 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
 
   def signin?
-		if @signin_.nil?
+		if @_signin.nil?
 			unless session[:account_id].nil?
 				@current_account = Auth::Account.find_by_id(session[:account_id])
 				if @current_account.nil?
 					reset_session
-					@signin_ = false
+					@_signin = false
 				else
-					@signin_ = true
+					@_signin = true
 				end
 			else
-				@signin_ = false
+				@_signin = false
 			end
 		end
-		@siginin_
+		@_signin
   end
 
   def current_account

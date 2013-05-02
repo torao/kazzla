@@ -1,5 +1,20 @@
 
 <%= form_tag("/auth/withdraw", :method => :post) do %>
-<%= link_to "Sign out", { :controller => :auth, :action => :signout }, { :class => "btn btn-mini" } %>
 <%= submit_tag "Withdraw", { :class => "btn btn-mini", :confirm => "Do you really want to withdraw your account!?" } %>
 <% end %>
+
+<ul class="nav nav-tabs">
+	<li class="active">
+		<a href="#">Home</a>
+	</li>
+	<li><a href="#">Status</a></li>
+	<li><a href="#">Nodes</a></li>
+</ul>
+
+<div class="tabbable tabs-left">
+	<ul class="nav nav-tabs">
+		<li class="active"><a href="#">Node1</a></li>
+	</ul>
+</div>
+
+
