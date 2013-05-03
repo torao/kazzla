@@ -3,18 +3,37 @@
 <%= submit_tag "Withdraw", { :class => "btn btn-mini", :confirm => "Do you really want to withdraw your account!?" } %>
 <% end %>
 
-<ul class="nav nav-tabs">
-	<li class="active">
-		<a href="#">Home</a>
-	</li>
-	<li><a href="#">Status</a></li>
-	<li><a href="#">Nodes</a></li>
-</ul>
-
-<div class="tabbable tabs-left">
-	<ul class="nav nav-tabs">
-		<li class="active"><a href="#">Node1</a></li>
-	</ul>
+<div id="dashboard">
+<%= render :template => "/dashboard/home", :layout => nil %>
 </div>
 
+<div class="alert alert-block alert-error fade in" id="dashboard_error" style="display:none;">
+	<button type="button" class="close" data-dismiss="alert">&times;</button>
+	<h4 class="alert-heading">Oh snap! You got an error!</h4>
+	<p></p>
+</div>
+
+<script type="text/javascript">
+(function(){
+	$(".nav .kazzla_menu a").click(function(){
+		$(".nav li").removeClass("active");
+		$(this).parent("li").addClass("active");
+		$.ajax({
+			url: $(this).attr("href"),
+			cache: true,
+			success: function(html){
+				$("#dashboard").empty().append(html);
+			},
+			error: function(xhr, text, err){
+				var a = $("#dashboard_error").clone(true).removeAttr("id");
+				$("#dashboard").empty().append(a);
+				$("h4", a).text(xhr.status + " " + xhr.statusText);
+				$("p", a).append(xhr.responseText);
+				a.alert().show();
+			}
+		});
+		return false;
+	});
+})()
+</script>
 

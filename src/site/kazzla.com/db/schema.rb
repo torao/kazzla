@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130502021351) do
+ActiveRecord::Schema.define(:version => 20130502210044) do
 
   create_table "activity_eventlogs", :force => true do |t|
     t.integer  "account_id"
@@ -108,5 +108,33 @@ ActiveRecord::Schema.define(:version => 20130502021351) do
   end
 
   add_index "code_timezones", ["code"], :name => "index_code_timezones_on_code", :unique => true
+
+  create_table "node_nodes", :force => true do |t|
+    t.string   "name",             :null => false
+    t.string   "uuid",             :null => false
+    t.integer  "region_id",        :null => false
+    t.string   "continent",        :null => false
+    t.string   "country"
+    t.string   "state"
+    t.float    "latitude"
+    t.float    "longitude"
+    t.string   "agent"
+    t.float    "qos"
+    t.string   "status"
+    t.text     "public_key",       :null => false
+    t.string   "public_addresses", :null => false
+    t.datetime "disconnected_at"
+    t.datetime "created_at",       :null => false
+    t.datetime "updated_at",       :null => false
+  end
+
+  create_table "node_regions", :force => true do |t|
+    t.string   "name",       :null => false
+    t.string   "continent"
+    t.string   "country"
+    t.string   "state"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
 
 end

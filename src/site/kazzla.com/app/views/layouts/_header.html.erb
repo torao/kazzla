@@ -4,7 +4,13 @@
       <a href="/" class="brand"><img src="/img/logo.png" alt="Kazzla" />Kazzla</a>
       <div class="nav-collapse collapse">
         <ul class="nav">
-					<% if @current_account.nil? %>
+					<% unless @current_account.nil? %>
+					<li class="kazzla_menu"><%= link_to "Status", { :action => :status } %></li>
+					<li class="kazzla_menu"><%= link_to "Node", { :action => :node } %></li>
+					<% end %>
+        </ul>
+				<ul class="nav" style="float:right;">
+				<% if @current_account.nil? %>
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%= msg "language" %><b class="caret"></b></a>
             <ul class="dropdown-menu">
@@ -14,7 +20,7 @@
 							<% } %>
             </ul>
           </li>
-					<% else %>
+				<% else %>
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 							<% if @current_account.can?(:admin) %>
@@ -26,8 +32,8 @@
 							<li><%= link_to("Sign out", { :controller => :auth, :action => :signout} ) %></li>
 						</ul>
 					</li>
-					<% end %>
-        </ul>
+				<% end %>
+				</ul>
       </div>
 		</div>
   </div>

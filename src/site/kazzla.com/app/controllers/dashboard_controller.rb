@@ -17,4 +17,16 @@ class DashboardController < ApplicationController
 		redirect_to "/"
 	end
 
+	def home
+		render :layout => nil
+	end
+
+	def status
+		render :layout => nil
+	end
+
+	def node
+		render :layout => nil
+	end
+
 end
