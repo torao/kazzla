@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  code: MyString
+  name: MyString
+  utc_offset: 1
+  daylight_saving: 1
+
+two:
+  code: MyString
+  name: MyString
+  utc_offset: 1
+  daylight_saving: 1

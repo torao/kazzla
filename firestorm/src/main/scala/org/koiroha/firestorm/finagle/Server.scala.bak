@@ -1,0 +1,135 @@
+/*
+ * Copyright (c) 2012 koiroha.org.
+ * All sources and related resources are available under Apache License 2.0.
+ * http://www.apache.org/licenses/LICENSE-2.0.html
+ */
+
+package org.koiroha.firestorm.finagle
+
+import com.twitter.concurrent.{Offer, Broker}
+import com.twitter.finagle.Service
+import com.twitter.finagle.builder.ServerBuilder
+import com.twitter.finagle.stream.{Stream, StreamResponse}
+import com.twitter.util.{JavaTimer, Timer, Future}
+import java.net.{SocketAddress, InetSocketAddress}
+import org.jboss.netty.buffer.ChannelBuffer
+import org.jboss.netty.buffer.ChannelBuffers._
+import org.jboss.netty.handler.codec.http._
+import org.jboss.netty.util.CharsetUtil
+import org.koiroha.firestorm.MessageQueue
+import scala.util.Random
+
+class Server(address:SocketAddress, queue:MessageQueue) {
+
+	val server:com.twitter.finagle.builder.Server = com.twitter.finagle.builder.ServerBuilder()
+		.codec(Stream())
+		.bindTo(address)
+		.name("streamserver")
+		.build(myService)
+
+
+	// "tee" messages across all of the registered brokers.
+	private[this] val addBroker = new Broker[Broker[ChannelBuffer]]
+	private[this] val remBroker = new Broker[Broker[ChannelBuffer]]
+	private[this] val messages = new Broker[ChannelBuffer]
+
+	private[this] def tee(receivers:Set[Broker[ChannelBuffer]]) {
+		Offer.select(
+			addBroker.recv {
+				b => tee(receivers + b)
+			},
+			remBroker.recv {
+				b => tee(receivers - b)
+			},
+			if (receivers.isEmpty) Offer.never
+			else {
+				messages.recv {
+					m =>
+						Future.join(receivers map {
+							_ ! m
+						} toSeq) ensure tee(receivers)
+				}
+			}
+		)
+	}
+
+	private[this] def produce(r:Random, t:Timer) {
+		t.schedule(1.second.fromNow) {
+			val m = copiedBuffer(r.nextInt.toString + "\n", CharsetUtil.UTF_8)
+			messages.send(m) andThen produce(r, t)
+		}
+	}
+
+	// start the two processes.
+	tee(Set())
+	produce(new Random, new JavaTimer)
+
+	object MyService extends Service[HttpRequest, StreamResponse] {
+		def apply(request:HttpRequest) = Future {
+			request.getMethod match {
+				case HttpMethod.GET =>
+					val subscriber = new Broker[ChannelBuffer]
+					new StreamResponse {
+
+						def httpResponse = {
+							val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
+							response.addHeader("Content-Type", "application/x-firestorm-stream")
+							response.addHeader("Cache-Control", "no-cache")
+							response.setChunked(false)
+							response
+						}
+
+						def messages:Offer[ChannelBuffer] = subscriber.recv
+						def error:Offer[ChannelBuffer] = new Broker[Throwable].recv
+					}
+				case HttpMethod.POST =>
+					val stopper = new Broker[Throwable]
+					stopper ! new Throwable
+					new StreamResponse {
+						def httpResponse = {
+							val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
+							response.addHeader("Content-Type", "application/x-firestorm-stream")
+							response.addHeader("Cache-Control", "no-cache")
+							response.setChunked(false)
+							response
+						}
+						def messages:Offer[ChannelBuffer] = new Broker[ChannelBuffer].recv
+						def error:Offer[ChannelBuffer] = stopper.recv
+						def release() = None
+					}
+			}
+		}
+	}
+
+	def main(args:Array[String]) {
+		val myService = new Service[HttpRequest, StreamResponse] {
+			def apply(request:HttpRequest) = Future {
+				val subscriber = new Broker[ChannelBuffer]
+				addBroker ! subscriber
+				new StreamResponse {
+					val httpResponse = new DefaultHttpResponse(
+						request.getProtocolVersion, HttpResponseStatus.OK)
+
+					def messages = subscriber.recv
+
+					def error = new Broker[Throwable].recv
+
+					def release() = {
+						remBroker ! subscriber
+						// sink any existing messages, so they
+						// don't hold up the upstream.
+						subscriber.recv foreach {
+							_ => ()
+						}
+					}
+				}
+			}
+		}
+
+		val server:Server = ServerBuilder()
+			.codec(Stream())
+			.bindTo(new InetSocketAddress(8080))
+			.name("streamserver")
+			.build(myService)
+	}
+}

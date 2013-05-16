@@ -1,0 +1,33 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  name: MyString
+  uuid: MyString
+  region_id: 1
+  continent: MyString
+  country: MyString
+  state: MyString
+  latitude: 1.5
+  longitude: 1.5
+  agent: MyString
+  qos: 1.5
+  status: MyString
+  public_key: MyText
+  public_addresses: MyString
+  disconnected_at: 2013-05-03 06:00:44
+
+two:
+  name: MyString
+  uuid: MyString
+  region_id: 1
+  continent: MyString
+  country: MyString
+  state: MyString
+  latitude: 1.5
+  longitude: 1.5
+  agent: MyString
+  qos: 1.5
+  status: MyString
+  public_key: MyText
+  public_addresses: MyString
+  disconnected_at: 2013-05-03 06:00:44

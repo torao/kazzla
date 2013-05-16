@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2012 koiroha.org.
+  ~ All sources and related resources are available under Apache License 2.0.
+  ~ org.koiroha.firestorm.http://www.apache.org/licenses/LICENSE-2.0.html
+  -->
+<firestorm-config>
+	<edge-server>
+		<port></port>
+	</edge-server>
+	<message-dispatcher>
+		<port></port>
+	</message-dispatcher>
+</firestorm-config>
