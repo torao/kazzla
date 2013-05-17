@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<domain name="com.kazzla.stage" display-name="Kazzla Staging Domain">
-    <services>
-        <authentication></authentication>
-        <registry></registry>
-    </services>
-</domain>
