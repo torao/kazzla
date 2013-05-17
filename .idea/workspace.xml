@@ -1,42 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1130ea97-ebbb-4bd0-9eb4-088cc963c9a0" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/util/Configuration.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/Launcher.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/cocoon/build.sbt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/cocoon/cocoon.iml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/firestorm/firestorm.iml" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/build.sbt" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/org/koiroha/wiredrive/nio/WireDriveFileSystemProvider.java" afterPath="$PROJECT_DIR$/cocoon/src/main/java/org/koiroha/wiredrive/nio/WireDriveFileSystemProvider.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/dfs/Session.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/dfs/Session.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Configuration.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/domain/Configuration.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/DomainServer.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/domain/DomainServer.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/domain/Principal.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/domain/Principal.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Future.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/drpc/Future.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Node.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/drpc/Node.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Peer.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/drpc/Peer.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Protocol.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/drpc/Protocol.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/Service.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/drpc/Service.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocket.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/drpc/async/AsyncSocket.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketContext.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/drpc/async/AsyncSocketContext.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/AsyncSocketListener.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/drpc/async/AsyncSocketListener.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/RawBuffer.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/drpc/async/RawBuffer.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/async/package.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/drpc/async/package.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/drpc/package.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/drpc/package.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/fs/MetaInfo.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/fs/MetaInfo.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/com/kazzla/package.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/com/kazzla/package.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/org/koiroha/wiredrive/domain/AuthService.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/org/koiroha/wiredrive/domain/AuthService.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/org/koiroha/wiredrive/domain/FSService.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/org/koiroha/wiredrive/domain/FSService.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/org/koiroha/wiredrive/domain/NodeService.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/org/koiroha/wiredrive/domain/NodeService.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/scala/org/koiroha/wiredrive/util/Logger.scala" afterPath="$PROJECT_DIR$/cocoon/src/main/scala/org/koiroha/wiredrive/util/Logger.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/resources/log4j.properties" afterPath="$PROJECT_DIR$/cocoon/src/test/resources/log4j.properties" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/AsyncSocketSpec.scala" afterPath="$PROJECT_DIR$/cocoon/src/test/scala/com/kazzla/drpc/async/AsyncSocketSpec.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/scala/com/kazzla/drpc/async/RawBufferSpec.scala" afterPath="$PROJECT_DIR$/cocoon/src/test/scala/com/kazzla/drpc/async/RawBufferSpec.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kazzla.iml" afterPath="$PROJECT_DIR$/kazzla.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme.md" afterPath="$PROJECT_DIR$/readme.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-    </list>
+    <list default="true" id="1130ea97-ebbb-4bd0-9eb4-088cc963c9a0" name="Default" comment="" />
     <ignored path="kazzla.iws" />
     <ignored path=".idea/workspace.xml" />
     <file path="/Dummy.txt" changelist="1130ea97-ebbb-4bd0-9eb4-088cc963c9a0" time="1368729128073" ignored="false" />
