@@ -4,20 +4,37 @@ import java.util.{Timer,TimerTask}
 import scala.collection.immutable._
 import java.net.{URL, URLClassLoader}
 
-class Context(dir:File, defaultClassLoader:ClassLoader) {
-	val config = new File(dir, "conf")
-	val classLoader = Context.getClassLoader(defaultClassLoader, new File(dir, "lib"))
-	var expired = false
+/**
+ * サーバ及びアプリケーションの実行コンテキストを表すクラス。
+ * @param dir ディレクトリ
+ * @param defaultClassLoader
+ */
+class Context(dir:File, defaultClassLoader:ClassLoader) extends Closeable{
+	lazy val config = new File(dir, "conf")
+	lazy val classLoader = Context.getClassLoader(defaultClassLoader, new File(dir, "lib"))
+	private[this] var _expired = false
+	def expired:Boolean = _expired
+	private[this] def expired_=(expired:Boolean) = _expired = expired
 
 	def this(dir:File) = this(dir, Thread.currentThread().getContextClassLoader)
 
+	/**
+	 * このコンテキストをクローズし使用していたリソースを解放します。
+	 */
 	def close():Unit = {
 		Context.leave(this)
 	}
 
+	/**
+	 * 指定された処理をこのコンテキスト内で実行します。
+	 * @param exec
+	 * @tparam T
+	 * @return
+	 */
 	def run[T](exec: =>T):T = {
 		val defaultClassLoader = Thread.currentThread().getContextClassLoader
 		try {
+			Context.push(this)
 			Thread.currentThread().setContextClassLoader(classLoader)
 			val result:T = exec
 			result
@@ -27,6 +44,7 @@ class Context(dir:File, defaultClassLoader:ClassLoader) {
 				throw ex
 		} finally {
 			Thread.currentThread().setContextClassLoader(defaultClassLoader)
+			Context.pop()
 		}
 	}
 
@@ -63,6 +81,28 @@ object Context {
 			}.flatten.toList
 		}
 		new URLClassLoader(findLibrary(lib).toArray, parent)
+	}
+
+	private[this] val _currentContext = new ThreadLocal[List[Context]]()
+
+	def currentContext:Context = Option(_currentContext.get) match {
+		case Some(stack) => stack(0)
+		case None => throw new IllegalStateException("current thread is not bound to any context")
+	}
+
+	private[Context] def push(context:Context):Unit = {
+		_currentContext.set(Option(_currentContext.get) match {
+			case Some(stack) => context :: stack
+			case None => List(context)
+		})
+	}
+
+	private[Context] def pop():Unit = {
+		_currentContext.set(Option(_currentContext.get) match {
+			case Some(current :: rest) => rest
+			case Some(Nil) => throw new IllegalStateException()
+			case None => throw new IllegalStateException()
+		})
 	}
 
 }

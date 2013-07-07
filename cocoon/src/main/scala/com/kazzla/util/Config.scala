@@ -1,8 +1,9 @@
 package com.kazzla.util
+
 import java.io._
 import java.net._
-import scala.collection.immutable._
 import scala.collection.JavaConversions._
+import scala.collection.immutable._
 
 class Config(url:URL) {
 	val file = if(url.getProtocol == "file") Some(new File(url.toURI)) else None
