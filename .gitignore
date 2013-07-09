@@ -4,6 +4,8 @@ Thumnail.db
 .meta/
 out/
 target/
+lib/
+src.bak/
 lib_managed/
 src_managed/
 project/boot/

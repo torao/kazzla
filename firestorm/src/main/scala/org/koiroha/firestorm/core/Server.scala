@@ -6,8 +6,10 @@
 
 package org.koiroha.firestorm.core
 
-import java.net.{InetAddress, SocketAddress, InetSocketAddress}
+import java.net.{URL, InetAddress, SocketAddress, InetSocketAddress}
 import java.nio.channels.{SocketChannel, ServerSocketChannel, SelectionKey}
+import javax.net.ssl.{SSLContext, KeyManagerFactory, SSLServerSocket, SSLServerSocketFactory}
+import java.security.KeyStore
 
 /**
  * 指定されたコンテキスト上でサービスを行うサーバを構築します。
@@ -62,11 +64,20 @@ case class Server(context:Context) {
 		if (selectionKey.isDefined){
 			throw new IllegalStateException("server already listening")
 		}
-		val channel = ServerSocketChannel.open()
-		channel.bind(local, backlog)
+		val channel = createServerSocket(local, backlog)
 		selectionKey = Some(context.bind(channel, this))
 		context.eachListener { _.onListen(this) }
 		this
+	}
+
+	/**
+	 * 指定されたアドレスにバインドするサーバソケットを構築します。サブクラスでオーバーライドするためのメソッドです。
+	 * @param local
+	 */
+	protected def createServerSocket(local:SocketAddress, backlog:Int):ServerSocketChannel = {
+		val channel = ServerSocketChannel.open()
+		channel.bind(local, backlog)
+		channel
 	}
 
 	def close():Unit = synchronized {
@@ -78,5 +89,36 @@ case class Server(context:Context) {
 			context.eachListener { _.onUnlisten(this) }
 			selectionKey = None
 		}
+	}
+}
+
+private[Context] case class Cert(keyStore:URL, password:String);
+
+/**
+ *
+ * @param context コンテキスト
+ */
+case class SSLServer private (override val context:Context, cert:Option[Cert]) extends Server(context){
+
+	def this(context:Context) = this(context, None)
+	def this(context:Context, keyStore:URL, password:String) = this(context, Some(Cert(keyStore, password)))
+
+	protected override def createServerSocket(local:SocketAddress, backlog:Int):ServerSocketChannel = {
+		val factory = cert match {
+			case Some(c) =>
+				val keyStore = KeyStore.getInstance("JKS")
+				keyStore.load(c.keyStore.openStream(), c.password.toCharArray)
+
+				val keyManagerFactory = KeyManagerFactory.getInstance("SunX509")
+				keyManagerFactory.init(keyStore, c.password.toCharArray)
+
+				val context = SSLContext.getInstance("TLS")
+				context.init(keyManagerFactory.getKeyManagers, null, null)
+				context.getServerSocketFactory()
+			case None =>
+				SSLServerSocketFactory.getDefault
+		}
+		val serverSocket = factory.createServerSocket()
+		serverSocket.getChannel()
 	}
 }

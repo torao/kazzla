@@ -7,10 +7,7 @@ package com.kazzla.volume;
 
 import com.kazzla.IO;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InterruptedIOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -158,7 +155,9 @@ public class Server {
 	 * このサーバの処理を開始します。
 	 * @throws IOException 処理の開始に失敗した場合
 	 */
-	private void dispatch(InputStream in, OutputStream out) {
+	private void dispatch(InputStream is, OutputStream os) {
+		DataInputStream in = new DataInputStream(is);
+		DataOutputStream out = new DataOutputStream(os);
 	}
 
 

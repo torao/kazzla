@@ -26,7 +26,7 @@ import org.koiroha.firestorm.core.Context
  * @param context
  * @param factory HTTP Worker を生成するファクトリインスタンス
  */
-case class HttpServer(context:Context)(factory:=> Worker) {
+case class HttpServer(context:Context)(factory: => Worker) {
 
 	/**
 	 * TCP/IP レベルのサーバ。

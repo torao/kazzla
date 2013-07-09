@@ -10,6 +10,8 @@ object IO {
 
 	/**
 	 * 指定された Closeable なオブジェクトのスコープを保障して使用するためのユーティリティです。
+	 * @param c スコープ終了時にクローズするオブジェクト
+	 * @param f c を使用するスコープ
 	 */
 	def using[T <: Closeable,U](c:T)(f:(T)=>U) = try {
 		f(c)
