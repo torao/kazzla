@@ -22,7 +22,7 @@ object Kazzla {
 
 	def main(args:Array[String]):Unit = {
 		val systemProperties = System.getProperties()
-		parse(new Launcher(), List())()
+		// parse(new Launcher(), List())()
 	}
 
 }

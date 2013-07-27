@@ -56,46 +56,39 @@ abstract class Worker {
 	 */
 	private[http] def arrivalBufferedIn(e:Endpoint, maxStatusLineBytes:Int, charset:Charset):Unit = try {
 		// ステータス行、ヘッダ、リクエストボディの読み込みを段階的に行う再起用関数
-		@tailrec
-		lazy val parseRequest:(ReadableStreamBuffer) => Unit = {
-			in =>
-				_request match {
-					case None => Request.create(in, charset) match {
-						case Some(request) =>
-							// ステータス行の読み出し完了
-							_request = Some(request)
-						case None =>
-							if(in.length > maxStatusLineBytes) {
-								throw new HTTP.RequestURITooLong()
-							}
-							// ステータス行受信未完了
-							return
+		_request match {
+			case None => Request.create(e.in, charset) match {
+				case Some(request) =>
+					// ステータス行の読み出し完了
+					_request = Some(request)
+					arrivalBufferedIn(e, maxStatusLineBytes, charset)
+				case None =>
+					if(e.in.length > maxStatusLineBytes) {
+						throw new HTTP.RequestURITooLong()
 					}
-					case Some(request) => if(request.rawHeader.isDefined) {
-						// リクエストボディを設定
-						body(in.slice {
-							_.remaining()
-						}.get)
-						return
-					} else {
-						Request.readHeader(in, charset) match {
-							case Some(h) =>
-								request.rawHeader = Some(h)
-								_response = Some(new Response({
-									b => e.out.write(b)
-								}))
-								_endpoint = Some(e)
-								// 処理の開始
-								run()
-							case None =>
-								// ヘッダ受信未完了
-								return
-						}
-					}
+					// ステータス行受信未完了
+			}
+			case Some(request) => if(request.rawHeader.isDefined) {
+				// リクエストボディを設定
+				body(e.in.slice {
+					_.remaining()
+				}.get)
+			} else {
+				Request.readHeader(e.in, charset) match {
+					case Some(h) =>
+						request.rawHeader = Some(h)
+						_response = Some(new Response({
+							b => e.out.write(b)
+						}))
+						_endpoint = Some(e)
+						// 処理の開始
+						run()
+						arrivalBufferedIn(e, maxStatusLineBytes, charset)
+					case None => None
+						// ヘッダ受信未完了
 				}
-				parseRequest(in)
+			}
 		}
-		parseRequest(e.in)
 	} catch {
 		case ex:HTTP.Exception =>
 			e.out.write(ex.toByteArray)

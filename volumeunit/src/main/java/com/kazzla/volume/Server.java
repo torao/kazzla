@@ -5,7 +5,7 @@
 */
 package com.kazzla.volume;
 
-import com.kazzla.IO;
+import com.kazzla.core.io.IO;
 
 import java.io.*;
 import java.net.ServerSocket;

@@ -15,10 +15,10 @@ import scala._
  */
 sealed class Config(private[this] val config:Map[String,String]) {
 	import Config._
-	def this(file:File) = this(file.toURI.toURL)
-	def this(url:URL) = this(Config.load(url))
-	def this(in:InputStream) = this(Config.load(in))
 	def this(prop:java.util.Properties) = this(prop.map { e => e._1.toString -> e._2.toString }.toMap)
+	def this(in:InputStream) = this(Config.load(in))
+	def this(url:URL) = this(Config.load(url))
+	def this(file:File) = this(file.toURI.toURL)
 
 	// ========================================================================
 	// 設定値の参照

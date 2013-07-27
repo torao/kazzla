@@ -15,7 +15,14 @@
 
 package org.koiroha.firestorm.http
 
-import org.koiroha.firestorm.core.Context
+import org.koiroha.firestorm.core._
+import org.koiroha.firestorm.http._
+import java.nio.charset._
+import org.koiroha.firestorm.core._
+import org.koiroha.firestorm.http._
+import java.net._
+import org.koiroha.firestorm.core._
+import org.koiroha.firestorm.http._
 
 /**
  * HTTP プロトコルを使用するサーバです。
@@ -31,7 +38,7 @@ case class HttpServer(context:Context)(factory: => Worker) {
 	/**
 	 * TCP/IP レベルのサーバ。
 	 */
-	private val server = Server(context).onAccept {
+	private val server = new Server(context).onAccept {
 		(server, endpoint) =>
 			val worker:Worker = factory
 			endpoint.onArrivalBufferedIn {

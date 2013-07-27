@@ -15,7 +15,7 @@ import java.security.KeyStore
  * 指定されたコンテキスト上でサービスを行うサーバを構築します。
  * @param context コンテキスト
  */
-case class Server(context:Context) {
+class Server(val context:Context) {
 
 	private[this] var selectionKey:Option[SelectionKey] = None
 	private[this] var accept:Option[(Server, Endpoint)=>Unit] = None
@@ -92,13 +92,13 @@ case class Server(context:Context) {
 	}
 }
 
-private[Context] case class Cert(keyStore:URL, password:String);
+private[core] case class Cert(keyStore:URL, password:String);
 
 /**
  *
  * @param context コンテキスト
  */
-case class SSLServer private (override val context:Context, cert:Option[Cert]) extends Server(context){
+class SSLServer private (override val context:Context, cert:Option[Cert]) extends Server(context){
 
 	def this(context:Context) = this(context, None)
 	def this(context:Context, keyStore:URL, password:String) = this(context, Some(Cert(keyStore, password)))

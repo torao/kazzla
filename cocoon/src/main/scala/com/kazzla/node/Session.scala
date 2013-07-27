@@ -75,7 +75,7 @@ class Session private[node](dispatcher:Dispatcher, key:SelectionKey) extends Aut
 			logger.error("fail to close session", ex)
 	}
 
-	class In private[this]() {
+	class In private[Session]() {
 
 		/**
 		 * 読み出し可能になった時に行う処理。
@@ -130,7 +130,7 @@ class Session private[node](dispatcher:Dispatcher, key:SelectionKey) extends Aut
 		}
 	}
 
-	class Out private[this](){
+	class Out private[Session](){
 
 		/**
 		 * チャネルが書き込み可能になったときに実行する処理のキュー。処理が false を返した場合
@@ -230,7 +230,7 @@ class Session private[node](dispatcher:Dispatcher, key:SelectionKey) extends Aut
 		}
 	}
 
-	class Server private[this](){
+	class Server private[Session](){
 		private[this] var accept:Option[(SocketChannel) => Unit] = None
 
 		// ======================================================================
