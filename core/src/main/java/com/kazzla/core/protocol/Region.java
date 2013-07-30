@@ -5,21 +5,11 @@
 */
 package com.kazzla.core.protocol;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// Certificate
+// Region
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
  * @author Takami Torao
  */
-public class Certificate {
-	public Certificate(DataInput in) throws IOException {
-		return;
-	}
-	public void writeTo(DataOutput out) throws IOException {
-		return;
-	}
+public interface Region {
 }

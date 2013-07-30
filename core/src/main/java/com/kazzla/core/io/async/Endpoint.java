@@ -15,13 +15,13 @@ import java.nio.ByteBuffer;
 import java.nio.channels.*;
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// AsyncSession
+// Endpoint
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
  * @author Takami Torao
  */
-public final class AsyncSession implements Closeable {
-	private static final Logger logger = LoggerFactory.getLogger(AsyncSession.class);
+public class Endpoint implements Closeable {
+	private static final Logger logger = LoggerFactory.getLogger(Endpoint.class);
 
 	public final String name;
 	public final Dispatcher dispatcher;
@@ -38,7 +38,7 @@ public final class AsyncSession implements Closeable {
 	// ==============================================================================================
 	/**
 	 */
-	AsyncSession(Dispatcher dispatcher, String name, ReadableByteChannel in, WritableByteChannel out) {
+	Endpoint(Dispatcher dispatcher, String name, ReadableByteChannel in, WritableByteChannel out) {
 		this.dispatcher = dispatcher;
 		this.name = name;
 		if(in == null){
@@ -94,6 +94,10 @@ public final class AsyncSession implements Closeable {
 		IO.close(out);
 		logger.trace("session OUT channel closed");
 		logger.debug("session closed");
+	}
+
+	public boolean isOpen(){
+		return in.isOpen() && out.isOpen();
 	}
 
 	void register(Selector selector) throws IOException {

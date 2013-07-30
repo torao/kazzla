@@ -75,7 +75,7 @@ public class FunctionTest {
 
 		TestServer server = new TestServer(buffer1);
 		Dispatcher dispatcher = new Dispatcher("aaa", 3);
-		AsyncSession session = dispatcher.newSession("test", server.in(), server.out());
+		Endpoint session = dispatcher.newSession("test", server.in(), server.out());
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		session.setReceiver(new Receiver() {
 			@Override

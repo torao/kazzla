@@ -30,8 +30,8 @@ public class MsgpackCodec extends Codec {
 		try {
 			packer.write(Pipe.Open.TYPE);
 			packer.write(open.id);
-			encode(packer, short.class, open.method);
-			encode(packer, Object[].class, open.params);
+			write(packer, open.method);
+			write(packer, Object[].class, open.params);
 		} catch(IOException ex){
 			throw new CodecException(ex);
 		}
@@ -44,8 +44,8 @@ public class MsgpackCodec extends Codec {
 		try {
 			packer.write(Pipe.Close.TYPE);
 			packer.write(close.id);
-			encode(packer, close.result);
-			encode(packer, close.errorMessage);
+			write(packer, close.result);
+			write(packer, close.errorMessage);
 		} catch(IOException ex){
 			throw new CodecException(ex);
 		}
@@ -58,7 +58,7 @@ public class MsgpackCodec extends Codec {
 		try {
 			packer.write(Pipe.Block.TYPE);
 			packer.write(block.id);
-			encode(packer, byte[].class, block.binary);
+			write(packer, block.binary, block.offset, block.length);
 		} catch(IOException ex){
 			throw new CodecException(ex);
 		}
@@ -92,75 +92,104 @@ public class MsgpackCodec extends Codec {
 		}
 	}
 
+	private static void write(BufferPacker packer, short value) throws IOException {
+		packer.write(Type.SHORT.id).write(value);
+	}
+	private static void write(BufferPacker packer, String value) throws IOException {
+		packer.write(Type.STRING.id);
+		if(value == null){
+			packer.writeNil();
+		} else {
+			packer.write(value);
+		}
+	}
+	private static void write(BufferPacker packer, byte[] value, int offset, int length) throws IOException {
+		packer.write(Type.BINARY.id);
+		if(value == null){
+			packer.writeNil();
+		} else {
+			packer.write(value, offset, length);
+		}
+	}
 
-	private static void encode(BufferPacker packer, Object value) throws IOException {
+	private static void write(BufferPacker packer, Object value) throws IOException {
 		if(value == null){
 			packer.write(Type.NULL.id);
 			packer.writeNil();
 		} else {
-			encode(packer, value.getClass(), value);
+			write(packer, value.getClass(), value);
 		}
 	}
 
-	private static void encode(BufferPacker packer, Class<?> clazz, Object value) throws IOException {
+	private static void write(BufferPacker packer, Class<?> clazz, Object value) throws IOException {
 		Type type = Type.valueOf(clazz);
 		if(type == null){
 			throw new CodecException(String.format("unsupported data-type: %s", clazz));
 		}
-		packer.write(type.id);
 		if(value == null){
+			packer.write(type.id);
 			packer.writeNil();
 			return;
 		}
 		switch(type){
 			case BOOLEAN:
+				packer.write(type.id);
 				packer.write((Boolean)value);
 				break;
 			case TINY:
+				packer.write(type.id);
 				packer.write((Byte)value);
 				break;
 			case SHORT:
-				packer.write((Short)value);
+				write(packer, ((Short)value).shortValue());
 				break;
 			case INT:
+				packer.write(type.id);
 				packer.write((Integer)value);
 				break;
 			case LONG:
+				packer.write(type.id);
 				packer.write((Long)value);
 				break;
 			case FLOAT:
+				packer.write(type.id);
 				packer.write((Float)value);
 				break;
 			case DOUBLE:
+				packer.write(type.id);
 				packer.write((Double)value);
 				break;
 			case STRING:
-				packer.write((String)value);
+				write(packer, (String)value);
 				break;
 			case BINARY:
-				packer.write((byte[])value);
+				write(packer, (byte[])value, 0, ((byte[])value).length);
 				break;
 			case ARRAY:
+				packer.write(type.id);
 				if(value instanceof List){
 					List<?> list = (List<?>)value;
-					packer.write(list.size());
+					packer.writeArrayBegin(list.size());
 					for(Object o: list){
-						encode(packer, o);
+						write(packer, o);
 					}
+					packer.writeArrayEnd(true);		// TODO checkって何?
 				} else if(clazz.isArray()){
 					Object[] array = (Object[])value;
-					packer.write(array.length);
+					packer.writeArrayBegin(array.length);
 					for(Object o: array){
-						encode(packer, o);
+						write(packer, o);
 					}
+					packer.writeArrayEnd(true);		// TODO checkって何?
 				}
 				break;
 			case MAP:
+				packer.write(type.id);
 				Map<?,?> map = (Map<?,?>)value;
 				packer.write(map.size());
 				for(Map.Entry<?,?> e: map.entrySet()){
-					encode(packer, Object.class, e.getKey());
-					encode(packer, Object.class, e.getValue());
+					write(packer, Object.class, e.getKey());
+					write(packer, Object.class, e.getValue());
 				}
 				break;
 		}
@@ -194,14 +223,16 @@ public class MsgpackCodec extends Codec {
 				return unpacker.readString();
 			case BINARY:
 				return unpacker.readByteArray();
-			case ARRAY:
-				int length = unpacker.readInt();
+			case ARRAY: {
+				int length = unpacker.readArrayBegin();
 				Object[] array = new Object[length];
 				for(int i=0; i<length; i++){
 					array[i] = decode(unpacker);
 				}
+				unpacker.readArrayEnd(true);
 				return array;
-			case MAP:
+			}
+			case MAP: {
 				int size = unpacker.readInt();
 				Map<Object,Object> map = new HashMap<>();
 				for(int i=0; i<size; i++){
@@ -210,6 +241,7 @@ public class MsgpackCodec extends Codec {
 					map.put(key, value);
 				}
 				return map;
+			}
 			default:
 				throw new IllegalStateException(String.format("unsupported data-type specified: %s", type));
 		}

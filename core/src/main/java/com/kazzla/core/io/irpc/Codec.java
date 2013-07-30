@@ -8,6 +8,7 @@ package com.kazzla.core.io.irpc;
 import com.kazzla.core.io.async.RawBuffer;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +27,12 @@ public abstract class Codec {
 	public abstract ByteBuffer encode(Pipe.Block block) throws CodecException;
 	public abstract Object decode(RawBuffer buffer) throws CodecException;
 
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// Type
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	/**
+	 *
+	 */
 	public enum Type {
 		NULL(0),
 		BOOLEAN(1, Boolean.class, boolean.class),

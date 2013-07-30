@@ -6,9 +6,9 @@
 package com.kazzla.core.io.irpc;
 
 import com.kazzla.core.io.IO;
-import com.kazzla.core.io.async.AsyncSession;
-import com.kazzla.core.io.async.Receiver;
+import com.kazzla.core.io.async.Endpoint;
 import com.kazzla.core.io.async.RawBuffer;
+import com.kazzla.core.io.async.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +18,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.WritableByteChannel;
@@ -36,27 +35,27 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Session implements Closeable {
 	private static final Logger logger = LoggerFactory.getLogger(Session.class);
 	private final Context context;
-	final AsyncSession asyncSession;
+	final Endpoint endpoint;
 	final Codec codec;
 
 	private final int pipeIdMask;
 	private static AtomicInteger sequence = new AtomicInteger();
 
-	private Map<Integer, Pipe> pipes = new HashMap<>();
+	private final Map<Integer, Pipe> pipes = new HashMap<>();
 
 	private final Stub stub;
 
 	public final String name;
 
-	Session(Context context, Object service, boolean active, AsyncSession asyncSession, Codec codec) {
+	Session(Context context, Object service, boolean active, Endpoint endpoint, Codec codec) {
 		this.context = context;
 		this.pipeIdMask = (active? 0: Pipe.UNIQUE_MASK);
-		this.asyncSession = asyncSession;
+		this.endpoint = endpoint;
 		this.codec = codec;
 		this.stub = new Stub(service);
-		this.name = asyncSession.name;
+		this.name = endpoint.name;
 
-		asyncSession.setReceiver(new Receiver() {
+		endpoint.setReceiver(new Receiver() {
 			@Override
 			public void arrivalBufferedIn(RawBuffer buffer) {
 				read(buffer);
@@ -67,8 +66,8 @@ public class Session implements Closeable {
 	/**
 	 * 指定されたリモートプロシジャを呼び出しパイプを作成します。
 	 * @param function リモートプロシジャの識別子
-	 * @param params
-	 * @return
+	 * @param params リモートプロシジャの実行パラメータ
+	 * @return リモートプロシジャとのパイプ
 	 * @throws IOException
 	 */
 	public Pipe open(short function, Object... params) throws IOException {
@@ -83,7 +82,11 @@ public class Session implements Closeable {
 	}
 
 	public void close() throws IOException {
-		asyncSession.close();
+		endpoint.close();
+	}
+
+	public boolean isOpen(){
+		return endpoint.isOpen();
 	}
 
 	void onPipeClose(int pipeId){
@@ -92,10 +95,16 @@ public class Session implements Closeable {
 		}
 	}
 
+	private final Map<Class<?>, Object> remoteInterfaces = new HashMap<>();
+
 	public <T> T getInterface(Class<T> clazz) {
-		return clazz.cast(Proxy.newProxyInstance(
+		Object o = remoteInterfaces.get(clazz);
+		if(o == null){
+			o = clazz.cast(Proxy.newProxyInstance(
 				Thread.currentThread().getContextClassLoader(),
 				new Class[]{clazz}, new Skelton()));
+		}
+		return clazz.cast(o);
 	}
 
 	private void read(RawBuffer buffer) {
@@ -133,11 +142,14 @@ public class Session implements Closeable {
 		// TODO スレッドプールに呼び出し先情報を渡して処理を実行する
 		context.execute(new Runnable(){
 			public void run(){
-				Pipe.Close close = stub.invoke(open);
+				Pipe.currentPipe(pipe);
 				try {
-					pipe.close(close);
-				} catch(IOException ex){
+					Pipe.Close close = stub.invoke(open);
+					pipe.sendAndClose(close);
+				} catch(Throwable ex){
 					logger.error("", ex);
+				} finally {
+					Pipe.currentPipe(null);
 				}
 			}
 		});
@@ -163,6 +175,8 @@ public class Session implements Closeable {
 			pipe = pipes.get(block.id);
 		}
 		if(pipe == null){
+			// TODO 存在しないパイプへのブロック
+			logger.debug("destination pipe not found: " + block.id);
 		} else {
 			pipe.postBlock(block);
 		}
@@ -196,6 +210,12 @@ public class Session implements Closeable {
 		}
 	}
 
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// Stub
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	/**
+	 *
+	 */
 	class Stub {
 		private Object service;
 		private Map<Short, Method> functions = new HashMap<>();
@@ -220,21 +240,28 @@ public class Session implements Closeable {
 			}
 		}
 
-		public Pipe.Close invoke(Pipe.Open open) {
+		public Pipe.Close<Object> invoke(Pipe.Open open) {
 			Method m = functions.get(open.method);
 			if (m == null) {
-				return new Pipe.Close(open.id, null, new NoSuchMethodException(String.format("0x%04X", open.method)).toString());
+				String msg = new NoSuchMethodException(String.format("0x%04X", open.method)).toString();
+				return new Pipe.Close<>(open.id, null, msg);
 			} else {
 				try {
 					Object result = m.invoke(service, open.params);
-					return new Pipe.Close(open.id, result);
+					return new Pipe.Close<>(open.id, result);
 				} catch (Exception ex) {
-					return new Pipe.Close(open.id, null, ex.toString());
+					return new Pipe.Close<>(open.id, null, ex.toString());
 				}
 			}
 		}
 	}
 
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// Builder
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	/**
+	 *
+	 */
 	public static class Builder {
 		private final Context context;
 		private final String name;

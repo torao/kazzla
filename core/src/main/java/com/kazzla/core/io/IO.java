@@ -8,10 +8,10 @@ package com.kazzla.core.io;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
 import java.util.UUID;
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -22,6 +22,8 @@ import java.util.UUID;
  */
 public final class IO {
 	private static final Logger logger = LoggerFactory.getLogger(IO.class);
+
+	public static final Charset UTF8 = Charset.forName("UTF-8");
 
 	// ==============================================================================================
 	// コンストラクタ
@@ -51,39 +53,21 @@ public final class IO {
 	}
 
 	// ==============================================================================================
-	// UUID の出力
+	// メッセージダイジェストの参照
 	// ==============================================================================================
 	/**
-	 * 指定されたストリームへ UUID を出力します。
+	 * 指定されたアルゴリズムを使用して入力ストリームから取得できるデータのメッセージダイジェストを参照します。
 	 */
-	public static void write(DataOutput out, UUID uuid) throws IOException {
-		out.writeLong(uuid.getMostSignificantBits());
-		out.writeLong(uuid.getLeastSignificantBits());
-	}
-
-	// ==============================================================================================
-	// UUID の入力
-	// ==============================================================================================
-	/**
-	 * 指定されたストリームから UUID を読み込みます。
-	 */
-	public static UUID readUUID(DataInput in) throws IOException {
-		long most = in.readLong();
-		long least = in.readLong();
-		return new UUID(most, least);
-	}
-
-	public static void writeUShortBinary(DataOutput out, byte[] binary) throws IOException {
-		if(binary.length > 0xFFFF){
-			throw new IllegalArgumentException(String.format("binary too long: %d", binary.length));
+	public static byte[] getMessageDigest(InputStream is, String algorithm) throws IOException {
+		try {
+			MessageDigest md = MessageDigest.getInstance(algorithm);
+			DigestInputStream in = new DigestInputStream(is, md);
+			byte[] buffer = new byte[1024];
+			while(in.read(buffer) > 0);
+			return md.digest();
+		} catch(Exception ex){
+			throw new IOException(ex);
 		}
-		out.writeShort(binary.length);
-		out.write(binary);
 	}
-	public static byte[] readUShortBinary(DataInput in) throws IOException {
-		int length = in.readUnsignedShort();
-		byte[] binary = new byte[length];
-		in.readFully(binary);
-		return binary;
-	}
+
 }

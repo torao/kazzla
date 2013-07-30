@@ -79,7 +79,7 @@ public class Dispatcher implements Closeable {
 
 		// 残っているセッションをすべてクローズ
 		for(SelectionKey key: selector.keys()){
-			IO.close((AsyncSession) key.attachment());
+			IO.close((Endpoint) key.attachment());
 		}
 		IO.close(selector);
 
@@ -87,11 +87,11 @@ public class Dispatcher implements Closeable {
 		logger.debug("dispatcher closed");
 	}
 
-	public AsyncSession newSession(String name, ReadableByteChannel in, WritableByteChannel out) throws IOException {
-		return newSession(new AsyncSession(this, name, in, out));
+	public Endpoint newSession(String name, ReadableByteChannel in, WritableByteChannel out) throws IOException {
+		return newSession(new Endpoint(this, name, in, out));
 	}
 
-	private AsyncSession newSession(final AsyncSession session) throws IOException {
+	private Endpoint newSession(final Endpoint session) throws IOException {
 		try {
 			IOException ex = syncExec(new Task<IOException>(){
 				protected IOException execute(){
@@ -197,7 +197,7 @@ public class Dispatcher implements Closeable {
 			while(it.hasNext()){
 				SelectionKey key = it.next();
 				it.remove();
-				AsyncSession session = (AsyncSession)key.attachment();
+				Endpoint session = (Endpoint)key.attachment();
 				try {
 					if(! key.isValid()){
 						logger.debug("invalid key detected for session: " + session.name);

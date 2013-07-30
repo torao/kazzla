@@ -58,15 +58,30 @@ public class Pipe implements Closeable {
 		logger.trace("<- Open(" + id + "," + function + "," + Arrays.toString(params) + "):" + session.name);
 	}
 
+	/**
+	 * 指定した result 付きで Close を送信しパイプを閉じます。
+	 * @param result Close に付加する結果
+	 * @throws IOException
+	 */
 	public void close(Object result) throws IOException {
-		close(new Close(id, result, null));
+		sendAndClose(new Close<>(id, result, null));
 	}
 
+	/**
+	 * 指定した例外付きで Close を送信しパイプを閉じます。
+	 * @param ex Close に付加する例外
+	 * @throws IOException
+	 */
 	public void close(Throwable ex) throws IOException {
-		close(new Close(id, null, ex.toString()));
+		sendAndClose(new Close<>(id, null, ex.toString()));
 	}
 
-	void close(Close close) throws IOException {
+	/**
+	 * 指定された Close を送信しパイプを閉じます。
+	 * @param close 送信する Close
+	 * @throws IOException
+	 */
+	void sendAndClose(Close close) throws IOException {
 		ByteBuffer ob = session.codec.encode(close);
 		if (ob.remaining() > Codec.MAX_PACKET_SIZE) {
 			throw new IOException(String.format("pipe open packet too large: %d / %d", ob.remaining(), Codec.MAX_PACKET_SIZE));
@@ -83,15 +98,16 @@ public class Pipe implements Closeable {
 	}
 
 	public void close(){
-		logger.trace("close()");
+		if(this.close.hasResult())
+		logger.trace("sendAndClose()");
 		in.clear();
 	}
 
-	public void block(byte[] binary) throws IOException {
-		if(close != null){
+	public void block(byte[] binary, int offset, int length) throws IOException {
+		if(close.hasResult()){
 			throw new IOException("closed pipe");
 		}
-		Block block = new Block(id, binary);
+		Block block = new Block(id, binary, offset, length);
 		ByteBuffer ob = session.codec.encode(block);
 		if (ob.remaining() > Codec.MAX_PACKET_SIZE) {
 			throw new IOException(String.format("pipe open packet too large: %d / %d", ob.remaining(), Codec.MAX_PACKET_SIZE));
@@ -109,7 +125,7 @@ public class Pipe implements Closeable {
 	}
 
 	private void write(ByteBuffer buffer) throws IOException {
-		session.asyncSession.write(buffer);
+		session.endpoint.write(buffer);
 	}
 
 	private InputStream _in = null;
@@ -162,13 +178,23 @@ public class Pipe implements Closeable {
 		public static final byte TYPE = 2;
 		public final int id;
 		public final byte[] binary;
+		public final int offset;
+		public final int length;
 
-		public Block(int id, byte[] binary) {
+		public Block(int id, byte[] binary){
+			this(id, binary, 0, binary.length);
+		}
+		public Block(int id, byte[] binary, int offset, int length) {
 			this.id = id;
 			this.binary = binary;
+			this.offset = offset;
+			this.length = length;
 		}
 	}
 
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// OS
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	/**
 	 * このパイプを使用した出力ストリームクラス。出力内容を Block にカプセル化して非同期セッションへ出力する。
 	 */
@@ -182,10 +208,13 @@ public class Pipe implements Closeable {
 		}
 
 		public void write(byte[] b, int offset, int length) throws IOException {
-			Pipe.this.write(ByteBuffer.wrap(b, offset, length));
+			block(b, offset, length);
 		}
 	}
 
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// IS
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	/**
 	 * このパイプを使用した入力ストリームクラス。
 	 */
@@ -218,16 +247,32 @@ public class Pipe implements Closeable {
 			return len;
 		}
 
-		private boolean prepareBuffer() {
+		private boolean prepareBuffer() throws IOException{
 			if (processing == null) {
-				if (in.isEmpty() && close != null) {
+				if (in.isEmpty() && close.hasResult()) {
 					return false;
 				}
-				processing = in.remove();
+				try {
+					processing = in.take();
+				} catch(InterruptedException ex){
+					throw new IOException(ex);
+				}
 				offset = 0;
 				assert (processing.length > 0);
 			}
 			return true;
+		}
+	}
+
+	private static final ThreadLocal<Pipe> currentPipes = new ThreadLocal<>();
+	public static Pipe currentPipe(){
+		return currentPipes.get();
+	}
+	static void currentPipe(Pipe pipe){
+		if(pipe == null){
+			currentPipes.remove();
+		} else {
+			currentPipes.set(pipe);
 		}
 	}
 

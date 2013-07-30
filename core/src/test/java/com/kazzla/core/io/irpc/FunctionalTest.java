@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -71,6 +73,15 @@ public class FunctionalTest {
 		Echo echo = session.getInterface(Echo.class);
 		assertEquals("abc", echo.echo("abc"));
 		assertEquals("cba", echo.reverse("abc"));
+
+		Pipe pipe = session.open((short)12);
+		InputStream in = pipe.getInputStream();
+		OutputStream out = pipe.getOutputStream();
+		for(int i=0; i<1024 * 10; i++){
+			out.write(i);
+			assertEquals(i & 0xFF, in.read());
+		}
+		pipe.close("exit");
 		context.close();
 	}
 

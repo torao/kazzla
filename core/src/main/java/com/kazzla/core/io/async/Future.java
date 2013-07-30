@@ -54,6 +54,10 @@ public class Future<T> {
 		return value.value;
 	}
 
+	public boolean hasResult() {
+		return value != null;
+	}
+
 	private class Result<T> {
 		public final T value;
 		public final Throwable ex;
