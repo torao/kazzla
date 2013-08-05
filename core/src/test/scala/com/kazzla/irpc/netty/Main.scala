@@ -5,13 +5,15 @@
 */
 package com.kazzla.irpc.netty
 
-import org.jboss.netty.channel.socket.nio.{NioClientSocketChannelFactory, NioServerSocketChannelFactory}
+import com.kazzla.core.io._
+import com.kazzla.irpc.{Pipe, Export, Session}
+import java.net.InetSocketAddress
 import java.util.concurrent.Executors
 import org.jboss.netty.bootstrap.{ClientBootstrap, ServerBootstrap}
-import org.jboss.netty.channel.{Channel, ChannelPipeline, ChannelPipelineFactory}
-import com.kazzla.irpc.{Export, Session}
-import com.kazzla.core.io._
-import java.net.InetSocketAddress
+import org.jboss.netty.channel.Channel
+import org.jboss.netty.channel.socket.nio.{NioClientSocketChannelFactory, NioServerSocketChannelFactory}
+import java.io.InputStream
+import scala.annotation.tailrec
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Main
@@ -22,11 +24,11 @@ import java.net.InetSocketAddress
 object Main {
 	def main(args:Array[String]):Unit = {
 		val executor = Executors.newCachedThreadPool()
-		def sessionFactory(ch:Channel):Session = {
-			new Session(getName(ch.getRemoteAddress), true, executor, new GreetingImpl())
-		}
 
 		val server = {
+			val sessionFactory:(Channel)=>Session = { ch =>
+				new Session(ch.getRemoteAddress.getName, true, executor, new GreetingImpl())
+			}
 			val channelFactory = new NioServerSocketChannelFactory()
 			val bootstrap = new ServerBootstrap(channelFactory)
 			bootstrap.setPipelineFactory(new IrpcChannelPipelineFactory(sessionFactory))
@@ -34,18 +36,19 @@ object Main {
 			bootstrap
 		}
 
-		val session = new Session("client", false, executor, new GreetingImpl());
+		val session = new Session("client", false, executor, new GreetingImpl())
 		val client = {
 			val channelFactory = new NioClientSocketChannelFactory()
 			val bootstrap = new ClientBootstrap(channelFactory)
-			bootstrap.setPipelineFactory(new IrpcChannelPipelineFactory({_ => session }))
-			bootstrap.connect(new InetSocketAddress(7777))
+			bootstrap.setPipelineFactory(new IrpcChannelPipelineFactory(session))
+			bootstrap.connect(new InetSocketAddress("localhost", 7777))
 			bootstrap
 		}
 
 		val g = session.getRemoteInterface(classOf[Greeting])
+		val max = 100
 		val s = System.nanoTime()
-		(0 until 1000).par.foreach{ _ =>
+		(0 until max).par.foreach{ _ =>
 			g.echo("A")
 			/*
 			assert(g.reverse("ABCD") == "DCBA")
@@ -54,7 +57,26 @@ object Main {
 			*/
 		}
 		val e = System.nanoTime()
-		Console.out.println(f"${(e-s)/1000.0}%,f nsec")
+		Console.out.println(f"${(e-s)/max.toDouble}%,.2f nsec")
+
+		val pipe = session.open(14)
+		val o = scala.concurrent.ops.future {
+			for(i <- 0 until 0xFFFF){
+				pipe.out.write(i)
+			}
+			pipe.out.close()
+		}
+		val i = scala.concurrent.ops.future {
+			val b = new Array[Byte](1024)
+			var count = 0
+			while({val len = pipe.in.read(b); count += len; len } > 0){
+				None
+			}
+			count
+		}
+		o()
+		Console.out.println(i())
+		pipe.close("")
 
 		server.shutdown()
 		client.shutdown()
@@ -70,6 +92,8 @@ object Main {
 		def reverseAndLowerCase(text:String):String
 		@Export(13)
 		def echo(text:String):String
+		@Export(14)
+		def echo():Unit
 	}
 
 	class GreetingImpl extends Greeting {
@@ -82,5 +106,23 @@ object Main {
 			}
 		}
 		def echo(text:String):String = text
+		def echo():Unit = {
+			Pipe() match {
+				case Some(pipe) =>
+					@tailrec
+					def f(in:InputStream, buffer:Array[Byte]):Unit = {
+						val len = in.read(buffer)
+						if(len > 0){
+							pipe.out.write(buffer, 0, len)
+							f(in, buffer)
+						} else {
+							None
+						}
+					}
+					f(pipe.in, new Array[Byte](1024))
+					pipe.out.flush()
+				case None => None
+			}
+		}
 	}
 }

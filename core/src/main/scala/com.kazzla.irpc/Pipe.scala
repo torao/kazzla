@@ -64,6 +64,7 @@ class Pipe private[irpc](val id:Short, session:Session) {
 	 * 相手側から受信した Close によってこのパイプを閉じます。
 	 */
 	private[irpc] def close(close:Close[_]):Unit = {
+		receiveQueue.put(Block(id, Array[Byte](), 0, 0))
 		session.destroy(id)
 		closed = true
 		promise.success(close)
@@ -77,6 +78,7 @@ class Pipe private[irpc](val id:Short, session:Session) {
 	 */
 	private[this] class IS extends InputStream {
 		private[this] var processing:Option[ByteBuffer] = None
+		private[this] var isClosed = false
 		def read():Int = processingBuffer match {
 			case None => -1
 			case Some(buffer) => buffer.get() & 0xFF
@@ -90,14 +92,21 @@ class Pipe private[irpc](val id:Short, session:Session) {
 				len
 		}
 		private[this] def processingBuffer:Option[ByteBuffer] = {
-			if(processing.isDefined && processing.get.hasRemaining){
+			if(isClosed){
+				None
+			} else if(processing.isDefined && processing.get.hasRemaining){
 				processing
 			} else if(receiveQueue.isEmpty && closed){
 				None
 			} else receiveQueue.take() match {
 				case Block(pipeId, binary, offset, length) =>
-					processing = Some(ByteBuffer.wrap(binary, offset, length))
-					processing
+					if(length <= 0){
+						isClosed = true
+						None
+					} else {
+						processing = Some(ByteBuffer.wrap(binary, offset, length))
+						processing
+					}
 			}
 		}
 	}
@@ -110,6 +119,7 @@ class Pipe private[irpc](val id:Short, session:Session) {
 	 */
 	private[this] class OS extends OutputStream {
 		private[this] val buffer = ByteBuffer.allocate(4 * 1024)
+		private[this] var osClosed = false
 		def write(b:Int):Unit = {
 			ensureWrite(1)
 			buffer.put(b.toByte)
@@ -123,19 +133,26 @@ class Pipe private[irpc](val id:Short, session:Session) {
 			buffer.put(b, offset, length)
 		}
 		private[this] def ensureWrite(len:Int):Unit = {
-			if(closed){
-				throw new IOException(f"unable to write to closed pipe: 0x$id%02X")
+			if(closed || osClosed){
+				throw new IOException(f"unable to write to closed pipe or stream: 0x$id%02X")
 			}
 			if(buffer.position() + len > buffer.capacity()){
 				flush()
 			}
 		}
 		override def flush():Unit = {
-			buffer.flip()
-			val b = new Array[Byte](buffer.remaining())
-			buffer.get(b, 0, b.length)
-			block(b)
-			buffer.clear()
+			if(buffer.position() > 0){
+				buffer.flip()
+				val b = new Array[Byte](buffer.remaining())
+				buffer.get(b, 0, b.length)
+				block(b)
+				buffer.clear()
+			}
+		}
+		override def close():Unit = {
+			flush()
+			block(Array[Byte]())
+			osClosed = true
 		}
 	}
 

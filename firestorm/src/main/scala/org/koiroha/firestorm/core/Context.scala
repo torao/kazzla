@@ -312,6 +312,8 @@ class Context(val id:String, readBufferSize:Int = 8 * 1024, var maxIdleInMillis:
 			}
 	}
 
+	import scala.language.implicitConversions
+
 	private[this] implicit def sk2endpoint(key:SelectionKey):Endpoint = key.attachment().asInstanceOf[Endpoint]
 	private[this] implicit def sk2server(key:SelectionKey):Server = key.attachment().asInstanceOf[Server]
 	private[this] implicit def sk2socket(key:SelectionKey):Socket = key.channel().asInstanceOf[SocketChannel].socket()

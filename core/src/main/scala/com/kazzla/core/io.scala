@@ -16,6 +16,7 @@ import java.net.{InetSocketAddress, SocketAddress}
  * @author Takami Torao
  */
 package object io {
+	import scala.language.reflectiveCalls
 	private[this] val logger = LoggerFactory.getLogger("com.kazzla.core.io")
 
 	def close(cs:Closeable*):Unit = IO.close(cs:_*)
@@ -35,10 +36,13 @@ package object io {
 		close(resource)
 	}
 
-	implicit def getName(addr:SocketAddress):String = addr match {
-		case i:InetSocketAddress =>
-			s"${i.getAddress.getHostAddress}:${i.getPort}"
-		case s => s.toString
+	implicit class RSocketAddress(addr:SocketAddress) {
+		def getName:String = addr match {
+			case i:InetSocketAddress =>
+				s"${i.getAddress.getHostAddress}:${i.getPort}"
+			case s => s.toString
+		}
 	}
+
 }
 

@@ -22,6 +22,7 @@ import java.io.IOException
  * @author Takami Torao
  */
 class Domain(val url:URL){
+	import scala.language.postfixOps
 	private[this] var _stub:Option[Stub] = None
 	private[this] def stub = _stub match {
 		case Some(s) => s

@@ -10,7 +10,7 @@ import org.msgpack.{MessageTypeException, MessagePack}
 import org.msgpack.packer.BufferPacker
 import scala.collection.JavaConversions._
 import java.util.UUID
-import java.io.IOException
+import java.io.{EOFException, IOException}
 import org.msgpack.unpacker.BufferUnpacker
 import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicReference
@@ -28,7 +28,9 @@ case class Open(override val pipeId:Short, function:Short, params:AnyRef*) exten
 
 case class Close[T](override val pipeId:Short, result:T, errorMessage:String) extends Frame(pipeId)
 
-case class Block(override val pipeId:Short, binary:Array[Byte], offset:Int, length:Int) extends Frame(pipeId)
+case class Block(override val pipeId:Short, binary:Array[Byte], offset:Int, length:Int) extends Frame(pipeId) {
+	def isEOF:Boolean = (length <= 0)
+}
 
 object Frame {
 	private[Frame] val logger = LoggerFactory.getLogger(classOf[Frame])
@@ -58,6 +60,9 @@ object Frame {
 				packer.write(TYPE_BLOCK)
 				packer.write(b.pipeId)
 				packer.write(b.binary, b.offset, b.length)
+		}
+		if(logger.isTraceEnabled){
+			logger.trace(s"$packet -> ${packer.getBufferSize} bytes")
 		}
 		ByteBuffer.wrap(packer.toByteArray)
 	}
@@ -91,6 +96,9 @@ object Frame {
 				throw new CodecException(f"unsupported frame-type: 0x$unknown%02X")
 		}
 	} catch {
+		case ex:EOFException =>
+			// logger.trace(ex.toString)
+			None
 		case ex:MessageTypeException =>
 			logger.trace("", ex)
 			None

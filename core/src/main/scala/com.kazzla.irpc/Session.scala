@@ -142,6 +142,7 @@ class Session(name:String, isServer:Boolean, executor:Executor, service:Object) 
 	 */
 	private[this] class Stub(service:AnyRef) {
 		import com.kazzla.core.debug._
+		import scala.language.reflectiveCalls
 
 		logger.debug(s"binding ${service.getClass.getSimpleName}")
 		private[this] val functions = service.getClass.getInterfaces.map{ i =>
