@@ -72,27 +72,26 @@ object Server {
 		var service:Option[Object] = None
 		var codec:Codec = new MsgpackCodec()
 		var factory:Option[()=>ServerSocketChannel] = None
-		def context(c:Context) = {
+		def _context(c:Context) = {
 			context = Option(c)
 			this
 		}
-		def service(s:Object) = {
+		def _service(s:Object) = {
 			service = Option(s)
 			this
 		}
-		def codec(c:Codec) = {
+		def _codec(c:Codec) = {
 			codec = c
 			this
 		}
-		def bind(f: =>ServerSocketChannel) = {
+		def bind(f: =>ServerSocketChannel):Builder = {
 			factory = Option({ () => f })
 			this
 		}
-		def bind(port:Int) = bind(new InetSocketAddress(port))
-		def bind(addr:SocketAddress) = bind {
+		def bind(port:Int):Builder = bind(new InetSocketAddress(port))
+		def bind(addr:SocketAddress):Builder = bind {
 			val ch = ServerSocketChannel.open()
 			ch.bind(addr)
-			ch
 		}
 		def create():Server = {
 			if(context.isEmpty){

@@ -47,7 +47,7 @@ class Domain(val url:URL){
 
 		lazy val service:U = Proxy.newProxyInstance(
 			Thread.currentThread().getContextClassLoader,
-			Array(classOf[U]), new InvocationHandler {
+			Array(classOf[Object]), new InvocationHandler {
 				def invoke(proxy:Any, method:Method, args:Array[AnyRef]):AnyRef = {
 					if(session.isEmpty || ! session.get.isOpen){
 						close()

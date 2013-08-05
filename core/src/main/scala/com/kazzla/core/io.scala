@@ -7,6 +7,7 @@ package com.kazzla.core
 
 import java.io._
 import org.slf4j._
+import java.net.{InetSocketAddress, SocketAddress}
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // io
@@ -34,5 +35,10 @@ package object io {
 		close(resource)
 	}
 
+	implicit def getName(addr:SocketAddress):String = addr match {
+		case i:InetSocketAddress =>
+			s"${i.getAddress.getHostAddress}:${i.getPort}"
+		case s => s.toString
+	}
 }
 

@@ -5,6 +5,7 @@
       <configuration>
         <option name="compilerLibraryLevel" value="Project" />
         <option name="compilerLibraryName" value="scala-compiler" />
+        <option name="compilerOptions" value="-feature" />
       </configuration>
     </facet>
   </component>
@@ -20,6 +21,7 @@
     <orderEntry type="library" name="scala-library" level="project" />
     <orderEntry type="library" name="org.msgpack:msgpack:0.6.7" level="project" />
     <orderEntry type="library" name="org.slf4j:slf4j-log4j12:1.7.5" level="project" />
+    <orderEntry type="library" name="com.twitter:finagle-core_2.10:6.5.1" level="project" />
   </component>
 </module>
 

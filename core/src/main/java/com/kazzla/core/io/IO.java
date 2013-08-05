@@ -47,7 +47,7 @@ public final class IO {
 					c.close();
 				}
 			} catch(IOException ex){
-				logger.warn("fail to close object", ex);
+				logger.warn("fail to destroy object", ex);
 			}
 		}
 	}

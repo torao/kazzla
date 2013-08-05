@@ -20,8 +20,9 @@ class Node[T,U](urls: =>Seq[URL]) {
 		Thread.currentThread().getContextClassLoader,
 		Array(classOf[Region]), new InvocationHandler {
 			def invoke(proxy:Any, method:Method, args:Array[AnyRef]):AnyRef = {
-
+				// TODO
+				null
 			}
 		}
-	)
+	).asInstanceOf[Region]
 }
