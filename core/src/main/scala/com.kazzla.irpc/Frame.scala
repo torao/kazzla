@@ -28,8 +28,17 @@ case class Open(override val pipeId:Short, function:Short, params:AnyRef*) exten
 
 case class Close[T](override val pipeId:Short, result:T, errorMessage:String) extends Frame(pipeId)
 
+/**
+ * 長さが 0 以下の
+ */
 case class Block(override val pipeId:Short, binary:Array[Byte], offset:Int, length:Int) extends Frame(pipeId) {
 	def isEOF:Boolean = (length <= 0)
+}
+
+object Block {
+	private[this] val empty = Array[Byte]()
+	def eof(id:Short) = Block(id, empty)
+	def apply(pipeId:Short, binary:Array[Byte]):Block = Block(pipeId, binary, 0, binary.length)
 }
 
 object Frame {
@@ -91,7 +100,7 @@ object Frame {
 				val pipeId = unpacker.readShort()
 				val binary = unpacker.readByteArray()
 				buffer.position(unpacker.getReadByteCount)
-				Some(Block(pipeId, binary, 0, binary.length))
+				Some(Block(pipeId, binary))
 			case unknown =>
 				throw new CodecException(f"unsupported frame-type: 0x$unknown%02X")
 		}

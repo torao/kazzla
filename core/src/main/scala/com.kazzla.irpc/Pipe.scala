@@ -64,7 +64,7 @@ class Pipe private[irpc](val id:Short, session:Session) {
 	 * 相手側から受信した Close によってこのパイプを閉じます。
 	 */
 	private[irpc] def close(close:Close[_]):Unit = {
-		receiveQueue.put(Block(id, Array[Byte](), 0, 0))
+		receiveQueue.put(Block.eof(id))
 		session.destroy(id)
 		closed = true
 		promise.success(close)
@@ -90,6 +90,9 @@ class Pipe private[irpc](val id:Short, session:Session) {
 				val len = math.min(length, buffer.remaining())
 				buffer.get(b, offset, len)
 				len
+		}
+		override def close():Unit = {
+			// TODO 読み出しクローズしたキューにそれ以上ブロックを入れない処理
 		}
 		private[this] def processingBuffer:Option[ByteBuffer] = {
 			if(isClosed){

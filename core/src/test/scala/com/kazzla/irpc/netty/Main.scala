@@ -68,8 +68,19 @@ object Main {
 		}
 		val i = scala.concurrent.ops.future {
 			val b = new Array[Byte](1024)
+			var i:Byte = 0
 			var count = 0
-			while({val len = pipe.in.read(b); count += len; len } > 0){
+			while({
+				val len = pipe.in.read(b)
+				if(len > 0){
+					for(j <- 0 until len){
+						assert(b(j) == i)
+						i = (i + 1).toByte
+					}
+					count += len
+				}
+				len
+			} > 0){
 				None
 			}
 			count
