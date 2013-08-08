@@ -12,8 +12,9 @@ import java.util.concurrent.Executors
 import org.jboss.netty.bootstrap.{ClientBootstrap, ServerBootstrap}
 import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.socket.nio.{NioClientSocketChannelFactory, NioServerSocketChannelFactory}
-import java.io.InputStream
+import java.io.{FileInputStream, BufferedInputStream, InputStream}
 import scala.annotation.tailrec
+import javax.net.ssl.{SSLContext, KeyManagerFactory}
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Main
@@ -25,13 +26,15 @@ object Main {
 	def main(args:Array[String]):Unit = {
 		val executor = Executors.newCachedThreadPool()
 
+		val serverSSL = getSSLContext("ca/server.jks", "kazzla", "kazzla")
+		val clientSSL = getSSLContext("ca/client.jks", "kazzla", "kazzla")
 		val server = {
 			val sessionFactory:(Channel)=>Session = { ch =>
 				new Session(ch.getRemoteAddress.getName, true, executor, new GreetingImpl())
 			}
 			val channelFactory = new NioServerSocketChannelFactory()
 			val bootstrap = new ServerBootstrap(channelFactory)
-			bootstrap.setPipelineFactory(new IrpcChannelPipelineFactory(sessionFactory))
+			bootstrap.setPipelineFactory(new IrpcChannelPipelineFactory(sessionFactory, serverSSL))
 			bootstrap.bind(new InetSocketAddress(7777))
 			bootstrap
 		}
@@ -40,13 +43,13 @@ object Main {
 		val client = {
 			val channelFactory = new NioClientSocketChannelFactory()
 			val bootstrap = new ClientBootstrap(channelFactory)
-			bootstrap.setPipelineFactory(new IrpcChannelPipelineFactory(session))
+			bootstrap.setPipelineFactory(new IrpcChannelPipelineFactory(session, clientSSL))
 			bootstrap.connect(new InetSocketAddress("localhost", 7777))
 			bootstrap
 		}
 
 		val g = session.getRemoteInterface(classOf[Greeting])
-		val max = 100
+		val max = 1000
 		val s = System.nanoTime()
 		(0 until max).par.foreach{ _ =>
 			g.echo("A")
