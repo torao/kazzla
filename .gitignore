@@ -13,5 +13,5 @@ project/boot/
 *.iml
 workspace.xml
 *.tmp
-workbench.xml
+workbench.xmi
 
