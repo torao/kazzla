@@ -31,8 +31,8 @@ case class Close[T](override val pipeId:Short, result:T, errorMessage:String) ex
 /**
  * 長さが 0 以下の
  */
-case class Block(override val pipeId:Short, binary:Array[Byte], offset:Int, length:Int) extends Message(pipeId) {
-	def isEOF:Boolean = (length <= 0)
+case class Block(override val pipeId:Short, payload:Array[Byte], offset:Int, length:Int) extends Message(pipeId) {
+	def isEOF:Boolean = length <= 0
 }
 
 object Block {
@@ -68,7 +68,7 @@ object Message {
 			case b:Block =>
 				packer.write(TYPE_BLOCK)
 				packer.write(b.pipeId)
-				packer.write(b.binary, b.offset, b.length)
+				packer.write(b.payload, b.offset, b.length)
 		}
 		if(logger.isTraceEnabled){
 			logger.trace(s"$packet -> ${packer.getBufferSize} bytes")
