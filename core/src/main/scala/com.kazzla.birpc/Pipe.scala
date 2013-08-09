@@ -3,7 +3,7 @@
  * All sources and related resources are available under Apache License 2.0.
  * http://www.apache.org/licenses/LICENSE-2.0.html
 */
-package com.kazzla.irpc
+package com.kazzla.birpc
 
 import org.slf4j.LoggerFactory
 import java.util.concurrent.LinkedBlockingQueue
@@ -24,14 +24,14 @@ import java.util.concurrent.atomic.AtomicBoolean
  *
  * @author Takami Torao
  */
-class Pipe private[irpc](val id:Short, session:Session) {
-	private[irpc] val receiveQueue = new LinkedBlockingQueue[Block]()
-	private[irpc] var closed = false
+class Pipe private[birpc](val id:Short, session:Session) {
+	private[birpc] val receiveQueue = new LinkedBlockingQueue[Block]()
+	private[birpc] var closed = false
 
 	lazy val in:InputStream = new IS()
 	lazy val out:OutputStream = new OS()
 
-	private[irpc] val promise = Promise[Close[_]]()
+	private[birpc] val promise = Promise[Close[_]]()
 	val future = promise.future
 
 	def block(buffer:Array[Byte]):Unit = block(buffer, 0, buffer.length)
@@ -63,7 +63,7 @@ class Pipe private[irpc](val id:Short, session:Session) {
 	/**
 	 * 相手側から受信した Close によってこのパイプを閉じます。
 	 */
-	private[irpc] def close(close:Close[_]):Unit = {
+	private[birpc] def close(close:Close[_]):Unit = {
 		receiveQueue.put(Block.eof(id))
 		session.destroy(id)
 		closed = true
@@ -164,9 +164,9 @@ class Pipe private[irpc](val id:Short, session:Session) {
 object Pipe {
 	private[Pipe] val logger = LoggerFactory.getLogger(classOf[Pipe])
 
-	private[irpc] val UNIQUE_MASK:Short = (1 << 15).toShort
+	private[birpc] val UNIQUE_MASK:Short = (1 << 15).toShort
 
-	private[irpc] val pipes = new ThreadLocal[Pipe]()
+	private[birpc] val pipes = new ThreadLocal[Pipe]()
 
 	// ==============================================================================================
 	// パイプの参照

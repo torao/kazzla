@@ -3,7 +3,7 @@
  * All sources and related resources are available under Apache License 2.0.
  * http://www.apache.org/licenses/LICENSE-2.0.html
 */
-package com.kazzla.irpc
+package com.kazzla.birpc
 
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.{AtomicReference, AtomicInteger}
@@ -32,8 +32,8 @@ class Session(name:String, isServer:Boolean, executor:Executor, service:Object) 
 
 	private[this] var stub = new Stub(service)
 
-	private[this] val src = new Frame.Queue()
-	private[this] val sink = new Frame.Queue()
+	private[this] val src = new Message.Queue()
+	private[this] val sink = new Message.Queue()
 
 	src.onPut { src.take().foreach{ f => dispatch(f) } }
 
@@ -72,7 +72,7 @@ class Session(name:String, isServer:Boolean, executor:Executor, service:Object) 
 		))
 	}
 
-	private[this] def dispatch(frame:Frame):Unit = {
+	private[this] def dispatch(frame:Message):Unit = {
 		logger.trace(s"-> $frame")
 		frame match {
 			case open:Open =>
@@ -118,14 +118,14 @@ class Session(name:String, isServer:Boolean, executor:Executor, service:Object) 
 	}
 
 	@tailrec
-	private[irpc] final def destroy(pipeId:Short):Unit = {
+	private[birpc] final def destroy(pipeId:Short):Unit = {
 		val map = pipes.get()
 		if(! pipes.compareAndSet(map, map - pipeId)){
 			destroy(pipeId)
 		}
 	}
 
-	private[irpc] def post(frame:Frame):Unit = {
+	private[birpc] def post(frame:Message):Unit = {
 		sink.put(frame)
 		logger.trace(s"<- $frame")
 	}

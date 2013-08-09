@@ -3,10 +3,10 @@
  * All sources and related resources are available under Apache License 2.0.
  * http://www.apache.org/licenses/LICENSE-2.0.html
 */
-package com.kazzla.irpc.netty
+package com.kazzla.birpc.netty
 
 import com.kazzla.core.io._
-import com.kazzla.irpc.{Pipe, Export, Session}
+import com.kazzla.birpc.{Pipe, Export, Session}
 import java.net.InetSocketAddress
 import java.util.concurrent.Executors
 import org.jboss.netty.bootstrap.{ClientBootstrap, ServerBootstrap}

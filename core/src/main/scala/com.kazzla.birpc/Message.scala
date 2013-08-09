@@ -3,7 +3,7 @@
  * All sources and related resources are available under Apache License 2.0.
  * http://www.apache.org/licenses/LICENSE-2.0.html
 */
-package com.kazzla.irpc
+package com.kazzla.birpc
 
 import java.nio.ByteBuffer
 import org.msgpack.{MessageTypeException, MessagePack}
@@ -17,21 +17,21 @@ import java.util.concurrent.atomic.AtomicReference
 import scala.annotation.tailrec
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// Frame
+// Message
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
  * @author Takami Torao
  */
-sealed abstract class Frame(val pipeId:Short)
+sealed abstract class Message(val pipeId:Short)
 
-case class Open(override val pipeId:Short, function:Short, params:AnyRef*) extends Frame(pipeId)
+case class Open(override val pipeId:Short, function:Short, params:AnyRef*) extends Message(pipeId)
 
-case class Close[T](override val pipeId:Short, result:T, errorMessage:String) extends Frame(pipeId)
+case class Close[T](override val pipeId:Short, result:T, errorMessage:String) extends Message(pipeId)
 
 /**
  * 長さが 0 以下の
  */
-case class Block(override val pipeId:Short, binary:Array[Byte], offset:Int, length:Int) extends Frame(pipeId) {
+case class Block(override val pipeId:Short, binary:Array[Byte], offset:Int, length:Int) extends Message(pipeId) {
 	def isEOF:Boolean = (length <= 0)
 }
 
@@ -41,13 +41,13 @@ object Block {
 	def apply(pipeId:Short, binary:Array[Byte]):Block = Block(pipeId, binary, 0, binary.length)
 }
 
-object Frame {
-	private[Frame] val logger = LoggerFactory.getLogger(classOf[Frame])
+object Message {
+	private[Message] val logger = LoggerFactory.getLogger(classOf[Message])
 	val TYPE_OPEN:Byte = 1
 	val TYPE_CLOSE:Byte = 2
 	val TYPE_BLOCK:Byte = 3
 
-	def encode(packet:Frame):ByteBuffer = {
+	def encode(packet:Message):ByteBuffer = {
 		val msgpack = new MessagePack()
 		val packer = msgpack.createBufferPacker()
 		packet match {
@@ -76,7 +76,7 @@ object Frame {
 		ByteBuffer.wrap(packer.toByteArray)
 	}
 
-	def decode(buffer:ByteBuffer):Option[Frame] = try {
+	def decode(buffer:ByteBuffer):Option[Message] = try {
 		val msgpack = new MessagePack()
 		val unpacker = msgpack.createBufferUnpacker(buffer)
 		unpacker.readByte() match {
@@ -214,12 +214,12 @@ object Frame {
 
 
 	final class Queue {
-		private[this] val queue = new AtomicReference(List[Frame]())
+		private[this] val queue = new AtomicReference(List[Message]())
 		private[this] var _onPut:Option[()=>Unit] = None
 		private[this] var _onEmpty:Option[()=>Unit] = None
 
 		@tailrec
-		def put(frame:Frame):Unit = {
+		def put(frame:Message):Unit = {
 			val q = queue.get()
 			if(queue.compareAndSet(q, q :+ frame)){
 				_onPut.foreach { _() }
@@ -228,7 +228,7 @@ object Frame {
 			}
 		}
 
-		def head():Option[Frame] = {
+		def head():Option[Message] = {
 			val q = queue.get()
 			if(q.size == 0){
 				None
@@ -238,7 +238,7 @@ object Frame {
 		}
 
 		@tailrec
-		def take():Option[Frame] = {
+		def take():Option[Message] = {
 			val q = queue.get()
 			if(q.size == 0){
 				return None

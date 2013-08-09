@@ -3,7 +3,7 @@
  * All sources and related resources are available under Apache License 2.0.
  * http://www.apache.org/licenses/LICENSE-2.0.html
 */
-package com.kazzla.irpc
+package com.kazzla.birpc
 
 import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
 import org.jboss.netty.channel._
@@ -43,9 +43,9 @@ package object netty {
 				}
 				pipeline.addLast("tls", new SslHandler(engine))
 			}
-			pipeline.addLast("irpc.frame.encoder", new IrpcFrameEncoder())
-			pipeline.addLast("irpc.frame.decoder", new IrpcFrameDecoder())
-			pipeline.addLast("irpc.service", new IrpcService(factory))
+			pipeline.addLast("com.kazzla.birpc.frame.encoder", new IrpcFrameEncoder())
+			pipeline.addLast("com.kazzla.birpc.frame.decoder", new IrpcFrameDecoder())
+			pipeline.addLast("com.kazzla.birpc.service", new IrpcService(factory))
 			pipeline
 		}
 	}
@@ -85,7 +85,7 @@ package object netty {
 
 			e.getChannel.getAttachment match {
 				case s:Session =>
-					s.frameSink.put(e.getMessage.asInstanceOf[Frame])
+					s.frameSink.put(e.getMessage.asInstanceOf[Message])
 				case _ => None
 			}
 			super.messageReceived(ctx, e)
@@ -101,8 +101,8 @@ package object netty {
 
 	class IrpcFrameEncoder extends OneToOneEncoder {
 		def encode(ctx:ChannelHandlerContext, channel:Channel, msg:Any):AnyRef = msg match {
-			case packet:Frame =>
-				val buffer = Frame.encode(packet)
+			case packet:Message =>
+				val buffer = Message.encode(packet)
 				ChannelBuffers.copiedBuffer(buffer)
 			case unknown:AnyRef => unknown
 		}
@@ -111,7 +111,7 @@ package object netty {
 	class IrpcFrameDecoder extends FrameDecoder {
 		def decode(ctx:ChannelHandlerContext, channel:Channel, b:ChannelBuffer):AnyRef = {
 			val buffer = b.toByteBuffer
-			Frame.decode(buffer) match {
+			Message.decode(buffer) match {
 				case Some(frame) =>
 					b.skipBytes(buffer.position())
 					frame
