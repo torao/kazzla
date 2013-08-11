@@ -18,7 +18,7 @@ import java.util._
  * @author Takami Torao
  */
 class VolumeService(dir:Path) extends com.kazzla.core.protocol.Volume {
-	private[this] val volume = new Volume(dir)
+	private[this] val volume = new VolumeImpl(dir)
 
 	def listBlocks():Unit = Option(Pipe.currentPipe()).foreach{ pipe =>
 		val out = new BufferedWriter(new OutputStreamWriter(pipe.getOutputStream, IO.UTF8))

@@ -8,13 +8,12 @@ package com.kazzla.node.volume
 import java.nio.file._
 import java.util._
 import org.slf4j._
-import scala._
 import com.kazzla.core.io._
 import java.nio._
 import scala.collection.JavaConversions._
-import scala._
 import java.io._
 import scala._
+import com.kazzla.node.Volume
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Volume
@@ -22,8 +21,8 @@ import scala._
 /**
  * @author Takami Torao
  */
-class Volume(val dir:Path) {
-	import Volume._
+class VolumeImpl(val dir:Path) extends Volume {
+	import VolumeImpl._
 
 	// ==============================================================================================
 	// 実体ファイルの参照
@@ -130,8 +129,8 @@ class Volume(val dir:Path) {
 
 }
 
-object Volume {
-	private[Volume] val logger = LoggerFactory.getLogger(classOf[Volume])
+object VolumeImpl {
+	private[Volume] val logger = LoggerFactory.getLogger(classOf[VolumeImpl])
 
 	val blockExtension = ".kbl"
 }

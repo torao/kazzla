@@ -68,7 +68,7 @@ class Session(name:String, isServer:Boolean, executor:Executor, service:Object) 
 	def getRemoteInterface[T](clazz:Class[T]):T = {
 		clazz.cast(java.lang.reflect.Proxy.newProxyInstance(
 			Thread.currentThread().getContextClassLoader,
-			Array(clazz), new Skelton(clazz)
+			Array(clazz), new Skeleton(clazz)
 		))
 	}
 
@@ -184,15 +184,15 @@ class Session(name:String, isServer:Boolean, executor:Executor, service:Object) 
 	}
 
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	// Stub
+	// Skeleton
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	/**
-	 * リフレクションを使用してサービスのメソッド呼び出しを行うためのクラス。
+	 * リモート呼び出し先の function を @Export 定義されたメソッドとして扱うための動的プロキシ用ハンドラ。
 	 */
-	private[this] class Skelton(clazz:Class[_]) extends InvocationHandler {
+	private[this] class Skeleton(clazz:Class[_]) extends InvocationHandler {
 		import com.kazzla.core.debug._
 
-		// すべてのメソッドに @Export アノテーションが付けられていることを確認
+		// 指定されたインターフェースのすべてのメソッドに @Export アノテーションが付けられていることを確認
 		{
 			val m = clazz.getDeclaredMethods.filter{ m => m.getAnnotation(classOf[Export]) == null }.map{ _.getSimpleName }
 			if(m.size > 0){
@@ -204,10 +204,11 @@ class Session(name:String, isServer:Boolean, executor:Executor, service:Object) 
 		def invoke(proxy:Any, method:Method, args:Array[AnyRef]):AnyRef = {
 			val export = method.getAnnotation(classOf[Export])
 			if(export == null){
+				// toString() や hashCode() など Object 型のメソッド呼び出し
 				method.invoke(this, args:_*)
 			} else {
 				val pipe = open(export.value(), args:_*)
-				val close = Await.result(pipe.future, Duration.Inf)
+				val close = Await.result(pipe.future, Duration.Inf)     // TODO 呼び出しタイムアウトの設定
 				if(close.errorMessage != null){
 					throw new Session.RemoteException(close.errorMessage)
 				}
@@ -221,6 +222,9 @@ class Session(name:String, isServer:Boolean, executor:Executor, service:Object) 
 object Session {
 	private[Session] val logger = LoggerFactory.getLogger(classOf[Session])
 
+	/**
+	 * サービスの呼び出し中にセッションを参照するためのスレッドローカル。
+	 */
 	private[Session] val sessions = new ThreadLocal[Session]()
 
 	// ==============================================================================================
@@ -234,6 +238,12 @@ object Session {
 
 	class RemoteException(msg:String) extends RuntimeException(msg)
 
+	/**
+	 * 呼び出しパラメータを指定された型に適切な値へ変換します。
+	 * @param types 想定する呼び出しパラメータの型
+	 * @param params リモートから渡された呼び出しパラメータ値
+	 * @return 呼び出しに使用するパラメータ値
+	 */
 	private[Session] def mapParameters(types:Array[Class[_]], params:AnyRef*):Array[Object] = {
 		types.zip(params).map{ case (t, v) => TypeMapper.appropriateValue(v, t).asInstanceOf[Object] }.toList.toArray
 	}
