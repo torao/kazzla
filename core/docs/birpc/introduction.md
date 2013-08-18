@@ -2,7 +2,7 @@
 
 ## Introduction
 
-**Bidirectional Remote Procedure Call** (biRPC) は協調型 P2P システムに向けて設計されたシンプルな RPC プロトコルです。
+**Bidirectional Remote Procedure Call** (biRPC) は協調型 P2P システム用に設計されたシンプルな RPC プロトコルです。
 
 * **RPC**: 一般的な RPC の実装モデルである Request-Response 型を包含する。
 * **双方向性**: 通信の両端点でリモート呼び出し可能な機能を提供し双方から利用可能な構成。
@@ -70,13 +70,13 @@ A 側から function 102 を呼び出したときのメッセージのシーケ�
 
 このシーケンスはネストされた Asynchronous RPC です。このようなネストした呼び出しでもストリームを使用することが出来ます。
 
-## Representations
+## Message Representation
 
 TCP/IP のようなバイナリ通信のためのデータ表現実装は MessagePack を使用します。ただし、下層の I/O レイヤー実装によってはより効率的な選択を行うことが出来ます。
 
 ### Open Message
 
-| field    | MessagePack                   |                                  |
+| Field    | MessagePack                   |                                  |
 |:---------|:------------------------------|:---------------------------------|
 | type     | positive fixnum               | 固定値 0x01                       |
 | pipe     | int16                         | 割り当てるパイプの識別子             |
@@ -89,7 +89,7 @@ params フィールドは function の実行引数を配列型で格納します
 
 ### Close Message
 
-| field   | MessagePack     |                                            |
+| Field   | MessagePack     |                                            |
 |:--------|:----------------|:-------------------------------------------|
 | type    | positive fixnum | 固定値 0x02                                 |
 | pipe    | int16           | パイプの識別子                               |
@@ -102,7 +102,7 @@ Close には成功か失敗のどちらか一つの結果を付加する事が�
 
 ### Block Message
 
-| field   | MessagePack     |                     |
+| Field   | MessagePack     |                     |
 |:--------|:----------------|:--------------------|
 | type    | positive fixnum | 固定値 0x03          |
 | pipe    | int16           | パイプの識別子        |
