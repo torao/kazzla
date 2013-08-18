@@ -29,10 +29,10 @@ case class Open(override val pipeId:Short, function:Short, params:AnyRef*) exten
 case class Close[T](override val pipeId:Short, result:T, errorMessage:String) extends Message(pipeId)
 
 /**
- * 長さが 0 以下の
+ * 長さが 0 のブロックは EOF を表します。
  */
 case class Block(override val pipeId:Short, payload:Array[Byte], offset:Int, length:Int) extends Message(pipeId) {
-	def isEOF:Boolean = length <= 0
+	def isEOF:Boolean = length == 0
 }
 
 object Block {
@@ -118,35 +118,38 @@ object Message {
 			packer.write(0.toByte)
 			packer.writeNil()
 		} else value match {
-			case i:Byte =>
+			case i:Boolean =>
 				packer.write(1.toByte)
 				packer.write(i)
-			case i:Char =>
+			case i:Byte =>
 				packer.write(2.toByte)
+				packer.write(i)
+			case i:Char =>
+				packer.write(3.toByte)
 				packer.write(i.toShort)
 			case i:Short =>
-				packer.write(3.toByte)
-				packer.write(i)
-			case i:Int =>
 				packer.write(4.toByte)
 				packer.write(i)
-			case i:Long =>
+			case i:Int =>
 				packer.write(5.toByte)
 				packer.write(i)
-			case i:Float =>
+			case i:Long =>
 				packer.write(6.toByte)
 				packer.write(i)
-			case i:Double =>
+			case i:Float =>
 				packer.write(7.toByte)
 				packer.write(i)
-			case i:Array[Byte] =>
+			case i:Double =>
 				packer.write(8.toByte)
 				packer.write(i)
-			case i:String =>
+			case i:Array[Byte] =>
 				packer.write(9.toByte)
 				packer.write(i)
-			case i:UUID =>
+			case i:String =>
 				packer.write(10.toByte)
+				packer.write(i)
+			case i:UUID =>
+				packer.write(11.toByte)
 				packer.write(i.getMostSignificantBits)
 				packer.write(i.getLeastSignificantBits)
 			case i:Map[_,_] =>
@@ -179,16 +182,17 @@ object Message {
 			case 0 =>
 				unpacker.readNil()
 				null
-			case 1 => unpacker.readByte()
-			case 2 => unpacker.readShort().toChar
-			case 3 => unpacker.readShort()
-			case 4 => unpacker.readInt()
-			case 5 => unpacker.readLong()
-			case 6 => unpacker.readFloat()
-			case 7 => unpacker.readDouble()
-			case 8 => unpacker.readByteArray()
-			case 9 => unpacker.readString()
-			case 10 => new UUID(unpacker.readLong(), unpacker.readLong())
+			case 1 => unpacker.readBoolean()
+			case 2 => unpacker.readByte()
+			case 3 => unpacker.readShort().toChar
+			case 4 => unpacker.readShort()
+			case 5 => unpacker.readInt()
+			case 6 => unpacker.readLong()
+			case 7 => unpacker.readFloat()
+			case 8 => unpacker.readDouble()
+			case 9 => unpacker.readByteArray()
+			case 10 => unpacker.readString()
+			case 11 => new UUID(unpacker.readLong(), unpacker.readLong())
 			case 100 =>
 				val length = unpacker.readArrayBegin() / 2
 				val array = for(i <- 0 until length) yield{
