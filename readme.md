@@ -3,6 +3,11 @@ Kazzla は透過的なレプリケーションとフォールトトレラント�
 P2P 分散ストレージです。Kazzla のゴールは世界中の空きディスクスペースを効果的に活用し、
 あらゆる場所、デバイスからあなた自身のデータにアクセスできるできるようにすることです。
 
+# Table of Contents
+
+* [Wiki](https://github.com/torao/kazzla/wiki)
+* [biRPC Protocol Design and Specification](https://github.com/torao/kazzla/blob/master/core/docs/birpc/introduction.md)
+
 # Projects
 
 * dashboard - user console web application (Ruby on Rails).
