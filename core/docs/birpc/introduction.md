@@ -2,7 +2,7 @@
 
 ## Introduction
 
-**Bidirectional Remote Procedure Call** (biRPC) は協調型 P2P システム用に設計されたシンプルな RPC プロトコルです。
+**Bidirectional Remote Procedure Call** (biRPC) は協調型 P2P システム用に設計されたメッセージベースの軽量 RPC プロトコルです。
 
 * **RPC**: 一般的な RPC の実装モデルである Request-Response 型を包含する。
 * **双方向性**: 通信の両端点でリモート呼び出し可能な機能を提供し双方から利用可能な構成。
