@@ -6,14 +6,29 @@
 package com.kazzla.core
 
 import java.lang.reflect.Method
+import java.security.MessageDigest
 
 package object debug {
 
-	implicit def richMethod(method:Method) = new {
+	// ==============================================================================================
+	// フィンガープリントの参照
+	// ==============================================================================================
+	/**
+	 * 指定された公開鍵のフィンガープリントを参照します。
+	 */
+	def fingerprint(publicKey:java.security.PublicKey):String = {
+		val bin = publicKey.getEncoded
+		val hex = MessageDigest.getInstance("MD5").digest(bin).map{ b => f"${b&0xFF}%02x" }.mkString(":")
+		val alg = publicKey.getAlgorithm
+		s"${bin.length} $hex ($alg)"
+	}
+
+	implicit class RichMethod(method:Method){
 		def getSimpleName:String = {
 			method.getDeclaringClass.getSimpleName + "." + method.getName + "(" + method.getParameterTypes.map { p =>
 				p.getSimpleName
 			}.mkString(",") + "):" + method.getReturnType.getSimpleName
 		}
 	}
+
 }

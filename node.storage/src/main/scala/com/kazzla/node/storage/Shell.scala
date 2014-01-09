@@ -5,16 +5,21 @@
 */
 package com.kazzla.node.storage
 
+import com.kazzla.core.debug
 import com.kazzla.core.io._
 import com.kazzla.core.tools.ShellTools
 import java.io._
 import java.net.{URLEncoder, HttpURLConnection, URI, URL}
+import java.security.{KeyPairGenerator, KeyStore}
+import java.security.cert.{X509Certificate, CertificateFactory}
+import scala.collection.JavaConversions._
 import sun.security.tools.KeyTool
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Shell
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
+ * TODO KeyTool を使用している部分を KeyStore に置き換え
  * @author Takami Torao
  */
 object Shell extends ShellTools{
@@ -31,9 +36,9 @@ object Shell extends ShellTools{
 			if(! dir.isDirectory){
 				throw new IOException(s"ERROR: it's not exist or not directory")
 			}
-		}), prompt("URL", "http://localhost:8088/api/storage/"){ str =>
+		}), prompt("API Root URL", "http://localhost:8088/api/"){ str =>
 			new URL(str)
-		}, prompt("Token", "-"){ _ => None })
+		}, prompt("User ID", System.getProperty("user.name","")){ _ => None }, password("Password"){ _ => None })
 	}
 
 	// ============================================================================================
@@ -42,15 +47,28 @@ object Shell extends ShellTools{
 	/**
 	 * ブロックを管理するディレクトリを初期化します。
 	 */
-	def activate(dir:File, auth:String, token:String):Unit = {
-		val uri = URI.create(auth)
+	def activate(dir:File, url:String, userid:String, password:Array[Char]):Unit = {
+		val uri = URI.create(url)
 		val ks = new File(dir, "node.jks")
 		val csr = new File(dir, "node.csr")
 		val certs = new File(dir, "node.crt")
-		createKeyStore(URI.create(auth), token, ks)
+		val ca = new File(dir, "ca.crt")
+		createKeyStore(URI.create(url), userid, password, ks, ca)
 		createCSR(ks, csr)
-		createCerts(uri, csr, certs, token)
+		createCerts(uri, csr, certs, userid, password)
 		importCerts(ks, certs)
+		g(ks, new File(dir, "node.p12"))
+	}
+
+	private[this] def f():Unit = {
+
+		// キーペアの作成
+		val kpg = KeyPairGenerator.getInstance("DSA")
+		kpg.initialize(1024)
+		val kp = kpg.generateKeyPair()
+
+		// CSR 作成用に JKS 形式のファイルを作成
+		val ks = KeyStore.getInstance("PKCS12")
 	}
 
 	// ============================================================================================
@@ -59,18 +77,53 @@ object Shell extends ShellTools{
 	/**
 	 * キーストアを作成します。
 	 */
-	private[this] def createKeyStore(uri:URI, token:String, file:File):Unit = {
-		val url = uri.resolve(s"dname/${URLEncoder.encode(token,"UTF-8")}").toURL
-		val dname = new String(url.openStream().readFully(), "UTF-8")
+	private[this] def createKeyStore(uri:URI, userid:String, password:Array[Char], file:File, ca:File):Unit = {
+
+		val url = uri.resolve(s"storage/${URLEncoder.encode(userid,"UTF-8")}/newdn").toURL
+		val dname = new String(url.openStream(userid, password).readFully(), "UTF-8")
+		System.out.println(s"DName: $dname")
 		file.delete()
 		KeyTool.main(Array[String](
 			"-genkeypair",
 			"-dname", dname,
 			"-alias", "node",
+			"-keyalg", "RSA",
 			"-keypass", "000000",
 			"-keystore", file.getAbsolutePath,
 			"-storepass", "000000",
+			"-storetype", "JKS",
 			"-validity", "180"))
+
+		// 作成した公開鍵の確認
+		val ks = KeyStore.getInstance("JKS")
+		using(new FileInputStream(file)){ in => ks.load(in, "000000".toCharArray) }
+		ks.getEntry("node", new KeyStore.PasswordProtection("000000".toCharArray)) match {
+			case entry:KeyStore.PrivateKeyEntry =>
+				val cert = entry.getCertificate
+				System.out.println(s"Create Public Key: ${debug.fingerprint(cert.getPublicKey)}")
+		}
+
+		// CA 証明書のダウンロード
+		using(new FileOutputStream(ca)){ out =>
+			copy(uri.resolve(s"ca/cert").toURL.openStream(userid, password), out, new Array[Byte](1024))
+		}
+
+		// インポートした CA 証明書の確認
+		val cf = CertificateFactory.getInstance("X.509")
+		using(new FileInputStream(ca)){ in => cf.generateCertificates(in) }.foreach{
+			case c:X509Certificate =>
+				System.out.println(s"CA Certificate: ${c.getSubjectX500Principal.getName}")
+		}
+
+		// CA 証明書のインポート
+		KeyTool.main(Array[String](
+			"-import",
+			"-noprompt",
+			"-alias", "kazzla",
+			"-file", ca.getAbsolutePath,
+			"-keystore", file.getAbsolutePath,
+			"-storetype", "JKS",
+			"-storepass", "000000"))
 	}
 
 	// ============================================================================================
@@ -83,11 +136,10 @@ object Shell extends ShellTools{
 		KeyTool.main(Array[String](
 			"-certreq",
 			"-alias", "node",
-			// "-sigalg", "sigalg",
 			"-file", file.getAbsolutePath,
 			"-keypass", "000000",
-			// "-storetype", "storetype",
 			"-keystore", ks.getAbsolutePath,
+			"-storetype", "JKS",
 			"-storepass", "000000"))
 	}
 
@@ -97,15 +149,16 @@ object Shell extends ShellTools{
 	/**
 	 * 指定された公開鍵に対する証明書を取得します。
 	 */
-	private[this] def createCerts(uri:URI, csr:File, certs:File, token:String):Unit = {
-		val url = uri.resolve(s"activate/${URLEncoder.encode(token,"UTF-8")}").toURL
-		val con = url.openConnection().asInstanceOf[HttpURLConnection]
+	private[this] def createCerts(uri:URI, csr:File, certs:File, userid:String, password:Array[Char]):Unit = {
+		val url = uri.resolve(s"storage/${URLEncoder.encode(userid,"UTF-8")}/node/activate").toURL
+		val con = url.openConnection(userid, password).asInstanceOf[HttpURLConnection]
 		con.setDoOutput(true)
 		con.setDoInput(true)
 		con.setUseCaches(false)
 		con.setConnectTimeout(10 * 1000)
 		con.setFixedLengthStreamingMode(csr.length())
-		con.setRequestProperty("Content-Type", "application/octet-stream")
+		con.setRequestProperty("Content-Type", "application/pkcs10")
+		con.setRequestProperty("Content-Length", csr.length().toString)
 		val buffer = new Array[Byte](1024)
 		using(new FileInputStream(csr)){ fin =>
 			copy(fin, con.getOutputStream, buffer)
@@ -114,6 +167,15 @@ object Shell extends ShellTools{
 			copy(con.getInputStream, fout, buffer)
 		}
 		con.disconnect()
+
+		// ダウンロードした証明書の確認
+		val cf = CertificateFactory.getInstance("X.509")
+		using(new FileInputStream(certs)){ in =>
+			cf.generateCertificates(in).foreach{ cert =>
+				System.out.println(s"Public Key: ${debug.fingerprint(cert.getPublicKey)}")
+			}
+		}
+		csr.delete()
 	}
 
 	// ============================================================================================
@@ -129,10 +191,24 @@ object Shell extends ShellTools{
 			"-file", certs.getAbsolutePath,
 			"-keypass", "000000",
 			"-noprompt",
-			// "-trustcacerts",
-			// "-storetype", "storetype",
 			"-keystore", ks.getAbsolutePath,
+			"-storetype", "JKS",
 			"-storepass", "000000"))
+	}
+
+	def g(jks:File, p12:File):Unit = {
+		KeyTool.main(Array[String](
+			"-importkeystore",
+			"-srckeystore", jks.getAbsolutePath,
+			"-srcstoretype", "JKS",
+			"-srcstorepass", "000000",
+			"-srcalias", "node",
+			"-srckeypass", "000000",
+			"-destkeystore", p12.getAbsolutePath,
+			"-deststoretype", "PKCS12",
+			"-deststorepass", "000000",
+			"-destkeypass", "000000",
+			"-noprompt"))
 	}
 
 }

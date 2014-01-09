@@ -5,7 +5,7 @@
 */
 package com.kazzla.node
 
-import com.kazzla.birpc.Export
+import com.kazzla.asterisk.Export
 import java.util.UUID
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14,7 +14,7 @@ import java.util.UUID
 /**
  * @author Takami Torao
  */
-trait Volume {
+trait Storage {
 
 	// ==============================================================================================
 	// 実体ファイルの参照
@@ -24,7 +24,7 @@ trait Volume {
 	 * @return ブロックファイル
 	 */
 	@Export(100)
-	def lookup():Iterable[UUID]
+	def lookup():Unit
 
 	// ==============================================================================================
 	// チェックサムの参照
@@ -55,7 +55,7 @@ trait Volume {
 	 * @param blockId ブロック ID
 	 */
 	@Export(210)
-	def read(blockId:UUID, pos:Long, buffer:Array[Byte], offset:Int, length:Int):Unit
+	def read(blockId:UUID, offset:Long, length:Int):Unit
 
 	// ==============================================================================================
 	// ブロックの書き込み
@@ -65,7 +65,7 @@ trait Volume {
 	 * @param blockId ブロック ID
 	 */
 	@Export(220)
-	def update(blockId:UUID, pos:Long, buffer:Array[Byte], offset:Int, length:Int):Unit
+	def update(blockId:UUID, offset:Long, length:Int):Unit
 
 	// ==============================================================================================
 	// ブロックの削除
@@ -79,7 +79,7 @@ trait Volume {
 
 }
 
-object Volume {
+object Storage {
 
 	// ==============================================================================================
 	// メッセージダイジェストアルゴリズム
