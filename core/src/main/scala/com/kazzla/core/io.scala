@@ -65,6 +65,10 @@ package object io {
 		}
 	}
 
+	def copy[T <% { def write(b:Array[Byte],o:Int,l:Int):Unit }](src:InputStream, dst:T):Unit = {
+		copy(src, dst, new Array[Byte](1024))
+	}
+
 	implicit class RichSocketAddress(addr:SocketAddress) {
 		def getName:String = addr match {
 			case i:InetSocketAddress =>
