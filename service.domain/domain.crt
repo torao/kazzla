@@ -1,0 +1,73 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            d3:74:96:f8:cd:a5:7c:79
+        Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=JP, ST=Tokyo, O=Kazzla, OU=Development, CN=kazzla.com/emailAddress=koiroha@gmail.com
+        Validity
+            Not Before: Jan 12 22:50:37 2014 GMT
+            Not After : Jan 10 22:50:37 2024 GMT
+        Subject: C=JP, ST=Tokyo, O=Kazzla, OU=Kazzla, CN=kazzla.com
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+            RSA Public Key: (2048 bit)
+                Modulus (2048 bit):
+                    00:d9:39:05:07:53:18:82:59:16:76:b3:b9:f3:f3:
+                    de:2f:49:fa:f6:9d:a9:a7:6a:6d:5d:1a:fd:2f:09:
+                    82:8b:08:67:cb:b1:3b:a9:6f:3f:50:ef:10:94:35:
+                    06:8a:6b:4f:3e:11:35:0e:34:97:ef:c9:4e:fe:a5:
+                    ce:f9:ae:57:ad:4e:fe:8e:b2:b3:fe:64:7f:d0:72:
+                    44:1a:95:63:da:3c:83:0a:de:6f:14:9a:2e:d5:a7:
+                    78:89:7c:5e:81:93:e8:40:db:f5:70:8b:56:a6:e3:
+                    5d:d8:11:67:1f:ad:d1:aa:f9:23:ad:98:e8:85:84:
+                    19:31:fb:b3:14:11:84:33:df:c4:90:d3:8c:44:3b:
+                    d7:d2:20:a6:2d:99:37:96:41:b7:45:9e:8e:8c:2c:
+                    cb:98:dc:92:d9:47:17:ed:0e:70:70:2a:d1:4e:30:
+                    55:52:6f:4b:4d:58:24:ef:8f:10:1f:b2:92:2b:14:
+                    29:08:96:47:c3:a3:ea:37:f8:0d:cb:62:12:c5:60:
+                    51:f0:46:f9:34:2d:43:4c:79:d8:4c:b2:8b:70:4b:
+                    74:65:81:33:91:e4:91:be:21:42:12:8e:2b:79:8c:
+                    28:02:2c:66:42:a5:4a:88:17:e6:e4:36:0f:56:30:
+                    bb:42:90:32:59:16:79:c8:e6:5d:f9:f8:93:47:1b:
+                    85:13
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            Netscape Comment: 
+                OpenSSL Generated Certificate
+            X509v3 Subject Key Identifier: 
+                53:98:DF:BB:08:0E:3F:1B:38:EE:CC:99:9C:74:69:70:F7:BC:5D:D5
+            X509v3 Authority Key Identifier: 
+                keyid:5C:5D:6D:E9:C6:48:CA:FD:0F:EB:7B:13:C5:64:8E:09:BA:8B:57:3B
+
+    Signature Algorithm: sha1WithRSAEncryption
+        b7:91:ff:fd:43:be:44:0f:f7:a4:fe:84:0d:a2:44:c9:00:e5:
+        b6:84:91:2b:73:72:cf:6d:04:b8:6b:87:bf:7b:88:63:c6:52:
+        1c:45:fd:10:8b:e7:28:d2:98:a0:68:e8:d0:bd:46:f3:c3:0b:
+        de:4f:c6:76:a4:18:35:70:d1:01:94:21:34:76:fb:e8:f0:71:
+        ec:12:e6:9b:8e:45:9c:02:6f:b4:53:e3:25:db:53:60:1b:3b:
+        c7:c8:3b:de:b9:a9:cc:1c:c8:a9:50:b3:8a:27:07:67:59:f2:
+        e4:2a:0e:92:29:36:3e:66:7c:7e:6c:7b:39:5f:b4:7d:f1:fd:
+        db:c8
+-----BEGIN CERTIFICATE-----
+MIIDTDCCArWgAwIBAgIJANN0lvjNpXx5MA0GCSqGSIb3DQEBBQUAMHsxCzAJBgNV
+BAYTAkpQMQ4wDAYDVQQIEwVUb2t5bzEPMA0GA1UEChMGS2F6emxhMRQwEgYDVQQL
+EwtEZXZlbG9wbWVudDETMBEGA1UEAxMKa2F6emxhLmNvbTEgMB4GCSqGSIb3DQEJ
+ARYRa29pcm9oYUBnbWFpbC5jb20wHhcNMTQwMTEyMjI1MDM3WhcNMjQwMTEwMjI1
+MDM3WjBUMQswCQYDVQQGEwJKUDEOMAwGA1UECBMFVG9reW8xDzANBgNVBAoTBkth
+enpsYTEPMA0GA1UECxMGS2F6emxhMRMwEQYDVQQDEwprYXp6bGEuY29tMIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2TkFB1MYglkWdrO58/PeL0n69p2p
+p2ptXRr9LwmCiwhny7E7qW8/UO8QlDUGimtPPhE1DjSX78lO/qXO+a5XrU7+jrKz
+/mR/0HJEGpVj2jyDCt5vFJou1ad4iXxegZPoQNv1cItWpuNd2BFnH63RqvkjrZjo
+hYQZMfuzFBGEM9/EkNOMRDvX0iCmLZk3lkG3RZ6OjCzLmNyS2UcX7Q5wcCrRTjBV
+Um9LTVgk748QH7KSKxQpCJZHw6PqN/gNy2ISxWBR8Eb5NC1DTHnYTLKLcEt0ZYEz
+keSRviFCEo4reYwoAixmQqVKiBfm5DYPVjC7QpAyWRZ5yOZd+fiTRxuFEwIDAQAB
+o3sweTAJBgNVHRMEAjAAMCwGCWCGSAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRl
+ZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUU5jfuwgOPxs47syZnHRpcPe8XdUwHwYD
+VR0jBBgwFoAUXF1t6cZIyv0P63sTxWSOCbqLVzswDQYJKoZIhvcNAQEFBQADgYEA
+t5H//UO+RA/3pP6EDaJEyQDltoSRK3Nyz20EuGuHv3uIY8ZSHEX9EIvnKNKYoGjo
+0L1G88ML3k/GdqQYNXDRAZQhNHb76PBx7BLmm45FnAJvtFPjJdtTYBs7x8g73rmp
+zBzIqVCziicHZ1ny5CoOkik2PmZ8fmx7OV+0ffH928g=
+-----END CERTIFICATE-----

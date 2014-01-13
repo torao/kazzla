@@ -5,11 +5,20 @@
 */
 package com.kazzla.service.domain
 
-import org.slf4j.LoggerFactory
-import java.io._
+import com.kazzla.core.ConsistencyException
+import com.kazzla.core.cert._
 import com.kazzla.core.io._
-import java.security.cert.{CertificateFactory, X509Certificate}
 import com.kazzla.service.domain.Domain.CA
+import java.io._
+import java.net.URI
+import java.security.MessageDigest
+import java.security.cert.{CertificateFactory, X509Certificate}
+import java.sql.Connection
+import java.util.{UUID, TimeZone, Date}
+import javax.sql.DataSource
+import org.slf4j.LoggerFactory
+import java.lang.management.ManagementFactory
+import scala.util.{Failure, Success, Try}
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Domain
@@ -17,7 +26,91 @@ import com.kazzla.service.domain.Domain.CA
 /**
  * @author Takami Torao
  */
-case class Domain(id:String, ca:CA) {
+case class Domain(id:String, ca:CA, dataSource:DataSource) {
+
+	// ============================================================================================
+	// 認証の実行
+	// ============================================================================================
+	/**
+	 * 認証を行います。
+	 */
+	def authenticate(username:String, password:String):Option[Account] = trx { c =>
+		c.single("select account_id from auth_contacts where uri=?", s"mailto:${username.toLowerCase}"){ r =>
+			r.getInt("account_id")
+		} match {
+			case Some(accountId) =>
+				c.single("select * from auth_accounts where id=?", accountId){ r =>
+					val hash = r.getString("hashed_password")
+					hash.split(":", 2) match {
+						case Array(scheme, hash1) =>
+							val md = MessageDigest.getInstance(scheme.toLowerCase match {
+								case "md5" => "MD5"
+								case "sha1" => "SHA-1"
+								case "sha256" => "SHA-256"
+								case "sha384" => "SHA-384"
+								case "sha512" => "SHA-512"
+							})
+							val salt = r.getString("salt")
+							val bin = (password + ":" + salt).getBytes("UTF-8")
+							val hash2 = md.digest(bin).toHexString().toLowerCase
+							if(hash1 == hash2){
+								val tz = TimeZone.getTimeZone(r.getString("timezone"))
+								Account(this, r.getInt("id"), r.getString("language"), tz, r.getInt("role_id"))
+							} else {
+								null
+							}
+						case _ =>
+							throw new ConsistencyException(s"invalid hashed-password format: $hash")
+					}
+				} match {
+					case Some(u) => Option(u)
+					case None => None
+				}
+			case None => None
+		}
+	}
+
+	// ==============================================================================================
+	// ノード証明書の登録
+	// ==============================================================================================
+	/**
+	 * 指定されたノード証明書をアカウントに関連づけて保存します。
+	 */
+	def registerNodeCertificate(account:Account, cert:X509Certificate):Unit = {
+		getCommonName(cert.getSubjectX500Principal) match {
+			case Some(uuid) =>
+				val now = new java.sql.Timestamp(System.currentTimeMillis())
+				trx { c =>
+					c.insertInto("node_nodes(account_id,uuid,certificate,updated_at,created_at) values(?,?,?,?,?)",
+						account.id, uuid, cert.getEncoded, now, now)
+				}
+			case None =>
+				throw new ConsistencyException(s"invalid distinguished name: ${cert.getSubjectX500Principal.getName}")
+		}
+	}
+
+	// ==============================================================================================
+	// ノードセッションの作成
+	// ==============================================================================================
+	/**
+	 * ノードのセッションを作成します。
+	 * @return セッション ID
+	 */
+	def openNodeSession(nodeId:UUID, sessionId:UUID, endpoints:Array[String]):Unit = trx { c =>
+		c.insertInto("node_sessions(session_id,node_id,endpoints,proxy) values(?,?,?)",
+			sessionId, nodeId, endpoints.mkString(","),
+			ManagementFactory.getRuntimeMXBean.getName)
+	}
+
+	// ==============================================================================================
+	// ノードセッションの終了
+	// ==============================================================================================
+	/**
+	 * ノードのセッションを終了します。
+	 */
+	def closeNodeSession(sessionId:UUID):Unit = trx { c =>
+		c.deleteFrom("node_session where sessionId=?", sessionId)
+	}
 
 	def createTempFile(prefix:String, suffix:String):File = {
 		File.createTempFile(prefix, suffix)
@@ -25,8 +118,33 @@ case class Domain(id:String, ca:CA) {
 
 	def createTempFileAndWrite(prefix:String, suffix:String)(f:(OutputStream)=>Unit):File = {
 		val file = createTempFile(prefix, suffix)
-		using(new FileOutputStream(file)){ out => f(out) }
+		usingOutput(file){ out => f(out) }
 		file
+	}
+
+	// ==============================================================================================
+	// 新規 UUID の発行
+	// ==============================================================================================
+	/**
+	 * 新しい UUID を発行します。
+	 */
+	def newUUID():UUID = UUID.randomUUID()
+
+	def newCertificateDName():String = s"CN=${newUUID()}, OU=Node, O=Kazzla, ST=Tokyo, C=JP"
+
+	def trx[T](f:(Connection)=>T):T = using(dataSource.getConnection){ c =>
+		Try {
+			c.setAutoCommit(false)
+			c.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED)
+			f(c)
+		} match {
+			case Success(result) =>
+				c.commit()
+				result
+			case Failure(ex) =>
+				c.rollback()
+				throw ex
+		}
 	}
 
 }
@@ -34,6 +152,13 @@ case class Domain(id:String, ca:CA) {
 object Domain {
 	private[Domain] val logger = LoggerFactory.getLogger(classOf[Domain])
 
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// CA
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	/**
+	 *
+	 * @param dir CA ディレクトリ
+	 */
 	class CA(dir:File) {
 		val certFile:File = new File(dir, "cacert.pem")
 		def rawCert:Array[Byte] = using(new FileInputStream(certFile)){ _.readFully() }
@@ -42,6 +167,7 @@ object Domain {
 				.generateCertificate(new ByteArrayInputStream(rawCert))
 				.asInstanceOf[X509Certificate]
 		}
+
 
 		// ============================================================================================
 		// 証明書の発行
@@ -73,4 +199,22 @@ object Domain {
 				.asInstanceOf[X509Certificate]
 		}
 	}
+}
+
+case class Account(domain:Domain, id:Int, language:String, timezone:TimeZone, roleId:Int){
+	lazy val contacts:Seq[Account.Contact] = domain.trx{ c =>
+		c.select("select id,uri,confirmed_at from auth_contacts where account_id=?", id){ r =>
+			Account.Contact(r.getInt("id"), URI.create(r.getString("uri")), Option(r.getTimestamp("confirmed_at")))
+		}
+	}
+	lazy val role:Option[Account.Role] = domain.trx { c =>
+		c.single("select id,name,permissions from auth_role where id=?", roleId){ r =>
+			Account.Role(r.getInt(id), r.getString("name"), r.getString("permissions").split("\\s*,\\s*").toSet)
+		}
+	}
+}
+
+object Account {
+	case class Contact(id:Int, uri:URI, confirmedAt:Option[Date])
+	case class Role(id:Int, name:String, permissions:Set[String])
 }

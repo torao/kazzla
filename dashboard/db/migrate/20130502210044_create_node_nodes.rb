@@ -1,10 +1,11 @@
 class CreateNodeNodes < ActiveRecord::Migration
   def change
     create_table :node_nodes do |t|
-      t.string :name, :null => false
+		  t.integer :account_id, :null => false
       t.string :uuid, :null => false
-      t.integer :region_id, :null => false
-      t.string :continent, :null => false
+			t.string :name
+      t.integer :region_id
+      t.string :continent
       t.string :country
       t.string :state
       t.float :latitude
@@ -12,11 +13,11 @@ class CreateNodeNodes < ActiveRecord::Migration
       t.string :agent
       t.float :qos
       t.string :status
-      t.text :public_key, :null => false
-      t.string :public_addresses, :null => false	# comma separated values
+      t.binary :certificate, :null => false
       t.timestamp :disconnected_at
 
       t.timestamps
     end
+		add_index :node_nodes, :uuid, :unique => true
   end
 end

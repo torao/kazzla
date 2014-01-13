@@ -1,0 +1,44 @@
+<div class="row">
+	<div class="span3">
+		<%= render :partial => 'menu' %>
+	</div>
+	<div class="span9">
+		<%= form_for @current_account, :url => { :action => :account }, :html => { :class => "form-horizontal" } do |f| %>
+			<fieldset>
+				<legend>Account Information</legend>
+				<div class="control-group">
+					<label class="control-label" for="name">ID</label>
+					<div class="controls">
+						<%= f.text_field :name, :placeholder => 'Account ID', :readonly => true %>
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="mail">Mail Address</label>
+					<div class="controls">
+						<% @current_account.contacts.each{ |c| %>
+							<%= email_field_tag 'auth_account[email]', c.mail_address, :placeholder => 'Mail address' %>
+						<% } %>
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="language">Language</label>
+					<div class="controls">
+						<%= f.select :language, language_options_for_select(user_language), :class => 'span2' %>
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="timezone">TimeZone</label>
+					<div class="controls">
+						<%= f.select :timezone, timezone_options_for_select(user_language), :class => 'span2' %>
+						<%= @current_account.timezone %>
+					</div>
+				</div>
+				<div class="control-group">
+					<div class="controls">
+						<%= f.submit 'Update', :class => 'btn btn-default' %>
+					</div>
+				</div>
+			</fieldset>
+		<% end %>
+	</div>
+</div>

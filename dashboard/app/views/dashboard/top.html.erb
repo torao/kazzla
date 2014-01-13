@@ -16,17 +16,17 @@
     <%= form_tag("/auth/signin", :method => :post) do %>
       <fieldset>
         <legend>Sign in</legend>
-        <%= text_field_tag(:account, "", :placeholder => :email) %>
-        <%= password_field_tag(:password, "", :placeholder => :password) %>
+        <%= text_field_tag(:account, '', :placeholder => 'Kazzla ID or Email') %>
+        <%= password_field_tag(:password, '', :placeholder => 'Password') %>
         <div>
-          <%= submit_tag("Sign in", :class => "btn btn-primary") %>
+          <%= submit_tag 'Sign in', :class => 'btn btn-primary' %>
         </div>
         <p>
-          Please <%= link_to("sign-up", { :controller => :auth, :action => :signup }) %> if you don't
+          Please <%= link_to('sign-up', { :controller => :auth, :action => :signup }) %> if you don't
 					have any kazzla account. If you forget your password, you can
-					<%= link_to("reset it", { :controller => :auth, :action => :reset_password }) %> by one of
+					<%= link_to('reset it', { :controller => :auth, :action => :reset_password }) %> by one of
 					registered mail addresses. 
-        </>
+        </p>
       </fieldset>
     <% end %>
   </div>
@@ -39,7 +39,7 @@
         <button class="btn btn-block disabled">Twitter</button>
         <button class="btn btn-block disabled">Google+</button>
       </div>
-    <fieldset>
+    </fieldset>
   </div>
 
 </div>

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130502210044) do
+ActiveRecord::Schema.define(:version => 20140110173546) do
 
   create_table "activity_eventlogs", :force => true do |t|
     t.integer  "account_id"
@@ -112,6 +112,7 @@ ActiveRecord::Schema.define(:version => 20130502210044) do
   create_table "node_nodes", :force => true do |t|
     t.string   "name",             :null => false
     t.string   "uuid",             :null => false
+    t.integer  "user_id",          :null => false
     t.integer  "region_id",        :null => false
     t.string   "continent",        :null => false
     t.string   "country"
@@ -121,7 +122,7 @@ ActiveRecord::Schema.define(:version => 20130502210044) do
     t.string   "agent"
     t.float    "qos"
     t.string   "status"
-    t.text     "public_key",       :null => false
+    t.text     "certificate",      :null => false
     t.string   "public_addresses", :null => false
     t.datetime "disconnected_at"
     t.datetime "created_at",       :null => false
@@ -133,6 +134,15 @@ ActiveRecord::Schema.define(:version => 20130502210044) do
     t.string   "continent"
     t.string   "country"
     t.string   "state"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "node_sessions", :force => true do |t|
+    t.string   "session_id"
+    t.string   "node_id"
+    t.string   "endpoints"
+    t.string   "proxy"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end

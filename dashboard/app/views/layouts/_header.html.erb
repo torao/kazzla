@@ -5,8 +5,8 @@
       <div class="nav-collapse collapse">
         <ul class="nav">
 					<% unless @current_account.nil? %>
-					<li class="kazzla_menu"><%= link_to "Status", { :action => :status } %></li>
-					<li class="kazzla_menu"><%= link_to "Node", { :action => :node } %></li>
+					<li class="kazzla_menu"><%= link_to "Status", { :controller => :dashboard, :action => :status } %></li>
+					<li class="kazzla_menu"><%= link_to "Node", { :controller => :dashboard, :action => :nodes } %></li>
 					<% end %>
         </ul>
 				<ul class="nav" style="float:right;">
@@ -29,7 +29,8 @@
 							<%= h @current_account.display_name %><b class="caret"></b>
 						</a>
 						<ul class="dropdown-menu">
-							<li><%= link_to("Sign out", { :controller => :auth, :action => :signout} ) %></li>
+							<li><%= link_to 'Settings', { :controller => :settings, :action => :account} %></li>
+							<li><%= link_to 'Sign out', { :controller => :auth, :action => :signout} %></li>
 						</ul>
 					</li>
 				<% end %>

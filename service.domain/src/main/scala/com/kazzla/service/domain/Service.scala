@@ -5,15 +5,12 @@
 */
 package com.kazzla.service.domain
 
+import com.kazzla.asterisk.Session
 import com.kazzla.core.io._
-import com.twitter.finagle.http.path.{Root, Path, /}
-import com.twitter.finagle.http.{Method, Response, Request}
-import com.twitter.util.Future
 import java.io.{FileInputStream, IOException, FileNotFoundException, File}
 import java.lang.String
-import java.util.UUID
 import org.jboss.netty.buffer.ChannelBuffers
-import org.jboss.netty.handler.codec.http.HttpResponseStatus
+import org.jboss.netty.handler.codec.http._
 import org.slf4j.LoggerFactory
 import scala.Some
 import scala.collection.JavaConversions._
@@ -25,9 +22,16 @@ import sun.misc.BASE64Decoder
 /**
  * @author Takami Torao
  */
-class Service(docroot:File, domain:Domain) extends com.twitter.finagle.Service[Request, Response] {
+class Service(docroot:File, domain:Domain) extends com.kazzla.service.Domain {
 
 	import Service._
+
+	def handshake():Unit = Session() match {
+		case Some(s) =>
+			domain.openNodeSession(s.nodeId, s.sessionId, Array(s.wire.peerName))
+			logger.debug("handshake()")
+		case None => None
+	}
 
 	// ==============================================================================================
 	// リクエストの実行
@@ -35,56 +39,64 @@ class Service(docroot:File, domain:Domain) extends com.twitter.finagle.Service[R
 	/**
 	 * 指定されたリクエストを実行します。
 	 */
-	def apply(request:Request):Future[Response] = try {
+	def apply(request:HttpRequest):HttpResponse = try {
 		request.dump()
 
 		// Basic 認証情報を取得
-		val (user, _) = request.authorization match {
+		val (user, pass) = Option(request.getHeader("Authorization")) match {
 			case Some(BasicAuth(credentials)) =>
 				new String(new BASE64Decoder().decodeBuffer(credentials)) match {
 					case UserPass(u, p) => (u, p)
 					case unknownCredentials =>
 						logger.debug(s"unsupported basic authorization credentials: $unknownCredentials")
-						return Future.value(Unauthorized)
+						return Unauthorized
 				}
 			case Some(unknownCredentials) =>
 				logger.debug(s"unsupported authorization credentials: $unknownCredentials")
-				return Future.value(Unauthorized)
+				return Unauthorized
 			case None =>
 				logger.debug(s"authorization not presents")
-				return Future.value(Unauthorized)
+				return Unauthorized
 		}
 
-		Path(request.path) match {
+		// 認証を実行
+		val account = domain.authenticate(user, pass) match {
+			case Some(a) => a
+			case None =>
+				logger.debug(s"authorization failure")
+				return Unauthorized
+		}
+
+		val _api_cert_nodeid = "/api/certs/([^/]*)".r
+		request.path match {
 			// TODO case Method.Get -> Root / "api" / "certs" / "domain" だと何故か一致しない
-			case Root / "api" / "certs" / "domain" if request.method == Method.Get  =>
+			case "/api/certs/domain" if request.getMethod == HttpMethod.GET  =>
 				val cacert = domain.ca.rawCert
-				val response = Response()
-				response.content = ChannelBuffers.copiedBuffer(cacert)
-				response.contentType = "application/x-x509-ca-cert"
-				response.contentLength = cacert.length
-				response.cacheControl = "no-cache"
-				Future.value(response)
-			case Root / "api" / "certs" / "newdn" if request.method == Method.Get  =>
+				val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
+				response.setContent(ChannelBuffers.copiedBuffer(cacert))
+				response.setHeader("Content-Type", "application/x-x509-ca-cert")
+				response.setHeader("Content-Length", cacert.length)
+				response.setHeader("Cache-Control", "no-cache")
+				response
+			case "/api/certs/newdn" if request.getMethod == HttpMethod.GET  =>
 				// TODO 新規ノードID用 UUID の発行方法を検討
 				// TODO C, ST, O を　CA 証明書と合わせる
-				val nodeid = UUID.randomUUID()
-				val response = Response()
-				val c = s"CN=$nodeid, OU=node, OU=$user, O=Kazzla, ST=Tokyo, C=JP".getBytes(UTF8)
-				response.content = ChannelBuffers.copiedBuffer(c)
-				response.contentType = s"text/plain; charset=$UTF8"
-				response.contentLength = c.length
-				response.cacheControl = "no-cache"
-				Future.value(response)
-			case Root / "api" / "certs" / nodeid if request.method == Method.Post =>
-				issue(request, user, nodeid)
+				val c = domain.newCertificateDName().getBytes(UTF8)
+				val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
+				response.setContent(ChannelBuffers.copiedBuffer(c))
+				response.setHeader("Content-Type", s"text/plain; charset=$UTF8")
+				response.setHeader("Content-Length", c.length)
+				response.setHeader("Cache-Control", "no-cache")
+				response
+			case _api_cert_nodeid(nodeid) if request.getMethod == HttpMethod.POST =>
+				issue(request, account, nodeid)
 			case _ =>
 				web(request)
 		}
 	} catch {
 		case ex:Throwable =>
 			logger.error(s"unexpected server error", ex)
-			Future.value(Response(HttpResponseStatus.INTERNAL_SERVER_ERROR))
+			Server.httpErrorResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR)
 	}
 
 	// ==============================================================================================
@@ -93,39 +105,62 @@ class Service(docroot:File, domain:Domain) extends com.twitter.finagle.Service[R
 	/**
 	 * ノード証明書の発行を行います。
 	 */
-	private[this] def issue(request:Request, user:String, nodeid:String):Future[Response] = {
+	private[this] def issue(request:HttpRequest, account:Account, nodeid:String):HttpResponse = {
+
+		// 受信データのサイズを取得
+		val length = Option(request.getHeader("Content-Length")) match {
+			case Some(slen) =>
+				try {
+					val len = slen.toLong
+					if(len < 0){
+						logger.debug(s"negative Content-Length request header: $slen")
+						return Server.httpErrorResponse(HttpResponseStatus.BAD_REQUEST)
+					} else if(len > MaxCSRFileSize){
+						logger.debug(f"too large csr file size: $len%,d / $MaxCSRFileSize%,d")
+						return Server.httpErrorResponse(HttpResponseStatus.REQUEST_ENTITY_TOO_LARGE)
+					}
+					len
+				} catch {
+					case ex:NumberFormatException =>
+						logger.debug(s"unexpected Content-Length request header: $slen")
+						return Server.httpErrorResponse(HttpResponseStatus.BAD_REQUEST)
+				}
+			case None =>
+				logger.debug("Content-Length request header was not present")
+				return Server.httpErrorResponse(HttpResponseStatus.LENGTH_REQUIRED)
+		}
 
 		// 送信された CSR ファイルを読み出して一時ファイルに保存
-		val csr = request.contentLength match {
-			case Some(length) =>
-				if(length > MaxCSRFileSize){
-					logger.debug(f"too large csr file size: $length%,d / $MaxCSRFileSize%,d")
-					return Future.value(Response(HttpResponseStatus.REQUEST_ENTITY_TOO_LARGE))
-				}
+		val csr = {
 				val csr = domain.createTempFileAndWrite("temp", ".csr"){ out =>
-					request.withInputStream{ in => copy(in, out) }
+					val buffer = request.getContent.array()
+					val offset = request.getContent.arrayOffset()
+					out.write(buffer, offset, length.toInt)
 				}
 				csr.deleteOnExit()
 				csr
-			case None =>
-				logger.debug("length request header was not present")
-				return Future.value(Response(HttpResponseStatus.LENGTH_REQUIRED))
 		}
 
 		// CSR に署名し新しいノード証明書を作成
 		val cert = domain.ca.issue(csr)
+
+		// CSR ファイルを削除
 		csr.delete()
 
 		// TODO 証明書の内容が正しいか確認 (nodeid, user)
 		// TODO 新規ノード証明書をアカウントに登録
 
+		// ノード証明書を登録
+		domain.registerNodeCertificate(account, cert)
+
+		// ノード証明書を送信
 		val binary = cert.getEncoded
-		val response = Response()
-		response.content = ChannelBuffers.copiedBuffer(binary)
-		response.contentType = "application/x-x509-user-cert"
-		response.contentLength = binary.length
-		response.cacheControl = "no-cache"
-		Future.value(response)
+		val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
+		response.setContent(ChannelBuffers.copiedBuffer(binary))
+		response.setHeader("Content-Type", "application/x-x509-user-cert")
+		response.setHeader("Content-Length", binary.length)
+		response.setHeader("Cache-Control", "no-cache")
+		response
 	}
 
 	// ==============================================================================================
@@ -134,7 +169,7 @@ class Service(docroot:File, domain:Domain) extends com.twitter.finagle.Service[R
 	/**
 	 * 通常の Web 処理を行います。
 	 */
-	private[this] def web(request:Request):Future[Response] = {
+	private[this] def web(request:HttpRequest):HttpResponse = {
 		val file = {
 			val f = new File(docroot, request.path)
 			if(f.isDirectory) new File(f, "index.html") else f
@@ -144,28 +179,32 @@ class Service(docroot:File, domain:Domain) extends com.twitter.finagle.Service[R
 			// TODO ファイルの非同期読み込み
 			// TODO Conditional GET (If-Modified-Since) の対応
 			val content = using(new FileInputStream(file)){ _.readFully() }
-			val response = Response()
-			response.content = ChannelBuffers.copiedBuffer(content)
-			response.contentType = contentType(request.fileExtension)
-			response.contentLength = content.length
-			response.cacheControl = "no-cache"
-			Future.value(response)
+			val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
+			response.setContent(ChannelBuffers.copiedBuffer(content))
+			response.setHeader("Content-Type", contentType(request.fileExtension))
+			response.setHeader("Content-Length", content.length)
+			response.setHeader("Cache-Control", "no-cache")
+			response
 		} catch {
 			case ex:FileNotFoundException =>
 				logger.debug(s"specified file not found: $file")
-				Future.value(Response(HttpResponseStatus.NOT_FOUND))
+				NotFound(request.path)
 			case ex:IOException =>
 				logger.warn(s"cannot read file: $file", ex)
-				Future.value(Response(HttpResponseStatus.FORBIDDEN))
+				Server.httpErrorResponse(HttpResponseStatus.FORBIDDEN)
 		}
 	}
 
-	private[this] lazy val Unauthorized:Response = {
-		val response = Response(HttpResponseStatus.UNAUTHORIZED)
-		response.wwwAuthenticate = "Basic realm=\"" + domain.id + "\""
-		response.cacheControl = "no-cache"
-		response
+	private[this] def NotFound(uri:String):HttpResponse = {
+		Server.httpErrorResponse(HttpResponseStatus.NOT_FOUND, s"resource not found: $uri")
 	}
+
+	private[this] lazy val Unauthorized:HttpResponse = {
+		val res = Server.httpErrorResponse(HttpResponseStatus.UNAUTHORIZED)
+		res.setHeader("WWW-Authentication", s"""Basic realm="${domain.id}""")
+		res
+	}
+
 }
 
 object Service {
@@ -175,14 +214,28 @@ object Service {
 
 	private[Service] val BasicAuth = "(?i)Basic\\s+(.+)".r
 	private[Service] val UserPass = "([^:]*):(.*)".r
+	private[this] val PathWithoutQuery = """([^\?]*)\??.*""".r
 
 	private[Service] val UTF8 = "UTF-8"
 
-	implicit class RRequest(r:Request){
+	implicit class RRequest(r:HttpRequest){
 		def dump():Unit = {
 			if(logger.isTraceEnabled){
-				logger.trace(s"${r.getMethod()} ${r.getUri()} ${r.getProtocolVersion()}")
-				r.getHeaders().foreach{ e => logger.trace(s"  ${e.getKey}: ${e.getValue}") }
+				logger.trace(s"${r.getMethod} ${r.getUri} ${r.getProtocolVersion}")
+				r.getHeaders.foreach{ e => logger.trace(s"  ${e.getKey}: ${e.getValue}") }
+			}
+		}
+		def path:String = Option(r.getUri) match {
+			case Some(PathWithoutQuery(path)) => path
+			case Some(path) => path
+			case None => "/"
+		}
+		def fileExtension:String = {
+			val pos = path.lastIndexOf('.')
+			if(pos < 0){
+				""
+			} else {
+				path.substring(pos + 1)
 			}
 		}
 	}

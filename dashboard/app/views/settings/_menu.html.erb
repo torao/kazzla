@@ -1,0 +1,37 @@
+<ul class="nav nav-tabs nav-stacked">
+	<li class="<%= params[:action] == 'account'? 'active': '' %>">
+		<a href="<%= url_for :controller => :settings, :action => :account %>">
+			<i class="icon-user"></i> Account<i class="icon-chevron-right"></i>
+		</a>
+	</li>
+	<li class="<%= params[:action] == 'security'? 'active': '' %>">
+		<a href="<%= url_for :controller => :settings, :action => :security %>">
+			<i class="icon-lock"></i> Security and Privacy<i class="icon-chevron-right"></i>
+		</a>
+	</li>
+	<li class="<%= params[:action] == 'password'? 'active': '' %>">
+		<a href="<%= url_for :controller => :settings, :action => :password %>">
+			Password<i class="icon-chevron-right"></i>
+		</a>
+	</li>
+	<li class="<%= params[:action] == 'devices'? 'active': '' %>">
+		<a href="<%= url_for :controller => :settings, :action => :devices %>">
+			Devices<i class="icon-chevron-right"></i>
+		</a>
+	</li>
+	<li class="<%= params[:action] == 'notifications'? 'active': '' %>">
+		<a href="<%= url_for :controller => :settings, :action => :notifications %>">
+			Notification<i class="icon-chevron-right"></i>
+		</a>
+	</li>
+	<li class="<%= params[:action] == 'profile'? 'active': '' %>">
+		<a href="<%= url_for :controller => :settings, :action => :profile %>">
+			Profile<i class="icon-chevron-right"></i>
+		</a>
+	</li>
+	<li class="<%= params[:action] == 'notification'? 'active': '' %>">
+		<a href="<%= url_for :controller => :settings, :action => :applications %>">
+			<i class="icon-th"></i> Application<i class="icon-chevron-right"></i>
+		</a>
+	</li>
+</ul>

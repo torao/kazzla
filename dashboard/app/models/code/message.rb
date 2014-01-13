@@ -2,7 +2,7 @@ class Code::Message < ActiveRecord::Base
   attr_accessible :code, :content, :country, :language
 
 	def self.message(lang, code)
-		if lang.empty?
+		if lang.blank?
 			lang = Code::Language::DEFAULT_CODE
 		end
 		self.contents(lang)[code] ||

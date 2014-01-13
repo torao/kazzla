@@ -49,6 +49,15 @@ package object io {
 	}
 
 	// ==============================================================================================
+	// リソースのスコープ設定
+	// ==============================================================================================
+	/**
+	 * 指定されたクローズ可能なオブジェクトに対してラムダ実行後にクローズの実行を保証します。
+	 */
+	def usingOutput[T](file:File)(f:(OutputStream)=>T):T = using(new FileOutputStream(file))(f)
+	def usingInput[T](file:File)(f:(InputStream)=>T):T = using(new FileInputStream(file))(f)
+
+	// ==============================================================================================
 	// ストリームのコピー
 	// ==============================================================================================
 	/**
@@ -107,6 +116,12 @@ package object io {
 		 */
 		def readText(enc:String):String = new String(readFully(), enc)
 
+	}
+
+	implicit class RByteArray(array:Array[Byte]){
+		def toHexString():String = {
+			array.map{ b => f"${b & 0xFF}%02X" }.mkString
+		}
 	}
 
 }

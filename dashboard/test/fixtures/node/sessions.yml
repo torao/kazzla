@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  uuid: MyString
+  endpoints: MyString
+  proxy: MyString
+
+two:
+  uuid: MyString
+  endpoints: MyString
+  proxy: MyString

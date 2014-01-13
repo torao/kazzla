@@ -2,26 +2,27 @@ require "kazzla"
 include Kazzla
 
 class AuthController < ApplicationController
+  before_filter :signin_required, :only => [ :change_password, :withdraw ]
 
 	def signup
     if request.post?
-      uri = "mailto:" + params[:account].downcase
-      unless Auth::Contact.exists?(:uri => uri)
+      uri = "mailto:#{params[:account].downcase}"
+      if Auth::Contact.exists?(:uri => uri)
+        add_message 'specified email is already signed-up'
+      else
         account = Auth::Account.new
         account.plain_password = params[:password]
-        account.name = ""
+        account.name = params[:id]
         account.language = params[:language]
         account.timezone = params[:timezone]
         contact = Auth::Contact.new
         contact.account = account
         contact.uri = uri
-        account.save()
-        contact.save()
+        account.save
+        contact.save
         session[:account_id] = account.id
-        redirect_to "/"
-				eventlog("sign-up success")
-      else
-        add_message "specified email is already signed-up"
+        redirect_to '/'
+				eventlog('sign-up success')
       end
     end
   end
@@ -32,7 +33,7 @@ class AuthController < ApplicationController
       account = Auth::Account.find(account_id)
       account.destroy()
       reset_session
-      redirect_to "/"
+      redirect_to '/'
     end
   end
 
@@ -57,18 +58,29 @@ class AuthController < ApplicationController
 			return
 		end
 
-		# password authentication
+    # password authentication with ID
+    account = Auth::Account.find_by_name(params[:account])
+    if ! account.nil? and account.authenticate(params[:password])
+      session[:account_id] = account.id
+      redirect_to "/"
+      eventlog("sign-in success")
+      return
+    end
+
+    # password authentication with email
     contact = Auth::Contact.find_by_uri("mailto:" + params[:account].downcase)
     if ! contact.nil? and contact.account.authenticate(params[:password])
       account = contact.account
       account.save()
       session[:account_id] = account.id
       redirect_to "/"
-			eventlog("sign-in success")
-    else
-			eventlog("sign-in failure")
-      reset_session
+      eventlog("sign-in success")
+      return
     end
+
+    # authentication failure
+    eventlog("sign-in failure")
+    reset_session
   end
 
   def signout
@@ -106,7 +118,7 @@ class AuthController < ApplicationController
 			end
 			add_message("Send e-Mail to specified address that contains URL to reset password (This message is shown for incorrect address for security reason).")
 		end
-	end
+  end
 
 	private
 
@@ -117,6 +129,6 @@ class AuthController < ApplicationController
 			result << chars[rand(chars.length)]
 		end
 		result
-	end
+  end
 
 end

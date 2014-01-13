@@ -3,7 +3,9 @@ class ApplicationController < ActionController::Base
 
   def signin?
 		if @_signin.nil?
-			unless session[:account_id].nil?
+			if session[:account_id].nil?
+        @_signin = false
+      else
 				@current_account = Auth::Account.find_by_id(session[:account_id])
 				if @current_account.nil?
 					reset_session
@@ -11,8 +13,6 @@ class ApplicationController < ActionController::Base
 				else
 					@_signin = true
 				end
-			else
-				@_signin = false
 			end
 		end
 		@_signin
@@ -37,7 +37,23 @@ class ApplicationController < ActionController::Base
 		log.code = 0
 		log.remote = request.remote_ip
 		log.message = msg
-		log.save()
-	end
+		log.save
+  end
+
+private
+
+  def signin_required
+    if not signin? and request.path != '/'
+      redirect_to '/'
+    end
+  end
+
+  def render_not_found
+    render :file => "#{Rails.env}/public/404.html", :status => '404 Not Found'
+  end
+
+  def render_method_not_allowed
+    render :file => "#{Rails.env}/public/405.html", :status => '405 Method Not Allowed'
+  end
 
 end

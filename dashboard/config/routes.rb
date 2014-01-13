@@ -1,9 +1,19 @@
 KazzlaCom::Application.routes.draw do
+  get "settings/account"
+  put 'settings/account'
+  get "settings/security"
+  get "settings/password"
+  get "settings/devices"
+  get "settings/notifications"
+  get "settings/profile"
+  get "settings/applications"
+
   get  "dashboard/index"
 	post "dashboard/lang"
 	get  "dashboard/home"
 	get  "dashboard/status"
-	get  "dashboard/node"
+  get  "dashboard/nodes"
+  match "dashboard/nodes/:id" => "dashboard#nodes"
 
   get  "auth/signup"
 	post "auth/signup"
@@ -15,6 +25,8 @@ KazzlaCom::Application.routes.draw do
 	get  "auth/reset_password"
 	post "auth/change_password"
 	get  "auth/change_password"
+  get  'auth/profile'
+  post 'auth/profile'
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

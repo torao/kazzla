@@ -1,6 +1,10 @@
 <div class="tabbable tabs-left">
 	<ul class="nav nav-tabs">
-		<li class="active"><a href="#">Node1</a></li>
+		<% @current_account.nodes.each_with_index{ |n,i| %>
+		<li class="active">
+			<a href="/dashboard/nodes/<%= n.uuid %>"><% if n.name.blank? then %><i>New Node #<%= i+1 %></i><% else %><%= n.name %><% end %></a>
+		</li>
+		<% } %>
 	</ul>
 </div>
 

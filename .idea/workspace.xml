@@ -2,16 +2,42 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6b9306d3-c06a-4578-a58f-e9907ad7246e" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Domain.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Service.scala" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/node.storage/data/ca.crt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/node.storage/data/node.crt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/node.storage/data/node.jks" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/node.storage/data/node.p12" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/service.domain/ca/openssl.cnf" afterPath="$PROJECT_DIR$/service.domain/ca/demoCA/openssl.cnf" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Server.scala" afterPath="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Server.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/node.storage/src/main/scala/com/kazzla/node/storage/Shell.scala" afterPath="$PROJECT_DIR$/node.storage/src/main/scala/com/kazzla/node/storage/Shell.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/service.domain/domain.jks" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/node.storage/data/node.crt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/node.storage/data/node.p12" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/ConsistencyException.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/src/main/scala/com/kazzla/service/Domain.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/node.storage/data/cacert.crt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/service.domain/datastore.properties" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/service.domain/domain.crt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/service.domain/domain.csr" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/service.domain/mkcert.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/package.scala" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/package.scala" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.lock" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.core.resources/.root/.indexes/history.version" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.core.resources/.root/.indexes/properties.index" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.core.resources/.root/.indexes/properties.version" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.core.resources/.root/1.tree" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.core.resources/.safetable/org.eclipse.core.resources" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.core.resources.prefs" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.ui.prefs" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.ide.prefs" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.prefs" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.jdt.core/invalidArchivesCache" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.jdt.core/nonChainingJarsCache" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.jdt.core/variablesAndContainers.dat" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.jdt.ui/OpenTypeHistory.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.jdt.ui/QualifiedTypeNameHistory.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.jdt.ui/dialog_settings.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.ui.ide/dialog_settings.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.ui.workbench/dialog_settings.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/.plugins/org.eclipse.ui.workbench/workingsets.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/site/kazzla.com/.metadata/version.ini" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service.domain/ca/demoCA/index.txt.old" afterPath="$PROJECT_DIR$/service.domain/ca/demoCA/index.txt.old" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Domain.scala" afterPath="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Domain.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Server.scala" afterPath="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Server.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Service.scala" afterPath="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Service.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service.domain/ca/demoCA/index.txt" afterPath="$PROJECT_DIR$/service.domain/ca/demoCA/index.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/io.scala" afterPath="$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/io.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/service.domain/ca/demoCA/serial.old" afterPath="$PROJECT_DIR$/service.domain/ca/demoCA/serial.old" />
@@ -81,14 +107,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Shell.scala" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Shell.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/node.storage/src/main/scala/com/kazzla/node/storage/Shell.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="35" column="28" selection-start="1272" selection-end="1272" vertical-scroll-proportion="-3.4011977" vertical-offset="2797" max-vertical-offset="3465">
-              <folding>
-                <element signature="n#!!doc" expanded="true" />
-                <element signature="e#202#230#0" expanded="true" />
-              </folding>
+            <state line="172" column="0" selection-start="6000" selection-end="6000" vertical-scroll-proportion="0.0" vertical-offset="2580" max-vertical-offset="3450">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -96,37 +119,7 @@
       <file leaf-file-name="Service.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Service.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="85" column="32" selection-start="3230" selection-end="3230" vertical-scroll-proportion="0.0" vertical-offset="2471" max-vertical-offset="3165">
-              <folding>
-                <element signature="n#!!doc" expanded="true" />
-                <element signature="e#204#231#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="openssl.cnf" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/service.domain/ca/demoCA/openssl.cnf">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="36" column="34" selection-start="1041" selection-end="1041" vertical-scroll-proportion="0.0" vertical-offset="615" max-vertical-offset="4785">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Path.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="jar://$PROJECT_DIR$/lib/finagle-http_2.10-6.3.0-sources.jar!/com/twitter/finagle/http/path/Path.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="87" column="0" selection-start="2084" selection-end="2084" vertical-scroll-proportion="0.0" vertical-offset="1067" max-vertical-offset="3630">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Server.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Server.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="57" column="30" selection-start="1722" selection-end="1722" vertical-scroll-proportion="0.0" vertical-offset="240" max-vertical-offset="945">
+            <state line="114" column="22" selection-start="4135" selection-end="4135" vertical-scroll-proportion="0.0" vertical-offset="1230" max-vertical-offset="3900">
               <folding>
                 <element signature="e#204#238#0" expanded="true" />
               </folding>
@@ -135,11 +128,52 @@
         </entry>
       </file>
       <file leaf-file-name="Domain.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/service/Domain.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="23" column="13" selection-start="746" selection-end="746" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="435">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Server.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Server.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="100" column="34" selection-start="3361" selection-end="3361" vertical-scroll-proportion="0.0" vertical-offset="1275" max-vertical-offset="2805">
+              <folding>
+                <element signature="e#204#235#0" expanded="true" />
+                <element signature="e#1374#1389#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="HttpRequestDecoder.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://$PROJECT_DIR$/lib/netty-3.6.6.Final-sources.jar!/org/jboss/netty/handler/codec/http/HttpRequestDecoder.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="54" column="54" selection-start="2265" selection-end="2265" vertical-scroll-proportion="0.0" vertical-offset="360" max-vertical-offset="1095">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Domain.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Domain.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="5" column="32" selection-start="201" selection-end="201" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1170">
+            <state line="83" column="93" selection-start="3066" selection-end="3066" vertical-scroll-proportion="1.1946902" vertical-offset="375" max-vertical-offset="3330">
               <folding>
-                <element signature="e#204#234#0" expanded="true" />
+                <element signature="e#204#247#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="package.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/package.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="45" column="5" selection-start="1348" selection-end="1348" vertical-scroll-proportion="0.0" vertical-offset="585" max-vertical-offset="1320">
+              <folding>
+                <element signature="e#197#236#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -148,10 +182,8 @@
       <file leaf-file-name="ShellTools.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/tools/ShellTools.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="98" column="29" selection-start="3155" selection-end="3155" vertical-scroll-proportion="0.0" vertical-offset="904" max-vertical-offset="1575">
-              <folding>
-                <element signature="e#200#263#0" expanded="true" />
-              </folding>
+            <state line="98" column="29" selection-start="3155" selection-end="3155" vertical-scroll-proportion="0.0" vertical-offset="1470" max-vertical-offset="1635">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -202,11 +234,18 @@
         <option value="$PROJECT_DIR$/node.strage/src/main/scala/com/kazzla/node/storage/Shell.scala" />
         <option value="$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/tools/ShellTools.scala" />
         <option value="$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/debug.scala" />
-        <option value="$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/io.scala" />
-        <option value="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Domain.scala" />
-        <option value="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Server.scala" />
-        <option value="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Service.scala" />
         <option value="$PROJECT_DIR$/node.storage/src/main/scala/com/kazzla/node/storage/Shell.scala" />
+        <option value="$PROJECT_DIR$/service.domain/datastore.properties" />
+        <option value="$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/ConsystencyException.scala" />
+        <option value="$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/ConsistencyException.scala" />
+        <option value="$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/io.scala" />
+        <option value="$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/package.scala" />
+        <option value="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Node.java" />
+        <option value="$PROJECT_DIR$/core/src/main/scala/com/kazzla/service/Domain.scala" />
+        <option value="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/package.scala" />
+        <option value="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Service.scala" />
+        <option value="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Server.scala" />
+        <option value="$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Domain.scala" />
       </list>
     </option>
   </component>
@@ -292,6 +331,30 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scope">
+        <subPane subId="Project Files">
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="PackagesPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -346,7 +409,93 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="ca" />
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="domain" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Server.scala" />
+              <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="service.domain" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="domain" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="package.scala" />
+              <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="service.domain" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="domain" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Domain.scala" />
+              <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kazzla" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="node.storage" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -357,6 +506,22 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="node.storage" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="storage" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -420,28 +585,30 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-        </subPane>
-      </pane>
-      <pane id="PackagesPane">
-        <subPane>
           <PATH>
             <PATH_ELEMENT>
               <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="Scope">
-        <subPane subId="Project Files">
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="service" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
@@ -491,7 +658,7 @@
       <recent name="com.kazzla.volume" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Server">
+  <component name="RunManager" selected="Application.Shell">
     <configuration default="false" name="Main" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="com.kazzla.birpc.Main" />
       <option name="VM_PARAMETERS" />
@@ -589,7 +756,9 @@
         <option name="TRANSPORT" value="0" />
         <option name="LOCAL" value="true" />
       </RunnerSettings>
+      <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Debug" />
+      <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin" singleton="true">
@@ -801,33 +970,33 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1680" height="1050" extended-state="0" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3277311" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3268839" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.17447656" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.21283096" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.28015953" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25612244" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.28015953" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32986537" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29710868" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32983193" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.27321428" sideWeight="0.67134833" order="6" side_tool="true" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29693878" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32892057" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2802198" sideWeight="0.67134833" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19345239" sideWeight="0.67134833" order="1" side_tool="true" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1984127" sideWeight="0.67134833" order="1" side_tool="true" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32959184" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="SBT Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25373134" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="IvyIDEA" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="5" side_tool="false" content_ui="combo" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.17447656" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -852,122 +1021,19 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/node.storage/src/main/scala/com/kazzla/node/storage/StorageImpl.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="72" column="0" selection-start="1911" selection-end="2189" vertical-scroll-proportion="0.0" vertical-offset="1080" max-vertical-offset="3510">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node.storage/src/main/scala/com/kazzla/node/storage/Server.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="0" selection-start="1145" selection-end="1145" vertical-scroll-proportion="0.0" vertical-offset="540" max-vertical-offset="1260">
-          <folding>
-            <element signature="e#202#233#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/node/Domain.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="49" column="6" selection-start="1334" selection-end="1334" vertical-scroll-proportion="0.0" vertical-offset="735" max-vertical-offset="1815">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/node/Storage.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="57" column="36" selection-start="1854" selection-end="1854" vertical-scroll-proportion="0.0" vertical-offset="855" max-vertical-offset="1455">
-          <folding />
-        </state>
+        <state line="57" column="36" selection-start="1854" selection-end="1854" vertical-scroll-proportion="0.0" vertical-offset="855" max-vertical-offset="1455" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/io.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="104" column="0" selection-start="2998" selection-end="2998" vertical-scroll-proportion="0.0" vertical-offset="1560" max-vertical-offset="1725">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node.storage/src/main/scala/com/kazzla/node/storage/StorageImpl.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="72" column="0" selection-start="1911" selection-end="2189" vertical-scroll-proportion="0.0" vertical-offset="1080" max-vertical-offset="3510">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node.storage/src/main/scala/com/kazzla/node/storage/Server.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="0" selection-start="1067" selection-end="1157" vertical-scroll-proportion="0.0" vertical-offset="555" max-vertical-offset="1095">
-          <folding>
-            <element signature="e#202#233#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/node/Domain.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="50" column="52" selection-start="1393" selection-end="1393" vertical-scroll-proportion="0.0" vertical-offset="750" max-vertical-offset="1725">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/node/Storage.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="57" column="36" selection-start="1854" selection-end="1854" vertical-scroll-proportion="0.0" vertical-offset="855" max-vertical-offset="1455">
-          <folding />
-        </state>
+        <state line="104" column="0" selection-start="2998" selection-end="2998" vertical-scroll-proportion="0.0" vertical-offset="1560" max-vertical-offset="1725" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/io.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="104" column="0" selection-start="2998" selection-end="2998" vertical-scroll-proportion="0.0" vertical-offset="1560" max-vertical-offset="1725">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node.storage/src/main/scala/com/kazzla/node/storage/StorageImpl.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="0" selection-start="809" selection-end="1092" vertical-scroll-proportion="0.0" vertical-offset="525" max-vertical-offset="3510">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node.storage/src/main/scala/com/kazzla/node/storage/Server.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="0" selection-start="1067" selection-end="1157" vertical-scroll-proportion="0.0" vertical-offset="555" max-vertical-offset="1095">
-          <folding>
-            <element signature="e#202#233#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/node/Domain.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="0" selection-start="497" selection-end="497" vertical-scroll-proportion="0.0" vertical-offset="255" max-vertical-offset="345">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/node/Storage.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="57" column="36" selection-start="1854" selection-end="1854" vertical-scroll-proportion="0.0" vertical-offset="855" max-vertical-offset="1455">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/io.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="104" column="0" selection-start="2998" selection-end="2998" vertical-scroll-proportion="0.0" vertical-offset="1560" max-vertical-offset="1725">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/io.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="36" selection-start="0" selection-end="1576" vertical-scroll-proportion="0.0" vertical-offset="285" max-vertical-offset="1035">
-          <folding />
-        </state>
+        <state line="19" column="36" selection-start="0" selection-end="1576" vertical-scroll-proportion="0.0" vertical-offset="285" max-vertical-offset="1035" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/debug.scala">
@@ -977,9 +1043,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/io.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="36" selection-start="0" selection-end="1576" vertical-scroll-proportion="0.0" vertical-offset="285" max-vertical-offset="1035">
-          <folding />
-        </state>
+        <state line="19" column="36" selection-start="0" selection-end="1576" vertical-scroll-proportion="0.0" vertical-offset="285" max-vertical-offset="1035" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/debug.scala">
@@ -1012,11 +1076,6 @@
         <state line="726" column="19" selection-start="32451" selection-end="32451" vertical-scroll-proportion="4.6761084" vertical-offset="6718" max-vertical-offset="11730" />
       </provider>
     </entry>
-    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home/src.zip!/java/util/UUID.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="190" column="33" selection-start="5842" selection-end="5852" vertical-scroll-proportion="0.33251232" vertical-offset="2235" max-vertical-offset="6330" />
-      </provider>
-    </entry>
     <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home/src.zip!/java/nio/channels/FileChannel.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="383" column="24" selection-start="17646" selection-end="17646" vertical-scroll-proportion="0.33251232" vertical-offset="4995" max-vertical-offset="16965" />
@@ -1024,9 +1083,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/node/Storage.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="57" column="36" selection-start="1854" selection-end="1854" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1395">
-          <folding />
-        </state>
+        <state line="57" column="36" selection-start="1854" selection-end="1854" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1395" />
       </provider>
     </entry>
     <entry file="jar://$PROJECT_DIR$/lib/scala-library-2.10.0-sources.jar!/scala/Array.scala">
@@ -1036,70 +1093,128 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/node.storage/src/main/scala/com/kazzla/node/storage/StorageImpl.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="22" selection-start="1148" selection-end="1148" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3315">
-          <folding />
-        </state>
+        <state line="36" column="22" selection-start="1148" selection-end="1148" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3315" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/node/Domain.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="67" column="37" selection-start="1906" selection-end="1906" vertical-scroll-proportion="0.0" vertical-offset="941" max-vertical-offset="1635">
-          <folding />
-        </state>
+        <state line="67" column="37" selection-start="1906" selection-end="1906" vertical-scroll-proportion="0.0" vertical-offset="941" max-vertical-offset="1635" />
       </provider>
     </entry>
     <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home/src.zip!/java/io/FileInputStream.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="267" column="15" selection-start="9675" selection-end="9675" vertical-scroll-proportion="0.0" vertical-offset="3407" max-vertical-offset="6345">
-          <folding>
-            <element signature="e#0#16018#0" expanded="false" />
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
+        <state line="267" column="15" selection-start="9675" selection-end="9675" vertical-scroll-proportion="0.0" vertical-offset="3407" max-vertical-offset="6345" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/node.storage/bin/kazzla-storage.sh">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1" column="0" selection-start="10" selection-end="10" vertical-scroll-proportion="-0.6" vertical-offset="0" max-vertical-offset="105">
-          <folding />
-        </state>
+        <state line="1" column="0" selection-start="10" selection-end="10" vertical-scroll-proportion="-0.6" vertical-offset="0" max-vertical-offset="105" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/node.storage/src/main/scala/com/kazzla/node/storage/Server.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="77" column="0" selection-start="2089" selection-end="2089" vertical-scroll-proportion="0.0" vertical-offset="506" max-vertical-offset="1215">
-          <folding>
-            <element signature="e#202#233#0" expanded="false" />
-          </folding>
-        </state>
+        <state line="77" column="0" selection-start="2089" selection-end="2089" vertical-scroll-proportion="0.0" vertical-offset="506" max-vertical-offset="1215" />
       </provider>
     </entry>
     <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home/src.zip!/java/security/Key.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="123" column="18" selection-start="3601" selection-end="3601" vertical-scroll-proportion="0.3323398" vertical-offset="1277" max-vertical-offset="2040">
-          <folding />
-        </state>
+        <state line="123" column="18" selection-start="3601" selection-end="3601" vertical-scroll-proportion="0.3323398" vertical-offset="1277" max-vertical-offset="2040" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/debug.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="36" selection-start="771" selection-end="771" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="540">
-          <folding>
-            <element signature="e#194#225#0" expanded="true" />
-          </folding>
-        </state>
+        <state line="21" column="36" selection-start="771" selection-end="771" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="540" />
       </provider>
     </entry>
     <entry file="jar:///opt/scala-2.10.3/src/scala-library-src.jar!/scala/collection/immutable/StringLike.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="212" column="6" selection-start="7249" selection-end="7249" vertical-scroll-proportion="4.5156484" vertical-offset="0" max-vertical-offset="4200">
+        <state line="212" column="6" selection-start="7249" selection-end="7249" vertical-scroll-proportion="4.5156484" vertical-offset="0" max-vertical-offset="4200" />
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/netty-3.6.6.Final-sources.jar!/org/jboss/netty/handler/codec/http/HttpMethod.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="13" selection-start="1006" selection-end="1006" vertical-scroll-proportion="0.24590164" vertical-offset="0" max-vertical-offset="2595" />
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/finagle-http_2.10-6.3.0.jar!/com/twitter/finagle/http/path/$div.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1" column="161" selection-start="199" selection-end="199" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="225" />
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/finagle-http_2.10-6.3.0-sources.jar!/com/twitter/finagle/http/Request.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="0" selection-start="769" selection-end="769" vertical-scroll-proportion="0.0" vertical-offset="17" max-vertical-offset="3750" />
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/finagle-http_2.10-6.3.0-sources.jar!/com/twitter/finagle/http/Method.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="7" column="0" selection-start="215" selection-end="215" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="315" />
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/netty-3.5.12.Final.jar!/org/jboss/netty/handler/codec/http/HttpMethod.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="27" column="17" selection-start="1408" selection-end="1408" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="555" />
+      </provider>
+    </entry>
+    <entry file="jar:///opt/scala-2.10.2/src/scala-library-src.jar!/scala/collection/immutable/Map.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="71" column="7" selection-start="2652" selection-end="2652" vertical-scroll-proportion="-0.2972689" vertical-offset="1258" max-vertical-offset="2865" />
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/scala-library-2.10.0-sources.jar!/scala/Predef.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="96" column="32" selection-start="4625" selection-end="4625" vertical-scroll-proportion="0.3329832" vertical-offset="943" max-vertical-offset="7290" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service.domain/datastore.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="2" column="0" selection-start="4" selection-end="4" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="120" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service.domain/ca/demoCA/openssl.cnf">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="36" column="34" selection-start="1041" selection-end="1041" vertical-scroll-proportion="0.0" vertical-offset="615" max-vertical-offset="4785" />
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/finagle-http_2.10-6.3.0-sources.jar!/com/twitter/finagle/http/path/Path.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="87" column="0" selection-start="2084" selection-end="2084" vertical-scroll-proportion="0.0" vertical-offset="1067" max-vertical-offset="3630" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/ConsistencyException.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="31" selection-start="643" selection-end="643" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="300">
           <folding />
         </state>
       </provider>
     </entry>
+    <entry file="jar:///opt/scala-2.10.3/src/scala-library-src.jar!/scala/collection/TraversableLike.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="324" column="6" selection-start="12760" selection-end="12760" vertical-scroll-proportion="0.33333334" vertical-offset="4477" max-vertical-offset="11805" />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/io.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="68" column="40" selection-start="2340" selection-end="2340" vertical-scroll-proportion="0.60059613" vertical-offset="512" max-vertical-offset="1680">
+        <state line="57" column="51" selection-start="2031" selection-end="2031" vertical-scroll-proportion="0.0" vertical-offset="322" max-vertical-offset="1905" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/package.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="29" column="29" selection-start="1110" selection-end="1110" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="630">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home/src.zip!/java/util/concurrent/ThreadPoolExecutor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1192" column="11" selection-start="46459" selection-end="46459" vertical-scroll-proportion="0.0" vertical-offset="17107" max-vertical-offset="30915">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node.storage/src/main/scala/com/kazzla/node/storage/Shell.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="172" column="0" selection-start="6000" selection-end="6000" vertical-scroll-proportion="0.0" vertical-offset="2629" max-vertical-offset="3285">
           <folding />
         </state>
       </provider>
@@ -1107,95 +1222,99 @@
     <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/core/tools/ShellTools.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="98" column="29" selection-start="3155" selection-end="3155" vertical-scroll-proportion="0.0" vertical-offset="904" max-vertical-offset="1575">
-          <folding>
-            <element signature="e#200#263#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/netty-3.6.6.Final-sources.jar!/org/jboss/netty/handler/codec/http/HttpMethod.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="13" selection-start="1006" selection-end="1006" vertical-scroll-proportion="0.24590164" vertical-offset="0" max-vertical-offset="2595">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/finagle-http_2.10-6.3.0.jar!/com/twitter/finagle/http/path/$div.class">
+    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home/src.zip!/java/util/UUID.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1" column="161" selection-start="199" selection-end="199" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="225">
+        <state line="185" column="40" selection-start="5659" selection-end="5683" vertical-scroll-proportion="0.0" vertical-offset="2265" max-vertical-offset="6330">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Server.scala">
+    <entry file="jar://$PROJECT_DIR$/lib/netty-3.6.6.Final-sources.jar!/org/jboss/netty/channel/SimpleChannelUpstreamHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="57" column="30" selection-start="1722" selection-end="1722" vertical-scroll-proportion="0.0" vertical-offset="240" max-vertical-offset="945">
-          <folding>
-            <element signature="e#204#238#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/finagle-http_2.10-6.3.0-sources.jar!/com/twitter/finagle/http/path/Path.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="87" column="0" selection-start="2084" selection-end="2084" vertical-scroll-proportion="0.0" vertical-offset="1067" max-vertical-offset="3630">
+        <state line="124" column="5" selection-start="4674" selection-end="4811" vertical-scroll-proportion="0.0" vertical-offset="1300" max-vertical-offset="3615">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/finagle-http_2.10-6.3.0-sources.jar!/com/twitter/finagle/http/Request.scala">
+    <entry file="jar://$PROJECT_DIR$/lib/netty-3.6.6.Final-sources.jar!/org/jboss/netty/handler/codec/http/HttpMessageDecoder.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="0" selection-start="769" selection-end="769" vertical-scroll-proportion="0.0" vertical-offset="17" max-vertical-offset="3750">
+        <state line="100" column="22" selection-start="3917" selection-end="3917" vertical-scroll-proportion="-4.9727893" vertical-offset="4825" max-vertical-offset="10890">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/finagle-http_2.10-6.3.0-sources.jar!/com/twitter/finagle/http/Method.scala">
+    <entry file="jar://$PROJECT_DIR$/lib/netty-3.6.6.Final-sources.jar!/org/jboss/netty/handler/codec/http/HttpRequestDecoder.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="0" selection-start="215" selection-end="215" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="315">
+        <state line="54" column="54" selection-start="2265" selection-end="2265" vertical-scroll-proportion="0.0" vertical-offset="360" max-vertical-offset="1095">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/netty-3.5.12.Final.jar!/org/jboss/netty/handler/codec/http/HttpMethod.class">
+    <entry file="jar://$PROJECT_DIR$/lib/netty-3.6.6.Final-sources.jar!/org/jboss/netty/handler/codec/http/DefaultHttpResponse.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="27" column="17" selection-start="1408" selection-end="1408" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="555">
+        <state line="32" column="11" selection-start="1088" selection-end="1088" vertical-scroll-proportion="0.36734694" vertical-offset="0" max-vertical-offset="855">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/service.domain/ca/demoCA/openssl.cnf">
+    <entry file="jar://$PROJECT_DIR$/lib/netty-3.6.6.Final-sources.jar!/org/jboss/netty/buffer/ChannelBuffer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="34" selection-start="1041" selection-end="1041" vertical-scroll-proportion="0.0" vertical-offset="615" max-vertical-offset="4785">
+        <state line="1680" column="11" selection-start="67954" selection-end="67954" vertical-scroll-proportion="6.823129" vertical-offset="19855" max-vertical-offset="26445">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Service.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="85" column="32" selection-start="3230" selection-end="3230" vertical-scroll-proportion="0.0" vertical-offset="2490" max-vertical-offset="3165">
+        <state line="114" column="22" selection-start="4135" selection-end="4135" vertical-scroll-proportion="0.0" vertical-offset="1230" max-vertical-offset="3900">
           <folding>
-            <element signature="n#!!doc" expanded="true" />
-            <element signature="e#204#231#0" expanded="true" />
+            <element signature="e#204#238#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/package.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="45" column="5" selection-start="1348" selection-end="1348" vertical-scroll-proportion="0.0" vertical-offset="45" max-vertical-offset="1320">
+          <folding>
+            <element signature="e#197#236#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/netty-3.6.6.Final-sources.jar!/org/jboss/netty/channel/ChannelFuture.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="340" column="12" selection-start="13671" selection-end="13671" vertical-scroll-proportion="0.8367347" vertical-offset="4230" max-vertical-offset="4965">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Server.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="100" column="34" selection-start="3361" selection-end="3361" vertical-scroll-proportion="0.0" vertical-offset="1275" max-vertical-offset="2805">
+          <folding>
+            <element signature="e#204#235#0" expanded="true" />
+            <element signature="e#1374#1389#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/main/scala/com/kazzla/service/Domain.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="23" column="13" selection-start="746" selection-end="746" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="435">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/service.domain/src/main/scala/com/kazzla/service/domain/Domain.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="32" selection-start="201" selection-end="201" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1170">
+        <state line="83" column="93" selection-start="3066" selection-end="3066" vertical-scroll-proportion="1.1946902" vertical-offset="375" max-vertical-offset="3330">
           <folding>
-            <element signature="e#204#234#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node.storage/src/main/scala/com/kazzla/node/storage/Shell.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="28" selection-start="1272" selection-end="1272" vertical-scroll-proportion="-3.4011977" vertical-offset="2797" max-vertical-offset="3465">
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-            <element signature="e#202#230#0" expanded="true" />
+            <element signature="e#204#247#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1228,7 +1347,7 @@
       </state>
       <state key="FacetStructureConfigurable.UI">
         <settings>
-          <last-edited>Scala (node.strage)|Scala</last-edited>
+          <last-edited>Scala</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
@@ -1264,7 +1383,7 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>Scala|service.domain</last-edited>
+          <last-edited>service.domain</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
@@ -1276,7 +1395,7 @@
       </state>
       <state key="ProjectLibrariesConfigurable.UI">
         <settings>
-          <last-edited>asterisk_2.10-0.1</last-edited>
+          <last-edited>com.twitter:finagle-http_2.10:6.3.0</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

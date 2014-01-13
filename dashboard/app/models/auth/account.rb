@@ -6,6 +6,7 @@ class Auth::Account < ActiveRecord::Base
   attr_accessible :hashed_password, :language, :name, :salt, :timezone
   has_many :contacts, :dependent => :destroy, :foreign_key => :account_id
 	has_many :password_reset_secrets, :dependent => :destroy, :foreign_key => :account_id
+	has_many :nodes, :dependent => :destroy, :foreign_key => :account_id, :class_name => "Node::Node"
 	belongs_to :role, :readonly => true
 
 	attr_accessor :plain_password

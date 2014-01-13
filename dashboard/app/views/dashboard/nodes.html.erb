@@ -1,0 +1,95 @@
+<div class="row">
+	<div class="span3">
+		<ul class="nav nav-tabs nav-stacked">
+			<% @current_account.nodes.each{ |n| %>
+				<li class="active">
+					<a href="<%= url_for :controller => :dashboard, :action => :nodes, :id => '' %>#<%= n.uuid %>">
+						<i class="icon-hdd"></i>
+						<% if n.name.blank? then %><i>New Node</i><% else %><%= n.name %><% end %>
+						<i class="icon-chevron-right"></i>
+					</a>
+				</li>
+			<% } %>
+		 </ul>
+	</div>
+	<div class="span9">
+		<% @nodes.each{ |n| %>
+			<a id="<%= n.uuid %>" name="<%= n.uuid %>"></a>
+			<%= form_for(n, :url => { :controller => :dashboard, :action => :nodes, :id => n.uuid }, :html => { :class => 'form' }) do |f| %>
+				<fieldset>
+					<legend><b><%= n.name.blank? ? 'New Node': n.name %></b></legend>
+					<% if @edit then %>
+						<div class="control-group">
+							<%= f.label :name, :class => 'control-label' %>
+							<div class="controls">
+									<%= f.text_field :name, :class => 'form-control', :placeholder => 'Node Name' %>
+							</div>
+						</div>
+					<% end %>
+					<div class="control-group">
+						<label class="control-label"><b>Geo Location</b></label>
+						<div class="controls">
+							<% if @edit %>
+								<%= f.select :continent, Code::Continent.continents.map{ |c| [c.name, c.code] }, :class => 'span2' %>
+								<%= f.select :country, Code::Country.countries.map{ |c| [c.name, c.code] }, { :class => 'span2', :include_blank => true } %>
+								<%= f.text_field :state,     :class => 'form-control span2', :placeholder => 'State' %>
+								<%= f.text_field :latitude,  :class => 'form-control span2', :placeholder => 'Latitude' %>
+								<%= f.text_field :longitude, :class => 'form-control span2', :placeholder => 'Longitude' %>
+							<% else %>
+								<%= n.state %>,
+								<%= n.country_name %>,
+								<%= n.continent_name %>
+							<% end %>
+						</div>
+					</div>
+					<% unless n.agent.blank? %>
+						<div class="control-group">
+							<label class="control-label"><b>Agent</b></label>
+							<div class="controls">
+								<%= n.agent %>
+							</div>
+						</div>
+					<% end %>
+					<div class="control-group">
+						<label class="control-label"><b>Quarity of Service</b></label>
+						<div class="controls">
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label"><b>Description</b></label>
+						<div class="controls">
+							<table class="table table-condensed table-hover">
+								<tr>
+									<td>Service Level</td>
+									<td>
+										<span class="form-control" title="<%= ((n.qos || 0.0) * 100).round(1) %>%">
+											<%= '★' * ((n.qos || 0) * 5).round %><%= '☆' * ((1.0 - (n.qos || 0)) * 5).round %>
+										</span>
+									</td>
+								</tr>
+								<tr>
+									<td>UUID</td>
+									<td><small><%= n.uuid %></small></td>
+								</tr>
+								<tr>
+									<td>Certificate Subject</td>
+									<td><small><%= n.cert.subject.to_s %></small></td>
+								</tr>
+								<tr>
+									<td>Certificate Fingerprint</td>
+									<td><small><%= n.cert_fingerprint %> (MD5)</small></td>
+								</tr>
+							</table>
+						</div>
+					</div>
+
+					<% if @edit %>
+						<input type="submit" class="btn btn-default" value="Edit"/>
+					<% else %>
+						<%= link_to 'Edit', :action => :nodes, :id => n.uuid, :edit => :edit %>
+					<% end %>
+				</fieldset>
+			<% end %>
+		<% } %>
+	</div>
+</div>

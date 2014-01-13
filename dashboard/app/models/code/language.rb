@@ -1,7 +1,7 @@
 class Code::Language < ActiveRecord::Base
   attr_accessible :code, :name
 
-	DEFAULT_CODE = "en"
+	DEFAULT_CODE = 'en'
 
 	def to_iso639
 		Code::Language.to_iso639(code)
@@ -12,7 +12,7 @@ class Code::Language < ActiveRecord::Base
 	end
 
 	def self.languages
-    @@_languages ||= Code::Language.find(:all, :order => "code")
+    @@_languages ||= Code::Language.all(:order => 'code')
 		@@_languages
 	end
 
