@@ -8,6 +8,7 @@ package com.kazzla.service.domain
 import com.kazzla.asterisk.Node
 import com.kazzla.asterisk.codec.MsgPackCodec
 import com.kazzla.asterisk.netty.Netty
+import com.kazzla.core.cert._
 import com.kazzla.core.io._
 import java.io._
 import java.net.InetSocketAddress
@@ -16,7 +17,6 @@ import java.sql.{DriverManager, Connection}
 import java.util.UUID
 import java.util.concurrent.{Executors, LinkedBlockingQueue, TimeUnit, ThreadPoolExecutor}
 import java.util.logging.Logger
-import javax.net.ssl.{KeyManagerFactory, TrustManagerFactory, SSLContext}
 import javax.sql.DataSource
 import org.jboss.netty.bootstrap.ServerBootstrap
 import org.jboss.netty.buffer.ChannelBuffers
@@ -49,18 +49,8 @@ class Server(docroot:File, domain:Domain) {
 
 	private[this] val sslContext = {
 		val jks = KeyStore.getInstance("JKS")
-		val ssl = SSLContext.getInstance("TLS")
 		usingInput(new File("service.domain/domain.jks")){ in => jks.load(in, "000000".toCharArray) }
-		ssl.init({
-			val km = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm)
-			km.init(jks, "000000".toCharArray)
-			km.getKeyManagers
-		}, {
-			val tm = TrustManagerFactory.getInstance("PKIX")
-			tm.init(jks)
-			tm.getTrustManagers
-		}, null)
-		ssl
+		jks.getSSLContext("000000".toCharArray)
 	}
 
 	def start():Unit = {
@@ -127,7 +117,9 @@ class Server(docroot:File, domain:Domain) {
 		override def messageReceived (ctx: ChannelHandlerContext, e: MessageEvent) = e.getMessage match {
 			case request:HttpRequest =>
 				ctx.getChannel.write( try {
-					service(request)
+					val r = service(request)
+					r.setHeader("Connection", "close")
+					r
 				} catch {
 					case ex:Throwable =>
 						httpErrorResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR)

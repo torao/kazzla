@@ -42,34 +42,17 @@ class Service(docroot:File, domain:Domain) extends com.kazzla.service.Domain {
 	def apply(request:HttpRequest):HttpResponse = try {
 		request.dump()
 
-		// Basic 認証情報を取得
-		val (user, pass) = Option(request.getHeader("Authorization")) match {
-			case Some(BasicAuth(credentials)) =>
-				new String(new BASE64Decoder().decodeBuffer(credentials)) match {
-					case UserPass(u, p) => (u, p)
-					case unknownCredentials =>
-						logger.debug(s"unsupported basic authorization credentials: $unknownCredentials")
-						return Unauthorized
-				}
-			case Some(unknownCredentials) =>
-				logger.debug(s"unsupported authorization credentials: $unknownCredentials")
-				return Unauthorized
-			case None =>
-				logger.debug(s"authorization not presents")
-				return Unauthorized
-		}
-
-		// 認証を実行
-		val account = domain.authenticate(user, pass) match {
-			case Some(a) => a
-			case None =>
-				logger.debug(s"authorization failure")
-				return Unauthorized
-		}
-
 		val _api_cert_nodeid = "/api/certs/([^/]*)".r
 		request.path match {
-			// TODO case Method.Get -> Root / "api" / "certs" / "domain" だと何故か一致しない
+			case "/api/regions" if request.getMethod == HttpMethod.GET  =>
+				val servers = "localhost:8089".getBytes("UTF-8")
+				val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
+				response.setContent(ChannelBuffers.copiedBuffer(servers))
+				response.setHeader("Content-Type", "text/plain")
+				response.setHeader("Content-Length", servers.length)
+				response.setHeader("Cache-Control", "no-cache")
+				response.setHeader("Connection", "close")
+				response
 			case "/api/certs/domain" if request.getMethod == HttpMethod.GET  =>
 				val cacert = domain.ca.rawCert
 				val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
@@ -81,15 +64,25 @@ class Service(docroot:File, domain:Domain) extends com.kazzla.service.Domain {
 			case "/api/certs/newdn" if request.getMethod == HttpMethod.GET  =>
 				// TODO 新規ノードID用 UUID の発行方法を検討
 				// TODO C, ST, O を　CA 証明書と合わせる
-				val c = domain.newCertificateDName().getBytes(UTF8)
-				val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
-				response.setContent(ChannelBuffers.copiedBuffer(c))
-				response.setHeader("Content-Type", s"text/plain; charset=$UTF8")
-				response.setHeader("Content-Length", c.length)
-				response.setHeader("Cache-Control", "no-cache")
-				response
+				auth(request.getHeader("Authorization")) match {
+					case Some(account) =>
+						val c = domain.newCertificateDName(account).getBytes(UTF8)
+						val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
+						response.setContent(ChannelBuffers.copiedBuffer(c))
+						response.setHeader("Content-Type", s"text/plain; charset=$UTF8")
+						response.setHeader("Content-Length", c.length)
+						response.setHeader("Cache-Control", "no-cache")
+						response
+					case None =>
+						Unauthorized
+				}
 			case _api_cert_nodeid(nodeid) if request.getMethod == HttpMethod.POST =>
-				issue(request, account, nodeid)
+				auth(request.getHeader("Authorization")) match {
+					case Some(account) =>
+						issue(request, account, nodeid)
+					case None =>
+						Unauthorized
+				}
 			case _ =>
 				web(request)
 		}
@@ -97,6 +90,36 @@ class Service(docroot:File, domain:Domain) extends com.kazzla.service.Domain {
 		case ex:Throwable =>
 			logger.error(s"unexpected server error", ex)
 			Server.httpErrorResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR)
+	}
+
+	// ==============================================================================================
+	// 認証処理の実行
+	// ==============================================================================================
+	/**
+	 */
+	private[this] def auth(authorization:String):Option[Account] = {
+		// Basic 認証情報を取得
+		Option(authorization) match {
+			case Some(BasicAuth(credentials)) =>
+				new String(new BASE64Decoder().decodeBuffer(credentials)) match {
+					case UserPass(u, p) =>
+						domain.authenticate(u, p) match {
+							case Some(a) => Some(a)
+							case None =>
+								logger.debug(s"authorization failure")
+								None
+						}
+					case unknownCredentials =>
+						logger.debug(s"unsupported basic authorization credentials: $unknownCredentials")
+						None
+				}
+			case Some(unknownCredentials) =>
+				logger.debug(s"unsupported authorization credentials: $unknownCredentials")
+				None
+			case None =>
+				logger.debug(s"authorization not presents")
+				None
+		}
 	}
 
 	// ==============================================================================================

@@ -218,7 +218,6 @@ object Shell extends ShellTools{
 			"-deststorepass", "000000",
 			"-destkeypass", "000000",
 			"-noprompt"))
-		jks.delete()
 	}
 
 }

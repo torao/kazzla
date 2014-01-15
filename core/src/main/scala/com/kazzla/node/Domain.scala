@@ -21,12 +21,6 @@ import java.util.concurrent.atomic.{AtomicReference, AtomicInteger}
  */
 class Domain(regionServices:Seq[URL]){
 
-	import Domain._
-
-	/**
-	 * 接続先のランダム選択のための
-	 */
-
 	/**
 	 * このインスタンスがキャッシュしている、ドメインに対するソケットアドレス。`pickup()` が呼び出されるごとに先頭
 	 * から順に利用されてゆき空になると一覧を再取得する。
@@ -49,7 +43,7 @@ class Domain(regionServices:Seq[URL]){
 				expected
 			}
 		}
-		if(addresses.compareAndSet(expected, addr.drop(1))){
+		if(!addresses.compareAndSet(expected, addr.drop(1))){
 			pickup()
 		} else {
 			addr.head

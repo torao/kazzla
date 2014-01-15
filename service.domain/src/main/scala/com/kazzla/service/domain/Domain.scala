@@ -13,7 +13,7 @@ import java.io._
 import java.net.URI
 import java.security.MessageDigest
 import java.security.cert.{CertificateFactory, X509Certificate}
-import java.sql.Connection
+import java.sql.{Timestamp, Connection}
 import java.util.{UUID, TimeZone, Date}
 import javax.sql.DataSource
 import org.slf4j.LoggerFactory
@@ -55,7 +55,7 @@ case class Domain(id:String, ca:CA, dataSource:DataSource) {
 							val hash2 = md.digest(bin).toHexString().toLowerCase
 							if(hash1 == hash2){
 								val tz = TimeZone.getTimeZone(r.getString("timezone"))
-								Account(this, r.getInt("id"), r.getString("language"), tz, r.getInt("role_id"))
+								Account(this, r.getInt("id"), r.getString("name"), r.getString("language"), tz, r.getInt("role_id"))
 							} else {
 								null
 							}
@@ -77,7 +77,7 @@ case class Domain(id:String, ca:CA, dataSource:DataSource) {
 	 * 指定されたノード証明書をアカウントに関連づけて保存します。
 	 */
 	def registerNodeCertificate(account:Account, cert:X509Certificate):Unit = {
-		getCommonName(cert.getSubjectX500Principal) match {
+		cert.getSubjectX500Principal.commonName match {
 			case Some(uuid) =>
 				val now = new java.sql.Timestamp(System.currentTimeMillis())
 				trx { c =>
@@ -97,9 +97,10 @@ case class Domain(id:String, ca:CA, dataSource:DataSource) {
 	 * @return セッション ID
 	 */
 	def openNodeSession(nodeId:UUID, sessionId:UUID, endpoints:Array[String]):Unit = trx { c =>
-		c.insertInto("node_sessions(session_id,node_id,endpoints,proxy) values(?,?,?)",
-			sessionId, nodeId, endpoints.mkString(","),
-			ManagementFactory.getRuntimeMXBean.getName)
+		val now = new Timestamp(System.currentTimeMillis())
+		c.insertInto("node_sessions(session_id,node_id,endpoints,proxy,created_at,updated_at) values(?,?,?,?,?,?)",
+			sessionId.toString, nodeId.toString, endpoints.mkString(","),
+			ManagementFactory.getRuntimeMXBean.getName, now, now)
 	}
 
 	// ==============================================================================================
@@ -130,7 +131,9 @@ case class Domain(id:String, ca:CA, dataSource:DataSource) {
 	 */
 	def newUUID():UUID = UUID.randomUUID()
 
-	def newCertificateDName():String = s"CN=${newUUID()}, OU=Node, O=Kazzla, ST=Tokyo, C=JP"
+	def newCertificateDName(account:Account):String = {
+		s"CN=${newUUID()}, OU=${account.name}, OU=Node, O=Kazzla, ST=Tokyo, C=JP"
+	}
 
 	def trx[T](f:(Connection)=>T):T = using(dataSource.getConnection){ c =>
 		Try {
@@ -201,7 +204,7 @@ object Domain {
 	}
 }
 
-case class Account(domain:Domain, id:Int, language:String, timezone:TimeZone, roleId:Int){
+case class Account(domain:Domain, id:Int, name:String, language:String, timezone:TimeZone, roleId:Int){
 	lazy val contacts:Seq[Account.Contact] = domain.trx{ c =>
 		c.select("select id,uri,confirmed_at from auth_contacts where account_id=?", id){ r =>
 			Account.Contact(r.getInt("id"), URI.create(r.getString("uri")), Option(r.getTimestamp("confirmed_at")))
