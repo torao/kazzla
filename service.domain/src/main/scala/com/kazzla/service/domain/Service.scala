@@ -5,15 +5,17 @@
 */
 package com.kazzla.service.domain
 
-import com.kazzla.asterisk.Session
+import com.kazzla.asterisk.{Pipe, Session}
 import com.kazzla.core.io._
+import io.netty.buffer.Unpooled
+import io.netty.handler.codec.http._
 import java.io.{FileInputStream, IOException, FileNotFoundException, File}
 import java.lang.String
-import org.jboss.netty.buffer.ChannelBuffers
-import org.jboss.netty.handler.codec.http._
 import org.slf4j.LoggerFactory
 import scala.Some
 import scala.collection.JavaConversions._
+import scala.concurrent.{Promise, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
 import sun.misc.BASE64Decoder
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -22,16 +24,22 @@ import sun.misc.BASE64Decoder
 /**
  * @author Takami Torao
  */
-class Service(docroot:File, domain:Domain) extends com.kazzla.service.Domain {
+class Service(docroot:File, domain:Domain)
+	extends com.kazzla.asterisk.Service with com.kazzla.service.Domain {
 
 	import Service._
 
-	def handshake():Unit = Session() match {
+	def handshake():Future[Unit] = (Session() match {
 		case Some(s) =>
 			domain.openNodeSession(s.nodeId, s.sessionId, Array(s.wire.peerName))
 			logger.debug("handshake()")
-		case None => None
-	}
+			Pipe() match {
+				case Some(p) =>
+				case None => None
+			}
+			Promise.successful(())
+		case None => Promise.successful(())
+	}).future
 
 	// ==============================================================================================
 	// リクエストの実行
@@ -39,45 +47,45 @@ class Service(docroot:File, domain:Domain) extends com.kazzla.service.Domain {
 	/**
 	 * 指定されたリクエストを実行します。
 	 */
-	def apply(request:HttpRequest):HttpResponse = try {
+	def http(request:HttpRequest):HttpResponse = try {
 		request.dump()
 
 		val _api_cert_nodeid = "/api/certs/([^/]*)".r
 		request.path match {
 			case "/api/regions" if request.getMethod == HttpMethod.GET  =>
 				val servers = "localhost:8089".getBytes("UTF-8")
-				val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
-				response.setContent(ChannelBuffers.copiedBuffer(servers))
-				response.setHeader("Content-Type", "text/plain")
-				response.setHeader("Content-Length", servers.length)
-				response.setHeader("Cache-Control", "no-cache")
-				response.setHeader("Connection", "close")
+				val content = Unpooled.copiedBuffer(servers)
+				val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, content)
+				response.headers().set("Content-Type", "text/plain")
+				response.headers().set("Content-Length", servers.length)
+				response.headers().set("Cache-Control", "no-cache")
+				response.headers().set("Connection", "close")
 				response
 			case "/api/certs/domain" if request.getMethod == HttpMethod.GET  =>
 				val cacert = domain.ca.rawCert
-				val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
-				response.setContent(ChannelBuffers.copiedBuffer(cacert))
-				response.setHeader("Content-Type", "application/x-x509-ca-cert")
-				response.setHeader("Content-Length", cacert.length)
-				response.setHeader("Cache-Control", "no-cache")
+				val content = Unpooled.copiedBuffer(cacert)
+				val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, content)
+				response.headers().set("Content-Type", "application/x-x509-ca-cert")
+				response.headers().set("Content-Length", cacert.length)
+				response.headers().set("Cache-Control", "no-cache")
 				response
 			case "/api/certs/newdn" if request.getMethod == HttpMethod.GET  =>
 				// TODO 新規ノードID用 UUID の発行方法を検討
 				// TODO C, ST, O を　CA 証明書と合わせる
-				auth(request.getHeader("Authorization")) match {
+				auth(request.headers().get("Authorization")) match {
 					case Some(account) =>
 						val c = domain.newCertificateDName(account).getBytes(UTF8)
-						val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
-						response.setContent(ChannelBuffers.copiedBuffer(c))
-						response.setHeader("Content-Type", s"text/plain; charset=$UTF8")
-						response.setHeader("Content-Length", c.length)
-						response.setHeader("Cache-Control", "no-cache")
+						val content = Unpooled.copiedBuffer(c)
+						val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, content)
+						response.headers().set("Content-Type", s"text/plain; charset=$UTF8")
+						response.headers().set("Content-Length", c.length)
+						response.headers().set("Cache-Control", "no-cache")
 						response
 					case None =>
 						Unauthorized
 				}
 			case _api_cert_nodeid(nodeid) if request.getMethod == HttpMethod.POST =>
-				auth(request.getHeader("Authorization")) match {
+				auth(request.headers().get("Authorization")) match {
 					case Some(account) =>
 						issue(request, account, nodeid)
 					case None =>
@@ -128,62 +136,66 @@ class Service(docroot:File, domain:Domain) extends com.kazzla.service.Domain {
 	/**
 	 * ノード証明書の発行を行います。
 	 */
-	private[this] def issue(request:HttpRequest, account:Account, nodeid:String):HttpResponse = {
+	private[this] def issue(r:HttpRequest, account:Account, nodeid:String):HttpResponse = r match {
+		case request:FullHttpRequest =>
 
-		// 受信データのサイズを取得
-		val length = Option(request.getHeader("Content-Length")) match {
-			case Some(slen) =>
-				try {
-					val len = slen.toLong
-					if(len < 0){
-						logger.debug(s"negative Content-Length request header: $slen")
-						return Server.httpErrorResponse(HttpResponseStatus.BAD_REQUEST)
-					} else if(len > MaxCSRFileSize){
-						logger.debug(f"too large csr file size: $len%,d / $MaxCSRFileSize%,d")
-						return Server.httpErrorResponse(HttpResponseStatus.REQUEST_ENTITY_TOO_LARGE)
+			// 受信データのサイズを取得
+			val length = Option(request.headers().get("Content-Length")) match {
+				case Some(slen) =>
+					try {
+						val len = slen.toLong
+						if(len < 0){
+							logger.debug(s"negative Content-Length request header: $slen")
+							return Server.httpErrorResponse(HttpResponseStatus.BAD_REQUEST)
+						} else if(len > MaxCSRFileSize){
+							logger.debug(f"too large csr file size: $len%,d / $MaxCSRFileSize%,d")
+							return Server.httpErrorResponse(HttpResponseStatus.REQUEST_ENTITY_TOO_LARGE)
+						}
+						len
+					} catch {
+						case ex:NumberFormatException =>
+							logger.debug(s"unexpected Content-Length request header: $slen")
+							return Server.httpErrorResponse(HttpResponseStatus.BAD_REQUEST)
 					}
-					len
-				} catch {
-					case ex:NumberFormatException =>
-						logger.debug(s"unexpected Content-Length request header: $slen")
-						return Server.httpErrorResponse(HttpResponseStatus.BAD_REQUEST)
-				}
-			case None =>
-				logger.debug("Content-Length request header was not present")
-				return Server.httpErrorResponse(HttpResponseStatus.LENGTH_REQUIRED)
-		}
+				case None =>
+					logger.debug("Content-Length request header was not present")
+					return Server.httpErrorResponse(HttpResponseStatus.LENGTH_REQUIRED)
+			}
 
-		// 送信された CSR ファイルを読み出して一時ファイルに保存
-		val csr = {
-				val csr = domain.createTempFileAndWrite("temp", ".csr"){ out =>
-					val buffer = request.getContent.array()
-					val offset = request.getContent.arrayOffset()
-					out.write(buffer, offset, length.toInt)
-				}
-				csr.deleteOnExit()
-				csr
-		}
+			// 送信された CSR ファイルを読み出して一時ファイルに保存
+			val csr = {
+					val csr = domain.createTempFileAndWrite("temp", ".csr"){ out =>
+						val buffer = request.content.array()
+						val offset = request.content.arrayOffset()
+						out.write(buffer, offset, length.toInt)
+					}
+					csr.deleteOnExit()
+					csr
+			}
 
-		// CSR に署名し新しいノード証明書を作成
-		val cert = domain.ca.issue(csr)
+			// CSR に署名し新しいノード証明書を作成
+			val cert = domain.ca.issue(csr)
 
-		// CSR ファイルを削除
-		csr.delete()
+			// CSR ファイルを削除
+			csr.delete()
 
-		// TODO 証明書の内容が正しいか確認 (nodeid, user)
-		// TODO 新規ノード証明書をアカウントに登録
+			// TODO 証明書の内容が正しいか確認 (nodeid, user)
+			// TODO 新規ノード証明書をアカウントに登録
 
-		// ノード証明書を登録
-		domain.registerNodeCertificate(account, cert)
+			// ノード証明書を登録
+			domain.registerNodeCertificate(account, cert)
 
-		// ノード証明書を送信
-		val binary = cert.getEncoded
-		val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
-		response.setContent(ChannelBuffers.copiedBuffer(binary))
-		response.setHeader("Content-Type", "application/x-x509-user-cert")
-		response.setHeader("Content-Length", binary.length)
-		response.setHeader("Cache-Control", "no-cache")
-		response
+			// ノード証明書を送信
+			val binary = cert.getEncoded
+			val content = Unpooled.copiedBuffer(binary)
+			val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, content)
+			response.headers().set("Content-Type", "application/x-x509-user-cert")
+			response.headers().set("Content-Length", binary.length)
+			response.headers().set("Cache-Control", "no-cache")
+			response
+		case _ =>
+			logger.error(s"message body is not contained: ${r.getClass.getSimpleName}")
+			BadRequest(r.getUri)
 	}
 
 	// ==============================================================================================
@@ -201,12 +213,12 @@ class Service(docroot:File, domain:Domain) extends com.kazzla.service.Domain {
 			// TODO ファイル内容のキャッシュ化
 			// TODO ファイルの非同期読み込み
 			// TODO Conditional GET (If-Modified-Since) の対応
-			val content = using(new FileInputStream(file)){ _.readFully() }
-			val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
-			response.setContent(ChannelBuffers.copiedBuffer(content))
-			response.setHeader("Content-Type", contentType(request.fileExtension))
-			response.setHeader("Content-Length", content.length)
-			response.setHeader("Cache-Control", "no-cache")
+			val c = using(new FileInputStream(file)){ _.readFully() }
+			val content = Unpooled.copiedBuffer(c)
+			val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, content)
+			response.headers().set("Content-Type", contentType(request.fileExtension))
+			response.headers().set("Content-Length", c.length)
+			response.headers().set("Cache-Control", "no-cache")
 			response
 		} catch {
 			case ex:FileNotFoundException =>
@@ -222,9 +234,13 @@ class Service(docroot:File, domain:Domain) extends com.kazzla.service.Domain {
 		Server.httpErrorResponse(HttpResponseStatus.NOT_FOUND, s"resource not found: $uri")
 	}
 
-	private[this] lazy val Unauthorized:HttpResponse = {
+	private[this] def BadRequest(uri:String):HttpResponse = {
+		Server.httpErrorResponse(HttpResponseStatus.BAD_REQUEST, s"bad request: $uri")
+	}
+
+	private[this] def Unauthorized:HttpResponse = {
 		val res = Server.httpErrorResponse(HttpResponseStatus.UNAUTHORIZED)
-		res.setHeader("WWW-Authentication", s"""Basic realm="${domain.id}""")
+		res.headers().set("WWW-Authentication", s"""Basic realm="${domain.id}""")
 		res
 	}
 
@@ -245,7 +261,7 @@ object Service {
 		def dump():Unit = {
 			if(logger.isTraceEnabled){
 				logger.trace(s"${r.getMethod} ${r.getUri} ${r.getProtocolVersion}")
-				r.getHeaders.foreach{ e => logger.trace(s"  ${e.getKey}: ${e.getValue}") }
+				r.headers().foreach{ e => logger.trace(s"  ${e.getKey}: ${e.getValue}") }
 			}
 		}
 		def path:String = Option(r.getUri) match {

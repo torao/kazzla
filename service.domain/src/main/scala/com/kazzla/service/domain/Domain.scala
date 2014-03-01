@@ -27,6 +27,7 @@ import scala.util.{Failure, Success, Try}
  * @author Takami Torao
  */
 case class Domain(id:String, ca:CA, dataSource:DataSource) {
+	import Domain._
 
 	// ============================================================================================
 	// 認証の実行
@@ -52,7 +53,7 @@ case class Domain(id:String, ca:CA, dataSource:DataSource) {
 							})
 							val salt = r.getString("salt")
 							val bin = (password + ":" + salt).getBytes("UTF-8")
-							val hash2 = md.digest(bin).toHexString().toLowerCase
+							val hash2 = md.digest(bin).toHexString.toLowerCase
 							if(hash1 == hash2){
 								val tz = TimeZone.getTimeZone(r.getString("timezone"))
 								Account(this, r.getInt("id"), r.getString("name"), r.getString("language"), tz, r.getInt("role_id"))
@@ -97,6 +98,8 @@ case class Domain(id:String, ca:CA, dataSource:DataSource) {
 	 * @return セッション ID
 	 */
 	def openNodeSession(nodeId:UUID, sessionId:UUID, endpoints:Array[String]):Unit = trx { c =>
+		// TODO 既に同じノード ID でセッションが存在している場合の仕様を決める
+		logger.debug(s"openNodeSession($nodeId,$sessionId,${endpoints.mkString(",")})")
 		val now = new Timestamp(System.currentTimeMillis())
 		c.insertInto("node_sessions(session_id,node_id,endpoints,proxy,created_at,updated_at) values(?,?,?,?,?,?)",
 			sessionId.toString, nodeId.toString, endpoints.mkString(","),
@@ -110,7 +113,8 @@ case class Domain(id:String, ca:CA, dataSource:DataSource) {
 	 * ノードのセッションを終了します。
 	 */
 	def closeNodeSession(sessionId:UUID):Unit = trx { c =>
-		c.deleteFrom("node_session where sessionId=?", sessionId)
+		logger.debug(s"closeNodeSession($sessionId)")
+		c.deleteFrom("node_sessions where session_id=?", sessionId)
 	}
 
 	def createTempFile(prefix:String, suffix:String):File = {

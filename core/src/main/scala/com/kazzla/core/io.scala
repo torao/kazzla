@@ -10,6 +10,7 @@ import org.slf4j._
 import java.net.{InetSocketAddress, SocketAddress}
 import java.security.{DigestInputStream, MessageDigest}
 import scala.annotation.tailrec
+import java.util.UUID
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // io
@@ -118,8 +119,18 @@ package object io {
 
 	}
 
+	/**
+	 *
+	 */
+	implicit class RichDataOutputStream(out:DataOutputStream){
+		def writeUUID(uuid:UUID):Unit = {
+			out.writeLong(uuid.getMostSignificantBits)
+			out.writeLong(uuid.getLeastSignificantBits)
+		}
+	}
+
 	implicit class RByteArray(array:Array[Byte]){
-		def toHexString():String = {
+		def toHexString:String = {
 			array.map{ b => f"${b & 0xFF}%02X" }.mkString
 		}
 	}

@@ -9,17 +9,16 @@ import com.kazzla.asterisk.Node
 import com.kazzla.asterisk.codec.MsgPackCodec
 import com.kazzla.asterisk.netty.Netty
 import com.kazzla.core.cert._
-import com.kazzla.core.tools.ShellTools
-import com.kazzla.node.Domain
-import java.io.File
-import java.net.{URI, HttpURLConnection, URL}
-import org.slf4j.LoggerFactory
-import java.security.cert.X509Certificate
-import javax.net.ssl.{TrustManagerFactory, KeyManagerFactory, KeyManager, SSLContext}
-import java.security.KeyStore
 import com.kazzla.core.io._
-import scala.util.{Success, Failure}
-import scala.concurrent.ExecutionContext.Implicits.global
+import com.kazzla.node.Domain
+import java.io.{IOException, File}
+import java.net.URL
+import java.security.KeyStore
+import javax.net.ssl.SSLContext
+import org.slf4j.LoggerFactory
+import scala.concurrent.duration.Duration
+import scala.concurrent.Await
+import scala.annotation.tailrec
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Agent
@@ -28,7 +27,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
  * @author Takami Torao
  */
 class Agent(dataDir:File, regionServices:Seq[URL]) {
+
 	import Agent._
+
 	var node:Option[Node] = None
 
 	val domain = new Domain(regionServices)
@@ -48,19 +49,7 @@ class Agent(dataDir:File, regionServices:Seq[URL]) {
 				.serve(new StorageImpl(dataDir))
 				.build())
 		logger.info(s"activate kazzla node: [${regionServices.mkString(",")}]")
-		node.foreach{ n =>
-			val addr = domain.pickup()
-			logger.debug(s"connecting to: $addr")
-			n.connect(addr, Some(ssl)).onComplete{
-				case Success(session) =>
-					logger.info(s"connection success to server: ${session.wire.peerName}")
-					val remote = session.getRemoteInterface(classOf[com.kazzla.service.Domain])
-					remote.handshake()
-				case Failure(ex) =>
-					logger.error("fail to connect server", ex)
-					stop()
-			}
-		}
+		connect()
 	}
 
 	def stop():Unit = {
@@ -71,6 +60,29 @@ class Agent(dataDir:File, regionServices:Seq[URL]) {
 		val ks = KeyStore.getInstance("JKS")
 		usingInput(new File(dataDir, "node.jks")){ in => ks.load(in, "000000".toCharArray) }
 		ks.getSSLContext("000000".toCharArray)
+	}
+
+	@tailrec
+	private[this] def connect():Unit = {
+		node match {
+			case Some(n) =>
+				val addr = domain.pickup()
+				logger.debug(s"connecting to: $addr")
+				val future = n.connect(addr, Some(ssl))
+				try {
+					val session = Await.result(future, Duration.Inf)
+					logger.info(s"connection success to server: ${session.wire.peerName}")
+					val remote = session.bind(classOf[com.kazzla.service.Domain])
+					remote.handshake()
+					return
+				} catch {
+					case ex:Exception =>
+						logger.error("fail to connect server", ex)
+				}
+			case None =>
+				throw new IOException("node is not started")
+		}
+		connect()
 	}
 
 }

@@ -10,20 +10,22 @@ import com.kazzla.asterisk.codec.MsgPackCodec
 import com.kazzla.asterisk.netty.Netty
 import com.kazzla.core.cert._
 import com.kazzla.core.io._
+import io.netty.bootstrap.ServerBootstrap
+import io.netty.buffer.Unpooled
+import io.netty.channel._
+import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.socket.SocketChannel
+import io.netty.channel.socket.nio.NioServerSocketChannel
+import io.netty.handler.codec.http._
+import io.netty.handler.ssl.SslHandler
 import java.io._
 import java.net.InetSocketAddress
 import java.security.KeyStore
 import java.sql.{DriverManager, Connection}
 import java.util.UUID
-import java.util.concurrent.{Executors, LinkedBlockingQueue, TimeUnit, ThreadPoolExecutor}
+import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import javax.sql.DataSource
-import org.jboss.netty.bootstrap.ServerBootstrap
-import org.jboss.netty.buffer.ChannelBuffers
-import org.jboss.netty.channel._
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory
-import org.jboss.netty.handler.codec.http._
-import org.jboss.netty.handler.ssl.SslHandler
 import org.slf4j.LoggerFactory
 import scala.Some
 import scala.util.Success
@@ -39,13 +41,12 @@ class Server(docroot:File, domain:Domain) {
 	import Server._
 	import scala.concurrent.ExecutionContext.Implicits.global
 
+	private[this] val port = 8088
+
 	private[this] val useHttps = false
 	private[this] val service = new Service(docroot, domain)
-	private[this] var httpServer:Option[Channel] = None
 	private[this] var node:Option[Node] = None
-
-	private[this] val threads
-		= new ThreadPoolExecutor(10, 10, 60, TimeUnit.SECONDS, new LinkedBlockingQueue[Runnable]())
+	private[this] var eventLoop:Option[EventLoopGroup] = None
 
 	private[this] val sslContext = {
 		val jks = KeyStore.getInstance("JKS")
@@ -54,40 +55,43 @@ class Server(docroot:File, domain:Domain) {
 	}
 
 	def start():Unit = {
-
-		val cf = new NioServerSocketChannelFactory(
-			Executors.newCachedThreadPool(),
-			Executors.newCachedThreadPool()
-		)
-
-		val bootstrap = new ServerBootstrap(cf)
-		bootstrap.setPipelineFactory(new ChannelPipelineFactory {
-			def getPipeline: ChannelPipeline = {
-				val pipeline = Channels.pipeline()
-				if(useHttps){
-					val engine = sslContext.createSSLEngine()
-					engine.setUseClientMode(false)
-					pipeline.addLast("ssl", new SslHandler(engine))
+		assert(eventLoop.isEmpty)
+		eventLoop = Some(new NioEventLoopGroup())
+		val bootstrap = new ServerBootstrap()
+		bootstrap
+			.group(eventLoop.get)
+			.localAddress(new InetSocketAddress(port))
+			.channel(classOf[NioServerSocketChannel])
+			.option(ChannelOption.SO_BACKLOG, java.lang.Integer.valueOf(100))
+			.childOption(ChannelOption.TCP_NODELAY, java.lang.Boolean.TRUE)
+			.childHandler(new ChannelInitializer[SocketChannel](){
+				def initChannel(ch:SocketChannel) = {
+					val pipeline = ch.pipeline()
+					if(useHttps){
+						val engine = sslContext.createSSLEngine()
+						engine.setUseClientMode(false)
+						pipeline.addLast("ssl", new SslHandler(engine))
+					}
+					pipeline.addLast("http", new HttpServerCodec())
+					pipeline.addLast("aggregator", new HttpObjectAggregator(512 * 1024))
+					pipeline.addLast("deflator", new HttpContentCompressor())
+					pipeline.addLast("handler", new HttpRequestHandler())
 				}
-				pipeline.addLast("decoder", new HttpRequestDecoder())
-				pipeline.addLast("encoder", new HttpResponseEncoder())
-				pipeline.addLast("deflator", new HttpContentCompressor())
-				pipeline.addLast("handler", new HttpRequestHandler())
-				pipeline
-			}
-		})
+			})
 
-		httpServer = Some(bootstrap.bind(new InetSocketAddress(8088)))
-		logger.info(s"http server start on: ${8088}")
+		bootstrap.bind().sync()
+
+		logger.info(s"http server start on: $port")
 
 		node = Some(Node("domain")
 			.bridge(Netty)
 			.codec(MsgPackCodec)
-			.runOn(threads)
 			.serve(service)
 			.build())
 		node.foreach{
 			_.listen(new InetSocketAddress("localhost", 8089), Some(sslContext)){ session =>
+				val storage = new StorageService(domain)
+				session.setAttribute("storage", storage)
 				session.onClosed ++ { s =>
 					Option(s.sslSession.getValue("sessionId")) match {
 						case Some(sessionId:UUID) => domain.closeNodeSession(sessionId)
@@ -97,6 +101,7 @@ class Server(docroot:File, domain:Domain) {
 				session.wire.tls.onComplete {
 					case Success(Some(sslSession)) =>
 						sslSession.putValue("sessionId", domain.newUUID())
+						storage.startup(session)
 					case _ => session.close()
 				}
 			}
@@ -105,27 +110,22 @@ class Server(docroot:File, domain:Domain) {
 	}
 
 	def stop():Unit = {
-		httpServer.foreach{
-			_.close().awaitUninterruptibly(10 * 1000)
-		}
-		httpServer = None
+		eventLoop.foreach{ _.shutdownGracefully(0, 0, TimeUnit.MILLISECONDS) }
+		eventLoop = None
 		node.foreach{ _.shutdown() }
 		node = None
 	}
 
-	private class HttpRequestHandler extends SimpleChannelUpstreamHandler {
-		override def messageReceived (ctx: ChannelHandlerContext, e: MessageEvent) = e.getMessage match {
-			case request:HttpRequest =>
-				ctx.getChannel.write( try {
-					val r = service(request)
-					r.setHeader("Connection", "close")
-					r
-				} catch {
-					case ex:Throwable =>
-						httpErrorResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR)
-				})
-			case _ =>
-				super.messageReceived(ctx, e)
+	private class HttpRequestHandler extends SimpleChannelInboundHandler[HttpRequest] {
+		protected def channelRead0(ctx:ChannelHandlerContext, request:HttpRequest) = try {
+			val response = service.http(request)
+			response.headers().set("Connection", "close")
+			ctx.channel().write(response)
+			ctx.channel().flush()
+			ctx.channel().close()
+		} catch {
+			case ex:Throwable =>
+				httpErrorResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR)
 		}
 	}
 
@@ -161,16 +161,16 @@ object Server {
 		// TODO JMX で終了が呼び出されるまで待機
 	}
 
-	def httpErrorResponse(status:HttpResponseStatus):HttpResponse = {
-		httpErrorResponse(status, status.getReasonPhrase)
+	def httpErrorResponse(status:HttpResponseStatus):FullHttpResponse = {
+		httpErrorResponse(status, status.reasonPhrase)
 	}
 
-	def httpErrorResponse(status:HttpResponseStatus, message:String):HttpResponse = {
-		val res = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status)
-		res.setHeader("Cache-Control", "no-cache")
-		res.setHeader("Connection", "close")
-		res.setHeader("Content-Type", "text/plain; charset=UTF-8")
-		res.setContent(ChannelBuffers.copiedBuffer(s"${status.getCode} ${status.getReasonPhrase}".getBytes("UTF-8")))
+	def httpErrorResponse(status:HttpResponseStatus, message:String):FullHttpResponse = {
+		val buf = Unpooled.copiedBuffer(s"${status.code()} ${status.reasonPhrase()}".getBytes("UTF-8"))
+		val res = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, buf)
+		res.headers().set("Cache-Control", "no-cache")
+		res.headers().set("Connection", "close")
+		res.headers().set("Content-Type", "text/plain; charset=UTF-8")
 		res
 	}
 

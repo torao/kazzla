@@ -1,4 +1,4 @@
-<div class="hero-unit">
+<div class="jumbotron">
   <h1>Kazzla</h1>
   <p>
   Personal plug-in cloud platform to use your diskspace anytime, anywhere.
@@ -7,17 +7,23 @@
 </div>
 
 <div class="row">
-  <div class="span7">
+  <div class="col-md-7">
     <h2>Welcome Kazzla</h2>
     <p>It's free and always will be.</p>
   </div>
 
-  <div class="span3">
-    <%= form_tag("/auth/signin", :method => :post) do %>
+  <div class="col-md-3">
+    <%= form_tag("/auth/signin", :method => :post, :role => :form) do %>
       <fieldset>
         <legend>Sign in</legend>
-        <%= text_field_tag(:account, '', :placeholder => 'Kazzla ID or Email') %>
-        <%= password_field_tag(:password, '', :placeholder => 'Password') %>
+				<div class="form-group">
+					<label class="sr-only" for="account">ID</label>
+					<%= text_field_tag(:account, '', :placeholder => 'Kazzla ID or Email', :class => 'form-control') %>
+				</div>
+				<div class="form-group">
+					<label class="sr-only" for="password">Password</label>
+					<%= password_field_tag(:password, '', :placeholder => 'Password', :class => 'form-control') %>
+				</div>
         <div>
           <%= submit_tag 'Sign in', :class => 'btn btn-primary' %>
         </div>
@@ -31,7 +37,7 @@
     <% end %>
   </div>
 
-  <div class="span2">
+  <div class="col-md-2">
     <fieldset>
       <legend>or with Social</legend>
       <div class="form-action">

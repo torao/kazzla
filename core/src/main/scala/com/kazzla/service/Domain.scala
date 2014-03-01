@@ -6,6 +6,7 @@
 package com.kazzla.service
 
 import com.kazzla.asterisk.Export
+import scala.concurrent.Future
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Domain
@@ -22,6 +23,6 @@ trait Domain {
 	 * サーバと接続した直後に呼び出されます。
 	 */
 	@Export(10)
-	def handshake():Unit
+	def handshake():Future[Unit]
 
 }

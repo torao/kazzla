@@ -5,7 +5,7 @@
 */
 package com.kazzla.node.storage
 
-import com.kazzla.asterisk.Pipe
+import com.kazzla.asterisk.{Service, Pipe}
 import com.kazzla.core.io._
 import com.kazzla.node.Storage
 import java.io._
@@ -15,6 +15,8 @@ import java.nio.file.StandardOpenOption._
 import java.util.UUID
 import scala.Some
 import org.slf4j.LoggerFactory
+import scala.concurrent.{Promise, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // StorageNodeImpl
@@ -22,23 +24,24 @@ import org.slf4j.LoggerFactory
 /**
  * @author Takami Torao
  */
-class StorageImpl(dir:File) extends Storage {
+class StorageImpl(dir:File) extends Service with Storage {
 
 	import StorageImpl._
 
 	// ==============================================================================================
-	// 実体ファイルの参照
+	// UUID の参照
 	// ==============================================================================================
 	/**
-	 * 指定された UUID のブロックに対するローカルファイルを参照します。
-	 * @return ブロックファイル
+	 * このストレージが管理しているブロックの全 UUID をパイプストリームに送出します。
 	 */
-	def lookup():Unit = Pipe() match {
-		case Some(pipe) =>
+	def lookup():Future[Unit] = {
+		Pipe().foreach{ pipe =>
+			logger.debug("lookup()")
 			val out = new DataOutputStream(pipe.out)
 			lookup(out, dir)
 			out.flush()
-		case None => ???
+		}
+		Promise.successful(()).future
 	}
 
 	// ==============================================================================================
@@ -48,19 +51,18 @@ class StorageImpl(dir:File) extends Storage {
 	 * 指定された UUID のブロックに対するローカルファイルを参照します。
 	 * @return ブロックファイル
 	 */
-	private[this] def lookup(out:DataOutputStream, dir:File):Unit = {
+	private[this] def lookup(out:DataOutputStream, dir:File):Future[Unit] = {
 		dir.listFiles().foreach{ file =>
 			if(file.isFile){
 				nameToUUID(file.getName) match {
-					case Some(uuid) =>
-						out.writeLong(uuid.getMostSignificantBits)
-						out.writeLong(uuid.getLeastSignificantBits)
+					case Some(uuid) => out.writeUUID(uuid)
 					case None => None
 				}
 			} else if(file.isDirectory){
 				lookup(out, file)
 			}
 		}
+		Promise.successful(()).future
 	}
 
 	// ==============================================================================================
@@ -70,11 +72,12 @@ class StorageImpl(dir:File) extends Storage {
 	 * 指定されたブロックのチェックサムを算出します。
 	 * @param blockId ブロック ID
 	 */
-	def checksum(blockId:UUID, challenge:Array[Byte]):Array[Byte] = {
+	def checksum(blockId:UUID, algorithm:String, challenge:Array[Byte]):Future[Array[Byte]] = {
+		logger.debug(s"checksum($blockId,$algorithm,${challenge.toHexString}})")
 		val file = uuidToFile(dir, blockId)
 		using(new FileInputStream(file)){ fis =>
 			val is1 = new SequenceInputStream(new ByteArrayInputStream(challenge), fis)
-			is1.digest(Storage.ChecksumAlgorithm)
+			Promise.successful(is1.digest(algorithm)).future
 		}
 	}
 
@@ -86,7 +89,8 @@ class StorageImpl(dir:File) extends Storage {
 	 * @param blockId ブロック ID
 	 * @param size ブロックサイズ
 	 */
-	def create(blockId:UUID, size:Long):Unit = lockDirectory(blockId){
+	def create(blockId:UUID, size:Long):Future[Unit] = lockDirectory(blockId){
+		logger.debug(s"create($blockId,$size)")
 		val file = uuidToFile(dir, blockId)
 		using(FileChannel.open(file.toPath, CREATE, WRITE)){ f =>
 			using(f.lock()){ _ =>
@@ -101,6 +105,7 @@ class StorageImpl(dir:File) extends Storage {
 			}
 		}
 		logger.debug(s"create new block: $blockId")
+		Promise.successful(()).future
 	}
 
 	// ==============================================================================================
@@ -110,8 +115,9 @@ class StorageImpl(dir:File) extends Storage {
 	 * 指定されたブロックの領域を読み込みます。
 	 * @param blockId ブロック ID
 	 */
-	def read(blockId:UUID, offset:Long, length:Int):Unit = Pipe() match {
+	def read(blockId:UUID, offset:Long, length:Int):Future[Unit] = Pipe() match {
 		case Some(pipe) =>
+			logger.debug(s"read($blockId,$offset,$length)")
 			using(new FileInputStream(uuidToFile(dir, blockId))){ in =>
 				val fc = in.getChannel
 				using(fc.lock(offset, length, true)){ _ =>
@@ -120,6 +126,7 @@ class StorageImpl(dir:File) extends Storage {
 					copy(in, pipe.out, buffer, length)
 				}
 			}
+			Promise.successful(()).future
 		case None => ???
 	}
 
@@ -130,8 +137,9 @@ class StorageImpl(dir:File) extends Storage {
 	 * 指定されたブロックの領域を書き込みます。
 	 * @param blockId ブロック ID
 	 */
-	def update(blockId:UUID, offset:Long, length:Int):Unit = Pipe() match {
+	def update(blockId:UUID, offset:Long, length:Int):Future[Unit] = Pipe() match {
 		case Some(pipe) =>
+			logger.debug(s"update($blockId,$offset,$length)")
 			using(new RandomAccessFile(uuidToFile(dir, blockId), "rw")){ f =>
 				val fc = f.getChannel
 				using(fc.lock(offset, length, false)){ _ =>
@@ -140,6 +148,7 @@ class StorageImpl(dir:File) extends Storage {
 					copy(pipe.in, f, buffer, length)
 				}
 			}
+			Promise.successful(()).future
 		case None => ???
 	}
 
@@ -150,7 +159,8 @@ class StorageImpl(dir:File) extends Storage {
 	 * 指定されたブロックを削除します。
 	 * @param blockId ブロック ID
 	 */
-	def delete(blockId:UUID):Unit = lockDirectory(blockId){
+	def delete(blockId:UUID):Future[Unit] = lockDirectory(blockId){
+		logger.debug(s"delete($blockId)")
 		val file = uuidToFile(dir, blockId)
 		using(FileChannel.open(file.toPath, WRITE)){ fc =>
 			using(fc.lock(0, Long.MaxValue, false)){ _ =>
@@ -159,6 +169,7 @@ class StorageImpl(dir:File) extends Storage {
 		}
 		file.delete()
 		logger.debug(s"create new block: $blockId")
+		Promise.successful(()).future
 	}
 
 	// ==============================================================================================
@@ -169,6 +180,9 @@ class StorageImpl(dir:File) extends Storage {
 	 */
 	private[this] def lockDirectory[T](blockId:UUID)(f: =>T):T = {
 		val lock = uuidToCDFile(dir, blockId)
+		if(! lock.getParentFile.isDirectory){
+			lock.getParentFile.mkdirs()
+		}
 		using(FileChannel.open(lock.toPath, CREATE, READ, WRITE)){ fc =>
 			fc.lock(0, Long.MaxValue, false)
 			f
@@ -207,10 +221,7 @@ object StorageImpl {
 	 * 指定された UUID に対するファイルを参照します。
 	 */
 	def uuidToFile(dir:File, uuid:UUID):File = {
-		val h = (uuid.getMostSignificantBits >>> 24) & 0xFF
-		val l = (uuid.getMostSignificantBits >>> 16) & 0xFF
-		val sub = f"$h%02x${File.separator}%s$l%02x${File.separator}%s$uuid%s"
-		new File(dir, sub)
+		new File(uuidDirectory(dir, uuid), uuid.toString)
 	}
 
 	// ==============================================================================================
@@ -220,10 +231,20 @@ object StorageImpl {
 	 * 指定された UUID に対するファイルを参照します。
 	 */
 	def uuidToCDFile(dir:File, uuid:UUID):File = {
-		val h = (uuid.getMostSignificantBits >>> 24) & 0xFF
-		val l = (uuid.getMostSignificantBits >>> 16) & 0xFF
-		val sub = f"$h%02x${File.separator}%s$l%02x${File.separator}%s.lock"
-		new File(dir, sub)
+		new File(uuidDirectory(dir, uuid), ".lock")
+	}
+
+	// ==============================================================================================
+	// ディレクトリの参照
+	// ==============================================================================================
+	/**
+	 * 指定された UUID のブロックを格納するディレクトリを参照します。
+	 */
+	private[this] def uuidDirectory(dir:File, uuid:UUID):File = {
+		// UUID の MostSigBits は下位バイトに文字列表記上先頭のバイトが配置されている (リトルエンディアン)
+		val h = (uuid.getMostSignificantBits >>> 56) & 0xFF
+		val l = (uuid.getMostSignificantBits >>> 48) & 0xFF
+		new File(dir, f"$h%02x${File.separator}%s$l%02x")
 	}
 
 }

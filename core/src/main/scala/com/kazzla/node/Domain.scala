@@ -7,11 +7,11 @@ package com.kazzla.node
 
 import com.kazzla.core.io._
 import java.net.{InetSocketAddress, SocketAddress, URL}
+import java.util.concurrent.atomic.AtomicReference
 import org.slf4j.LoggerFactory
 import scala.annotation.tailrec
 import scala.io.Source
 import scala.util.Random
-import java.util.concurrent.atomic.{AtomicReference, AtomicInteger}
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Domain

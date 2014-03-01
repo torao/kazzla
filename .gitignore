@@ -14,5 +14,4 @@ project/boot/
 workspace.xml
 *.tmp
 workbench.xmi
-service.domain/ca/demoCA/newcerts/
 

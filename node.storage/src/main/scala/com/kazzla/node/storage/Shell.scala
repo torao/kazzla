@@ -24,6 +24,8 @@ import sun.security.tools.KeyTool
  */
 object Shell extends ShellTools{
 
+	private[this] val out = new PrintWriter(System.out)
+
 	// ============================================================================================
 	// データディレクトリの初期化
 	// ============================================================================================
@@ -57,7 +59,7 @@ object Shell extends ShellTools{
 		createCSR(ks, csr)
 		createCerts(uri, csr, certs, userid, password, nodeid)
 		importCerts(ks, certs)
-		g(ks, new File(dir, "node.p12"))
+		jksToPkcs12(ks, new File(dir, "node.p12"))
 	}
 
 	// ============================================================================================
@@ -72,7 +74,7 @@ object Shell extends ShellTools{
 		// 新しいノード証明書の DName を参照
 		val url = uri.resolve(s"certs/newdn").toURL
 		val dname = new String(url.openStream(userid, password).readFully(), "UTF-8")
-		System.out.println(s"DName: $dname")
+		out.println(s"DName: $dname")
 
 		// Common Name を参照
 		val dn = """(?i)cn\s*=\s*([^,]*).*""".r
@@ -80,7 +82,7 @@ object Shell extends ShellTools{
 			case dn(cn) => cn
 			case _ => throw new IOException(s"CN was not contains in DName: $dname")
 		}
-		System.out.println(s"Node ID: $nodeid")
+		out.println(s"Node ID: $nodeid")
 
 		// 新しい鍵ペアを含むキーストアを作成
 		jks.delete()
@@ -101,7 +103,7 @@ object Shell extends ShellTools{
 		ks.getEntry("node", new KeyStore.PasswordProtection("000000".toCharArray)) match {
 			case entry:KeyStore.PrivateKeyEntry =>
 				val cert = entry.getCertificate
-				System.out.println(s"Create Public Key: ${debug.fingerprint(cert.getPublicKey)}")
+				out.println(s"Create Public Key: ${debug.fingerprint(cert.getPublicKey)}")
 		}
 
 		// ドメイン証明書 (CA 証明書) のダウンロード
@@ -113,7 +115,7 @@ object Shell extends ShellTools{
 		val cf = CertificateFactory.getInstance("X.509")
 		using(new FileInputStream(ca)){ in => cf.generateCertificates(in) }.foreach{
 			case c:X509Certificate =>
-				System.out.println(s"CA Certificate: ${c.getSubjectX500Principal.getName}")
+				out.println(s"CA Certificate: ${c.getSubjectX500Principal.getName}")
 		}
 
 		// CA 証明書のインポート
@@ -175,7 +177,7 @@ object Shell extends ShellTools{
 		val cf = CertificateFactory.getInstance("X.509")
 		using(new FileInputStream(certs)){ in =>
 			cf.generateCertificates(in).foreach{ cert =>
-				System.out.println(s"Public Key: ${debug.fingerprint(cert.getPublicKey)}")
+				out.println(s"Public Key: ${debug.fingerprint(cert.getPublicKey)}")
 			}
 		}
 		csr.delete()
@@ -205,7 +207,7 @@ object Shell extends ShellTools{
 	/**
 	 * JKS 形式のキーストアを PKCS#12 に変換します。
 	 */
-	def g(jks:File, p12:File):Unit = {
+	def jksToPkcs12(jks:File, p12:File):Unit = {
 		KeyTool.main(Array[String](
 			"-importkeystore",
 			"-srckeystore", jks.getAbsolutePath,
