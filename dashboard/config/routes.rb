@@ -3,6 +3,7 @@ KazzlaCom::Application.routes.draw do
   put 'settings/account'
   get "settings/security"
   get "settings/password"
+  post "settings/password"
   get "settings/devices"
   get "settings/notifications"
   get "settings/profile"
