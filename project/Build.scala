@@ -16,15 +16,20 @@ import Keys._
 object KazzlaBuild extends Build {
 
 	override lazy val settings = super.settings ++ Seq(
-		version := "0.1",
+		organization := "com.kazzla",
+		version := "0.1-SNAPSHOT",
 		scalaVersion := "2.10.3",
-		resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",	// MessagePack
+		resolvers ++= Seq(
+			"Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"	// MessagePack
+		),
 		scalacOptions ++= Seq("-encoding", "UTF-8", "-unchecked", "-deprecation"),
 		javacOptions ++= Seq("-encoding", "UTF-8"),
 		libraryDependencies ++= Seq(
-			"org.slf4j" % "slf4j-log4j12" % "1.7.6",
-			"org.msgpack" % "msgpack" % "0.6.10",
-			"io.netty" % "netty-all" % "4.0.17.Final"
+			"org.slf4j"   % "slf4j-log4j12" % "1.7.6",
+			"org.msgpack" % "msgpack"       % "0.6.10",
+			"io.netty"    % "netty-all"     % "4.0.17.Final",
+			"com.kazzla"  %% "asterisk"     % "0.1-SNAPSHOT",
+			"org.specs2"  %% "specs2"       % "2.3.10"       % "test"
 		),
 		retrieveManaged := true
 	)
@@ -33,17 +38,14 @@ object KazzlaBuild extends Build {
 		.aggregate(share, node, service)
 
 	lazy val share = project.in(file("share")).settings(
-		name := "kazzla-share",
-		unmanagedBase := baseDirectory.value / "../lib"
+		name := "kazzla-share"
 	)
 
 	lazy val service = project.in(file("service")).settings(
-		name := "kazzla-service",
-		unmanagedBase := baseDirectory.value / "../lib"
+		name := "kazzla-service"
 	).dependsOn(share)
 
 	lazy val node = project.in(file("node")).settings(
-		name := "kazzla-node",
-		unmanagedBase := baseDirectory.value / "../lib"
+		name := "kazzla-node"
 	).dependsOn(share)
 }
