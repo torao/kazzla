@@ -52,7 +52,7 @@ class Server(docroot:File, domain:Domain) {
 	private[this] val pinger = new TimerTask {
 		override def run(): Unit = node.foreach { n =>
 			n.sessions.foreach{ session =>
-				val remote = session.bind(classOf[com.kazzla.node.Storage])
+				val remote = session.bind(classOf[com.kazzla.node.RegionNode])
 				Try(remote.ping())
 			}
 		}

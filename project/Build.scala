@@ -35,7 +35,7 @@ object KazzlaBuild extends Build {
 	)
 
 	lazy val root = project.in(file("."))
-		.aggregate(share, node, service)
+		.aggregate(share, node, service, client)
 
 	lazy val share = project.in(file("share")).settings(
 		name := "kazzla-share"
@@ -47,5 +47,9 @@ object KazzlaBuild extends Build {
 
 	lazy val node = project.in(file("node")).settings(
 		name := "kazzla-node"
+	).dependsOn(share)
+
+	lazy val client = project.in(file("client")).settings(
+		name := "kazzla-client"
 	).dependsOn(share)
 }

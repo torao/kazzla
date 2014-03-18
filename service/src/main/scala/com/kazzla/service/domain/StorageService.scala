@@ -6,7 +6,7 @@
 package com.kazzla.service.domain
 
 import com.kazzla.asterisk._
-import com.kazzla.node.Storage
+import com.kazzla.node.RegionNode
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -19,7 +19,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class StorageService(domain:Domain) extends com.kazzla.asterisk.Service {
 
 	def startup(session:Session):Unit = {
-		val storage = session.bind(classOf[Storage])
+		val storage = session.bind(classOf[RegionNode])
 		storage.create(UUID.randomUUID(), 1024 * 1024 * 1024)
 	}
 

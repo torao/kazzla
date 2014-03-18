@@ -7,7 +7,7 @@ package com.kazzla.node.storage
 
 import com.kazzla.asterisk.{Service, Pipe}
 import com.kazzla.core.io._
-import com.kazzla.node.Storage
+import com.kazzla.node.RegionNode
 import java.io._
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
@@ -24,7 +24,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 /**
  * @author Takami Torao
  */
-class StorageImpl(dir:File) extends Service with Storage {
+class StorageImpl(dir:File) extends Service with RegionNode {
 
 	import StorageImpl._
 
