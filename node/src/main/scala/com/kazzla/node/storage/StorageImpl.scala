@@ -5,18 +5,21 @@
 */
 package com.kazzla.node.storage
 
+import com.kazzla.EC
 import com.kazzla.asterisk.{Service, Pipe}
 import com.kazzla.core.io._
-import com.kazzla.node.RegionNode
+import com.kazzla.node.{StorageNode, RegionNode}
+import com.kazzla.service.Fragment
 import java.io._
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
+import java.nio.file.StandardOpenOption
 import java.nio.file.StandardOpenOption._
 import java.util.UUID
-import scala.Some
 import org.slf4j.LoggerFactory
-import scala.concurrent.{Promise, Future}
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.Some
+import scala.concurrent.{ExecutionContext, Promise, Future}
+import scala.util.{Failure, Success}
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // StorageNodeImpl
@@ -24,9 +27,64 @@ import scala.concurrent.ExecutionContext.Implicits.global
 /**
  * @author Takami Torao
  */
-class StorageImpl(dir:File) extends Service with RegionNode {
+class StorageImpl(dir:File)(implicit ctx:ExecutionContext) extends Service with RegionNode with StorageNode {
 
 	import StorageImpl._
+
+	// ==============================================================================================
+	// ファイルフラグメントの参照
+	// ==============================================================================================
+	/**
+	 * 指定されたフラグメントのデータをパイプストリームに送信します。
+	 * @see [[com.kazzla.service.StorageService.location()]]
+	 */
+	def read(fragment:Fragment):Future[Unit] = withPipe { pipe =>
+		// TODO 読み込み権限確認
+		concurrent.future {
+			val block = uuidToFile(dir, fragment.blockId).toPath
+			using(FileChannel.open(block, StandardOpenOption.READ)){ fc =>
+				fc.position(fragment.offset)
+				var length = fragment.length
+				val buffer = ByteBuffer.allocate(math.min(ReadWriteBufferSize, fragment.length))
+				while(length > 0){
+					buffer.clear()
+					buffer.limit(math.min(length, buffer.capacity()))
+					if(fc.read(buffer) < buffer.limit()){
+						throw EC.BrokenBlock(s"premature end of file")
+					}
+					buffer.flip()
+					pipe.sink << buffer
+					length -= buffer.limit()
+				}
+			}
+			pipe.sink.sendEOF()
+		}
+	}
+
+	// ==============================================================================================
+	// ファイル領域の割り当て
+	// ==============================================================================================
+	/**
+	 * 指定されたファイルに対する領域割り当てを行います。非同期パイプに対して残りのデータサイズ (不明な場合は負の値)
+	 * を送信することでリージョンサービスはファイルの新しい領域を割り当てて [[Fragment]] で応答します。クライアント
+	 * は割り当てられた領域すべてにデータを書き終えたら残りのデータサイズを送信して次の領域を割り当てます。
+	 * @see [[com.kazzla.service.StorageService.allocate()]]
+	 */
+	def write(fragment:Fragment):Future[Unit] = withPipe { pipe =>
+		// TODO 書き込み権限確認
+		val promise = Promise[Unit]()
+		val block = uuidToFile(dir, fragment.blockId).toPath
+		val fc = FileChannel.open(block, StandardOpenOption.WRITE)
+		fc.position(fragment.offset)
+		pipe.src.filter{ ! _.isEOF }.foreach { block => fc.write(block.toByteBuffer) }.onComplete {
+			case Success(_) =>
+				fc.close()
+				promise.success(())
+			case Failure(ex) =>
+				promise.failure(ex)
+		}
+		promise.future
+	}
 
 	def ping():Future[Unit] = Future(())
 
@@ -225,10 +283,10 @@ object StorageImpl {
 	}
 
 	// ==============================================================================================
-	// ファイルの参照
+	// ロックファイルの参照
 	// ==============================================================================================
 	/**
-	 * 指定された UUID に対するファイルを参照します。
+	 * 指定された UUID に対するロックファイルを参照します。
 	 */
 	def uuidToCDFile(dir:File, uuid:UUID):File = {
 		new File(uuidDirectory(dir, uuid), ".lock")

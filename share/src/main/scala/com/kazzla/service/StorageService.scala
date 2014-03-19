@@ -122,7 +122,7 @@ case class Location(host:String, port:Int)
 /**
  * ファイルのデータフラグメント。
  */
-case class Fragment(fileId:UUID, offset:Long, length:Int, blockId:UUID, blockOffset:Long, locations:Seq[Location]) {
+case class Fragment(fileId:UUID, blockId:UUID, offset:Long, length:Int, locations:Seq[Location]) {
 	def toByteArray:Array[Byte] = {
 		val msgpack = new MessagePack()
 		val packer = msgpack.createBufferPacker()
