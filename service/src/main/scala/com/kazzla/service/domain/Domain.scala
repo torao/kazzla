@@ -10,6 +10,7 @@ import com.kazzla.core.cert._
 import com.kazzla.core.io._
 import com.kazzla.service.domain.Domain.CA
 import java.io._
+import java.lang.management.ManagementFactory
 import java.net.URI
 import java.security.MessageDigest
 import java.security.cert.{CertificateFactory, X509Certificate}
@@ -17,7 +18,6 @@ import java.sql.{ResultSet, Timestamp, Connection}
 import java.util.{UUID, TimeZone, Date}
 import javax.sql.DataSource
 import org.slf4j.LoggerFactory
-import java.lang.management.ManagementFactory
 import scala.util.{Failure, Success, Try}
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -27,6 +27,7 @@ import scala.util.{Failure, Success, Try}
  * @author Takami Torao
  */
 case class Domain(id:String, ca:CA, dataSource:DataSource) {
+
 	import Domain._
 
 	// ============================================================================================

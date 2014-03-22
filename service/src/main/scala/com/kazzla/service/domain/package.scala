@@ -8,7 +8,7 @@ package com.kazzla.service
 import java.sql.{ResultSet, Connection}
 import com.kazzla.core.io._
 import scala.Some
-import java.security.cert.{X509Certificate, Certificate}
+import java.security.cert.X509Certificate
 import java.util.UUID
 import javax.security.auth.x500.X500Principal
 import java.security.Principal

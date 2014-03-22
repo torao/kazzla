@@ -13,7 +13,6 @@ import java.net.{URLEncoder, HttpURLConnection, URI, URL}
 import java.security.KeyStore
 import java.security.cert.{X509Certificate, CertificateFactory}
 import scala.collection.JavaConversions._
-import sun.security.tools.KeyTool
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Shell
@@ -86,7 +85,7 @@ object Shell extends ShellTools{
 
 		// 新しい鍵ペアを含むキーストアを作成
 		jks.delete()
-		KeyTool.main(Array[String](
+		keytool(
 			"-genkeypair",
 			"-dname", dname,
 			"-alias", "node",
@@ -95,7 +94,7 @@ object Shell extends ShellTools{
 			"-keystore", jks.getAbsolutePath,
 			"-storepass", "000000",
 			"-storetype", "JKS",
-			"-validity", "180"))
+			"-validity", "180")
 
 		// 作成した公開鍵の確認
 		val ks = KeyStore.getInstance("JKS")
@@ -119,14 +118,14 @@ object Shell extends ShellTools{
 		}
 
 		// CA 証明書のインポート
-		KeyTool.main(Array[String](
+		keytool(
 			"-import",
 			"-noprompt",
 			"-alias", "kazzla",
 			"-file", ca.getAbsolutePath,
 			"-keystore", jks.getAbsolutePath,
 			"-storetype", "JKS",
-			"-storepass", "000000"))
+			"-storepass", "000000")
 
 		nodeid
 	}
@@ -138,14 +137,14 @@ object Shell extends ShellTools{
 	 * CSR を作成します。
 	 */
 	private[this] def createCSR(ks:File, file:File):Unit = {
-		KeyTool.main(Array[String](
+		keytool(
 			"-certreq",
 			"-alias", "node",
 			"-file", file.getAbsolutePath,
 			"-keypass", "000000",
 			"-keystore", ks.getAbsolutePath,
 			"-storetype", "JKS",
-			"-storepass", "000000"))
+			"-storepass", "000000")
 	}
 
 	// ============================================================================================
@@ -190,7 +189,7 @@ object Shell extends ShellTools{
 	 * 証明書をインポートします。
 	 */
 	private[this] def importCerts(ks:File, certs:File):Unit = {
-		KeyTool.main(Array[String](
+		keytool(
 			"-importcert",
 			"-alias", "node",
 			"-file", certs.getAbsolutePath,
@@ -198,7 +197,7 @@ object Shell extends ShellTools{
 			"-noprompt",
 			"-keystore", ks.getAbsolutePath,
 			"-storetype", "JKS",
-			"-storepass", "000000"))
+			"-storepass", "000000")
 	}
 
 	// ============================================================================================
@@ -208,7 +207,7 @@ object Shell extends ShellTools{
 	 * JKS 形式のキーストアを PKCS#12 に変換します。
 	 */
 	def jksToPkcs12(jks:File, p12:File):Unit = {
-		KeyTool.main(Array[String](
+		keytool(
 			"-importkeystore",
 			"-srckeystore", jks.getAbsolutePath,
 			"-srcstoretype", "JKS",
@@ -219,7 +218,12 @@ object Shell extends ShellTools{
 			"-deststoretype", "PKCS12",
 			"-deststorepass", "000000",
 			"-destkeypass", "000000",
-			"-noprompt"))
+			"-noprompt")
+	}
+
+	private[this] def keytool(args:String*):Unit = {
+		// sun.security.tools.KeyTool.main(args.toArray)	  // Java 7
+		sun.security.tools.keytool.Main.main(args.toArray)	// Java 8
 	}
 
 }

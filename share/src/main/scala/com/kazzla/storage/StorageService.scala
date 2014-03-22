@@ -3,14 +3,15 @@
  * All sources and related resources are available under Apache License 2.0.
  * http://www.apache.org/licenses/LICENSE-2.0.html
 */
-package com.kazzla.service
+package com.kazzla.storage
 
 import com.kazzla.asterisk.codec.MsgPackCodec
 import com.kazzla.asterisk.{Block, Export}
 import java.net.URI
 import java.util.UUID
-import scala.concurrent.Future
 import org.msgpack.MessagePack
+import scala.concurrent.Future
+import com.kazzla._Error
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // StorageService
@@ -25,6 +26,7 @@ trait StorageService {
 	// ==============================================================================================
 	/**
 	 * 指定されたファイルまたはディレクトリのステータスを参照します。
+	 * @throws _Error `EC.FileNotFound`
 	 */
 	@Export(100)
 	def status(path:String):Future[Status]
@@ -46,12 +48,10 @@ trait StorageService {
 	// ファイルフラグメントの参照
 	// ==============================================================================================
 	/**
-	 * 指定されたファイルのフラグメントロケーションを取得します。非同期パイプに対してシリアライズされた [[Fragment]]
-	 * をブロック送信します。
-	 * @see [[com.kazzla.node.StorageNode.read()]]
+	 * 指定されたファイルのフラグメントを取得します。
 	 */
 	@Export(102)
-	def location(path:String):Future[Status]
+	def location(path:String, offset:Long):Future[Fragment]
 
 	// ==============================================================================================
 	// ファイル領域の割り当て
@@ -60,7 +60,7 @@ trait StorageService {
 	 * 指定されたファイルに対する領域割り当てを行います。非同期パイプに対して残りのデータサイズ (不明な場合は負の値)
 	 * を送信することでリージョンサービスはファイルの新しい領域を割り当てて [[Fragment]] で応答します。クライアント
 	 * は割り当てられた領域すべてにデータを書き終えたら残りのデータサイズを送信して次の領域を割り当てます。
-	 * @see [[com.kazzla.node.StorageNode.write()]]
+	 * @see [[com.kazzla.storage.StorageNode.write()]]
 	 */
 	@Export(103)
 	def allocate(path:String, option:Int):Future[Status]
@@ -70,9 +70,19 @@ trait StorageService {
 	// ==============================================================================================
 	/**
 	 * 指定されたファイルを削除します。
+	 * @return ファイルを削除した場合 true、ファイルが存在しなかった場合 false
 	 */
 	@Export(104)
-	def delete(path:String):Future[Unit]
+	def delete(path:String):Future[Boolean]
+
+	// ==============================================================================================
+	// ディレクトリの作成
+	// ==============================================================================================
+	/**
+	 * ディレクトリを作成します。
+	 */
+	@Export(105)
+	def mkdir(path:String, force:Boolean):Future[Boolean]
 
 }
 
@@ -100,7 +110,7 @@ object StorageService {
 	}
 }
 
-case class Status(fileId:UUID, path:String, length:Long, createdAt:Long, updatedAt:Long, `type`:Byte, blockCount:Int, owner:UUID){
+case class Status(fileId:UUID, path:String, length:Long, createdAt:Long, updatedAt:Long, fstype:Byte, owner:UUID){
 	lazy val uri = new URI(path)
 }
 
@@ -117,12 +127,12 @@ object Status {
 	}
 }
 
-case class Location(host:String, port:Int)
+case class Location(nodeId:UUID, host:String, port:Int)
 
 /**
  * ファイルのデータフラグメント。
  */
-case class Fragment(fileId:UUID, blockId:UUID, offset:Long, length:Int, locations:Seq[Location]) {
+case class Fragment(fileId:UUID, offset:Long, length:Int, blockId:UUID, blockOffset:Int, locations:Seq[Location]) {
 	def toByteArray:Array[Byte] = {
 		val msgpack = new MessagePack()
 		val packer = msgpack.createBufferPacker()

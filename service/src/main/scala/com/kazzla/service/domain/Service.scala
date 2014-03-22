@@ -5,7 +5,6 @@
 */
 package com.kazzla.service.domain
 
-import com.kazzla.asterisk.{Pipe, Session}
 import com.kazzla.core.io._
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http._
@@ -26,7 +25,7 @@ import com.kazzla.service.Version
  * @author Takami Torao
  */
 class Service(docroot:File, domain:Domain)
-	extends com.kazzla.asterisk.Service with com.kazzla.service.Domain {
+	extends com.kazzla.asterisk.Service(global) with com.kazzla.service.Domain {
 
 	import Service._
 

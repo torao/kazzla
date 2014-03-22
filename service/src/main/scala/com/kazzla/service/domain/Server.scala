@@ -10,6 +10,9 @@ import com.kazzla.asterisk.codec.MsgPackCodec
 import com.kazzla.asterisk.netty.Netty
 import com.kazzla.core.cert._
 import com.kazzla.core.io._
+import com.kazzla.service.Context
+import com.kazzla.service.storage.StorageServiceImpl
+import com.kazzla.storage.RegionNode
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.buffer.Unpooled
 import io.netty.channel._
@@ -22,12 +25,13 @@ import java.io._
 import java.net.InetSocketAddress
 import java.security.KeyStore
 import java.sql.{DriverManager, Connection}
-import java.util.{TimerTask, Timer, UUID}
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{Executors, TimeUnit}
 import java.util.logging.Logger
+import java.util.{TimerTask, Timer, UUID}
 import javax.sql.DataSource
 import org.slf4j.LoggerFactory
 import scala.Some
+import scala.concurrent.ExecutionContext
 import scala.util.{Try, Success}
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -52,8 +56,8 @@ class Server(docroot:File, domain:Domain) {
 	private[this] val pinger = new TimerTask {
 		override def run(): Unit = node.foreach { n =>
 			n.sessions.foreach{ session =>
-				val remote = session.bind(classOf[com.kazzla.node.RegionNode])
-				Try(remote.ping())
+				val remote = session.bind(classOf[RegionNode])
+				Try(remote.sync(System.currentTimeMillis()))
 			}
 		}
 	}
@@ -64,6 +68,9 @@ class Server(docroot:File, domain:Domain) {
 		usingInput(new File("service.domain/domain.jks")){ in => jks.load(in, "000000".toCharArray) }
 		jks.getSSLContext("000000".toCharArray)
 	}
+
+	private[this] implicit val threads = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
+	private[this] implicit val context = new Context(domain.dataSource, threads)
 
 	def start():Unit = {
 		assert(eventLoop.isEmpty)
@@ -101,7 +108,7 @@ class Server(docroot:File, domain:Domain) {
 			.build())
 		node.foreach{
 			_.listen(new InetSocketAddress("localhost", 8089), Some(sslContext)){ session =>
-				val storage = new StorageService(domain)
+				val storage = new StorageServiceImpl(domain)
 				session.setAttribute("storage", storage)
 				session.onClosed ++ { s =>
 					Option(s.sslSession.getValue("sessionId")) match {
@@ -125,6 +132,7 @@ class Server(docroot:File, domain:Domain) {
 		eventLoop = None
 		node.foreach{ _.shutdown() }
 		node = None
+		threads.shutdown()
 	}
 
 	private class HttpRequestHandler extends SimpleChannelInboundHandler[HttpRequest] {

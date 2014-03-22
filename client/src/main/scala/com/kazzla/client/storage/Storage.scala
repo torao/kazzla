@@ -6,9 +6,8 @@
 package com.kazzla.client.storage
 
 import com.kazzla.asterisk._
-import com.kazzla.node.StorageNode
-import com.kazzla.service.Location
-import com.kazzla.service.{Fragment, Status}
+import com.kazzla.storage.StorageNode
+import com.kazzla.storage.{Status, Fragment, Location, StorageService}
 import java.io._
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
@@ -27,7 +26,7 @@ import scala.util.Try
  */
 class Storage(session:Session)(implicit ctx:ExecutionContext) {
 
-	private[this] val storage = session.bind(classOf[com.kazzla.service.StorageService])
+	private[this] val storage = session.bind(classOf[StorageService])
 
 	// ==============================================================================================
 	// ファイルステータスの参照
@@ -48,15 +47,14 @@ class Storage(session:Session)(implicit ctx:ExecutionContext) {
 	 * @return ディレクトリのステータス
 	 */
 	def list(path:String):Seq[String]
-		= Await.result(session.open(101, path){ _.src.toSeq }, Duration.Inf).asInstanceOf[Seq[String]]
+		= Await.result(session.open(101, path){ _.src.filterNot{ _.isEOF }.map{ _.getString("UTF-8") }.toSeq }, Duration.Inf).asInstanceOf[Seq[String]]
 
 	// ==============================================================================================
 	// ファイルフラグメントの参照
 	// ==============================================================================================
 	/**
-	 * 指定されたファイルのフラグメントロケーションを取得します。非同期パイプに対してシリアライズされた [[com.kazzla.service.Fragment]]
+	 * 指定されたファイルのフラグメントロケーションを取得します。非同期パイプに対してシリアライズされた [[Fragment]]
 	 * をブロック送信します。
-	 * @see [[com.kazzla.node.StorageNode.read()]]
 	 */
 	def getInputStream(path:String):InputStream
 		= Await.result(session.open(102, path){ read }, Duration.Inf).asInstanceOf[InputStream]
@@ -66,9 +64,8 @@ class Storage(session:Session)(implicit ctx:ExecutionContext) {
 	// ==============================================================================================
 	/**
 	 * 指定されたファイルに対する領域割り当てを行います。非同期パイプに対して残りのデータサイズ (不明な場合は負の値)
-	 * を送信することでリージョンサービスはファイルの新しい領域を割り当てて [[com.kazzla.service.Fragment]] で応答します。クライアント
+	 * を送信することでリージョンサービスはファイルの新しい領域を割り当てて [[Fragment]] で応答します。クライアント
 	 * は割り当てられた領域すべてにデータを書き終えたら残りのデータサイズを送信して次の領域を割り当てます。
-	 * @see [[com.kazzla.node.StorageNode.write()]]
 	 */
 	def getOutputStream(path:String, option:Int):OutputStream = {
 		val out = Promise[OutputStream]()
@@ -207,7 +204,7 @@ private[storage] class O(pipe:Pipe, promise:Promise[Unit]) extends OutputStream 
 		pipe.sink.send(minus)
 		// 割り当てられた領域を受信
 		val fragment = Fragment.fromBlock(queue.take())
-		fragment.locations.foreach{ case Location(host, port) =>
+		fragment.locations.foreach{ case Location(id, host, port) =>
 			try {
 				// 割り当てられた領域のノードと接続して書き込み処理を呼び出し
 				val future = pipe.session.node.connect(new InetSocketAddress(host, port), None)

@@ -5,21 +5,22 @@
 */
 package com.kazzla.node.storage
 
-import com.kazzla.asterisk.{Session, Node}
 import com.kazzla.asterisk.codec.MsgPackCodec
 import com.kazzla.asterisk.netty.Netty
+import com.kazzla.asterisk.{Session, Node}
 import com.kazzla.core.cert._
 import com.kazzla.core.io._
 import com.kazzla.node.Domain
+import com.kazzla.service.Version
 import java.io.{IOException, File}
 import java.net.URL
 import java.security.KeyStore
+import java.util.concurrent.Executors
 import javax.net.ssl.SSLContext
 import org.slf4j.LoggerFactory
-import scala.concurrent.duration.Duration
-import scala.concurrent.Await
 import scala.annotation.tailrec
-import com.kazzla.service.Version
+import scala.concurrent.duration.Duration
+import scala.concurrent.{ExecutionContext, Await}
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Agent
@@ -35,6 +36,10 @@ class Agent(dataDir:File, regionServices:Seq[URL]) {
 
 	val domain = new Domain(regionServices)
 
+	val storage = new Storage(dataDir)
+
+	implicit val threads = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
+
 	// ==============================================================================================
 	// 実体ファイルの参照
 	// ==============================================================================================
@@ -46,7 +51,7 @@ class Agent(dataDir:File, regionServices:Seq[URL]) {
 		node = Some(Node("storage")
 				.bridge(Netty)
 				.codec(MsgPackCodec)
-				.serve(new StorageImpl(dataDir))
+				.serve(new StorageNodeImpl(storage))
 				.build())
 		logger.info(s"activate kazzla node: [${regionServices.mkString(",")}]")
 		val session = connect()
@@ -56,6 +61,7 @@ class Agent(dataDir:File, regionServices:Seq[URL]) {
 
 	def stop():Unit = {
 		node.foreach{ _.shutdown() }
+		threads.shutdown()
 	}
 
 	def ssl:SSLContext = {
