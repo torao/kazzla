@@ -3,14 +3,14 @@
  * All sources and related resources are available under Apache License 2.0.
  * http://www.apache.org/licenses/LICENSE-2.0.html
 */
-package com.kazzla.core
+package com.kazzla
 
 import java.io._
-import org.slf4j._
 import java.net.{InetSocketAddress, SocketAddress}
 import java.security.{DigestInputStream, MessageDigest}
-import scala.annotation.tailrec
 import java.util.UUID
+import org.slf4j._
+import scala.annotation.tailrec
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // io
@@ -19,7 +19,9 @@ import java.util.UUID
  * @author Takami Torao
  */
 package object io {
+
 	import scala.language.reflectiveCalls
+
 	private[this] val logger = LoggerFactory.getLogger("com.kazzla.core.io")
 
 	// ==============================================================================================

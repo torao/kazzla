@@ -5,7 +5,7 @@
 */
 package com.kazzla.node.storage
 
-import com.kazzla.core.debug
+import com.kazzla.core.kazzla
 import com.kazzla.core.io._
 import com.kazzla.core.tools.ShellTools
 import java.io._

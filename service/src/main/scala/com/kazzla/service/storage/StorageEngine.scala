@@ -13,7 +13,6 @@ import com.kazzla.storage.{Fragment, Location}
 import java.sql.ResultSet
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
-import scala.annotation.tailrec
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // StorageEngine
@@ -26,9 +25,11 @@ class StorageEngine(accountId:UUID, sessionId:UUID)(implicit ctx:Context) {
 	/**
 	 * このアカウントのルートノード。
 	 */
-	private[this] val root = ctx.db.single("id from if_inodes where account_id=? and parent_id is null", accountId){ _.getUUID(0) } match {
-		case Some(id) => id
-		case None => throw EC.InternalServerError("filesystem not found")
+	private[this] val root = {
+		ctx.db.single("id from if_inodes where account_id=? and parent_id is null", accountId){ _.getUUID(0) } match {
+			case Some(id) => id
+			case None => throw EC.InternalServerError("filesystem not found")
+		}
 	}
 
 	/**

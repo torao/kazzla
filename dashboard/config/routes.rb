@@ -29,6 +29,8 @@ KazzlaCom::Application.routes.draw do
   get  'auth/profile'
   post 'auth/profile'
 
+  get  'user/list'
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

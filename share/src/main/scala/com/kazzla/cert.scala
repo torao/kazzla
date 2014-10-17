@@ -3,14 +3,25 @@
  * All sources and related resources are available under Apache License 2.0.
  * http://www.apache.org/licenses/LICENSE-2.0.html
 */
-package com.kazzla.core
+package com.kazzla
 
+import java.io.{File, FileInputStream}
 import java.security.KeyStore
 import javax.net.ssl.{TrustManagerFactory, KeyManagerFactory, SSLContext}
 import javax.security.auth.x500.X500Principal
 import scala.Some
 
 package object cert {
+
+	def load(file:File, password:String):KeyStore = io.using(new FileInputStream(file)){ in =>
+		val algorithm = file.getName.split("\\.").last match {
+			case "jks" => "JKS"
+			case _ => "PKCS12"
+		}
+		val keyStore = KeyStore.getInstance(algorithm)
+		keyStore.load(in, password.toCharArray)
+		keyStore
+	}
 
 	implicit class RichKeyStore(ks:KeyStore) {
 

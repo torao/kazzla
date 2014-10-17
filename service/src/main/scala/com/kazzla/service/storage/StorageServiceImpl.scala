@@ -26,7 +26,7 @@ import scala.concurrent.Future
 class StorageServiceImpl(domain:Domain)(implicit ctx:Context) extends Service(ctx.threadPool) with StorageService {
 	implicit val _threadpool = ctx.threadPool
 
-	def startup(session:Session):Unit = {
+	def startup(session:Session):Unit = try {
 		// クライアント証明書からアカウントを特定
 		session.accountId
 		session.storage
@@ -34,6 +34,9 @@ class StorageServiceImpl(domain:Domain)(implicit ctx:Context) extends Service(ct
 			session.storage.cleanup()
 			ctx.invalidate()
 		}
+	} catch {
+		case ex:Throwable =>
+			session.close()
 	}
 
 	// ==============================================================================================

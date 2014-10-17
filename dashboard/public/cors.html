@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CORS Sample</title>
+  <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+</head>
+<body>
+<h1>www.foo.com</h1>
+<script type="application/javascript">
+  $(function(){
+    $.get('http://127.0.1:3000/user/list', '', function(){
+      alert('end')
+    });
+  });
+</script>
+</body>
+</html>

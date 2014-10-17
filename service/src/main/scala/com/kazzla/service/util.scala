@@ -5,11 +5,9 @@
 */
 package com.kazzla.service
 
-import com.kazzla.EC
-import com.kazzla.asterisk.{Block, Session}
+import com.kazzla._
+import com.kazzla.asterisk.Session
 import com.kazzla.service.storage.StorageEngine
-import java.nio.ByteBuffer
-import java.security.MessageDigest
 import java.security.cert.X509Certificate
 import java.sql.ResultSet
 import java.util.UUID
@@ -18,36 +16,11 @@ import scala.concurrent.duration.Duration
 
 package object util {
 
-	implicit class IByteArray(b:Array[Byte]) {
-		def toMD5:Array[Byte] = digest("MD5")
-		def digest(algorithm:String):Array[Byte] = {
-			MessageDigest.getInstance(algorithm).digest(b)
-		}
-		def toUUID:UUID = {
-			val bin = ByteBuffer.wrap(b)
-			new UUID(bin.getLong, bin.getLong)
-		}
-	}
-
-	implicit class IUUID(u:UUID){
-		def toByteArray:Array[Byte] = {
-			val bin = ByteBuffer.allocate(java.lang.Long.SIZE * 2)
-			bin.putLong(u.getMostSignificantBits)
-			bin.putLong(u.getLeastSignificantBits)
-			bin.array()
-		}
-	}
-
 	implicit class IResultSet(rs:ResultSet){
 		def getUUID(s:String):UUID = rs.getBytes(s).toUUID
 		def getUUID(i:Int):UUID = rs.getBytes(i).toUUID
 		def getChar(s:String):Char = rs.getString(s).head
 		def getChar(i:Int):Char = rs.getString(i).head
-	}
-
-	implicit class IBlock(block:Block) {
-		def toInt:Int = block.toByteBuffer.getInt
-		def toLong:Long = block.toByteBuffer.getLong
 	}
 
 	val SessionId = "com.kazzla.session.id"

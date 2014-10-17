@@ -35,6 +35,8 @@ object KazzlaBuild extends Build {
 			"org.msgpack" % "msgpack"       % "0.6.10",
 			"io.netty"    % "netty-all"     % "4.0.17.Final",
 			"com.kazzla"  %% "asterisk"     % "0.1-SNAPSHOT",
+			"com.github.seratch" %% "scalikejdbc" % "1.6.11",
+			"com.github.scopt"   %% "scopt" % "3.2.0",
 			"org.specs2"  %% "specs2"       % "2.3.10"       % "test"
 		),
 		retrieveManaged := true

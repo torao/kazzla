@@ -5,16 +5,16 @@
 */
 package com.kazzla.service
 
+import com.kazzla._
 import com.kazzla.asterisk.using
-import com.kazzla.service.util._
 import java.nio.ByteBuffer
 import java.sql.{PreparedStatement, ResultSet, Connection}
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.sql.DataSource
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
 import scala.reflect.ClassTag
-import java.util.concurrent.atomic.AtomicBoolean
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Context
@@ -187,7 +187,7 @@ class Context(val dataSource:DataSource, implicit val threadPool:ExecutionContex
 
 		private[this] def init(stmt:PreparedStatement, args:Seq[Any]):Unit = {
 			(1 to args.length).foreach{ i =>
-				val value = args(i) match {
+				val value = args(i - 1) match {
 					case u:UUID => u.toByteArray
 					case x => x
 				}

@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference
 import org.slf4j.LoggerFactory
 import scala.annotation.tailrec
 import scala.io.Source
-import scala.util.Random
+import scala.util.{Try, Random}
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Domain
@@ -20,12 +20,13 @@ import scala.util.Random
  * @author Takami Torao
  */
 class Domain(regionServices:Seq[URL]){
+	import Domain._
 
 	/**
 	 * このインスタンスがキャッシュしている、ドメインに対するソケットアドレス。`pickup()` が呼び出されるごとに先頭
 	 * から順に利用されてゆき空になると一覧を再取得する。
 	 */
-	private[this] val addresses = new AtomicReference[Seq[SocketAddress]](Seq())
+	private[this] val addresses = new AtomicReference(Seq[SocketAddress]())
 
 	// ==============================================================================================
 	// ドメイン接続先の参照
@@ -36,12 +37,10 @@ class Domain(regionServices:Seq[URL]){
 	@tailrec
 	final def pickup():SocketAddress = {
 		val expected = addresses.get()
-		val addr = {
-			if(expected.isEmpty){
-				getSocketAddresses()
-			} else {
-				expected
-			}
+		val addr = if(expected.isEmpty){
+			getSocketAddresses()
+		} else {
+			expected
 		}
 		if(!addresses.compareAndSet(expected, addr.drop(1))){
 			pickup()
@@ -54,12 +53,11 @@ class Domain(regionServices:Seq[URL]){
 	// ドメイン接続先の参照
 	// ==============================================================================================
 	/**
-	 * このドメインの接続先を参照します。
+	 * このドメインの接続先を参照します。このメソッドは接続先を取得できるまで接続を繰り返します。
 	 */
 	@tailrec
 	private[this] def getSocketAddresses(errorCount:Int = 0):Seq[SocketAddress] = {
-		val random = new Random()
-		Domain.getSocketAddresses(random.shuffle(regionServices)) match {
+		retrieveAddresses(new Random().shuffle(regionServices)) match {
 			case Some(addr) => addr
 			case None =>
 				Thread.sleep(100 * (1L << math.min(errorCount, 8)))   // 最大 25.6[sec]
@@ -76,24 +74,18 @@ object Domain {
 	// ドメイン接続先の参照
 	// ==============================================================================================
 	/**
-	 * 指定された Region Server から接続先の一覧を参照します。
+	 * 指定されたドメインサーバの URL から接続先の一覧を参照します。
 	 */
-	@tailrec
-	private[Domain] def getSocketAddresses(servers:Seq[URL]):Option[Seq[SocketAddress]] = {
-		if(servers.isEmpty){
-			None
-		} else {
+	private[Domain] def retrieveAddresses(servers:Seq[URL]):Option[Seq[SocketAddress]] = {
+		servers.foreach{ url =>
 			try {
-				val con = servers.head.openConnection()
+				val con = url.openConnection()
 				val addresses = using(con.getInputStream){ in =>
-					Source.fromInputStream(in, "UTF-8").getLines().map{ line =>
-						line.split(":", 2) match {
-							case Array(host:String, port:String) =>
-								Some(new InetSocketAddress(host, port.toInt))
-							case _ =>
-								None
-						}
-					}.filter{ _.isDefined }.map{ _.get }.toSeq
+					Source.fromInputStream(in, "UTF-8").getLines().map{ _.split(":", 2) }.collect {
+						case Array(host:String, port:String) if Try(port.toInt).isSuccess =>
+							logger.debug(s"server found: $host:$port")
+							new InetSocketAddress(host, port.toInt)
+					}.toList
 				}
 				if(! addresses.isEmpty){
 					return Some(addresses)
@@ -102,7 +94,8 @@ object Domain {
 				case ex:Exception =>
 					logger.error(s"fail to retrieve domain list: $servers.head", ex)
 			}
-			getSocketAddresses(servers.drop(1))
 		}
+		None
 	}
+
 }

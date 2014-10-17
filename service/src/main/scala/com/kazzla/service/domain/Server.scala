@@ -54,18 +54,20 @@ class Server(docroot:File, domain:Domain) {
 
 	private[this] val timer = new Timer("server", true)
 	private[this] val pinger = new TimerTask {
-		override def run(): Unit = node.foreach { n =>
-			n.sessions.foreach{ session =>
-				val remote = session.bind(classOf[RegionNode])
-				Try(remote.sync(System.currentTimeMillis()))
-			}
+		override def run():Unit = node.foreach {
+			n =>
+				n.sessions.foreach {
+					session =>
+						val remote = session.bind(classOf[RegionNode])
+						Try(remote.sync(System.currentTimeMillis()))
+				}
 		}
 	}
 	timer.scheduleAtFixedRate(pinger, 60 * 1000, 60 * 1000)
 
 	private[this] val sslContext = {
 		val jks = KeyStore.getInstance("JKS")
-		usingInput(new File("service.domain/domain.jks")){ in => jks.load(in, "000000".toCharArray) }
+		usingInput(new File("service/domain.jks")) { in => jks.load(in, "000000".toCharArray) }
 		jks.getSSLContext("000000".toCharArray)
 	}
 
@@ -74,6 +76,35 @@ class Server(docroot:File, domain:Domain) {
 
 	def start():Unit = {
 		assert(eventLoop.isEmpty)
+
+		// ドメインサーバの起動
+		node = Some(Node("domain")
+			.bridge(Netty)
+			.codec(MsgPackCodec)
+			.serve(service)
+			.build())
+		node.foreach {
+			_.listen(new InetSocketAddress("localhost", 8089), Some(sslContext)) {
+				session =>
+					val storage = new StorageServiceImpl(domain)
+					session.setAttribute("storage", storage)
+					session.onClosed ++ {
+						s =>
+							Option(s.sslSession.getValue("sessionId")) match {
+								case Some(sessionId:UUID) => domain.closeNodeSession(sessionId)
+								case _ => None
+							}
+					}
+					session.wire.tls.onComplete {
+						case Success(Some(sslSession)) =>
+							sslSession.putValue("sessionId", domain.newUUID())
+							storage.startup(session)
+						case _ => session.close()
+					}
+			}
+		}
+		logger.info(s"node server start on: ${8089}")
+
 		eventLoop = Some(new NioEventLoopGroup())
 		val bootstrap = new ServerBootstrap()
 		bootstrap
@@ -82,55 +113,30 @@ class Server(docroot:File, domain:Domain) {
 			.channel(classOf[NioServerSocketChannel])
 			.option(ChannelOption.SO_BACKLOG, java.lang.Integer.valueOf(100))
 			.childOption(ChannelOption.TCP_NODELAY, java.lang.Boolean.TRUE)
-			.childHandler(new ChannelInitializer[SocketChannel](){
-				def initChannel(ch:SocketChannel) = {
-					val pipeline = ch.pipeline()
-					if(useHttps){
-						val engine = sslContext.createSSLEngine()
-						engine.setUseClientMode(false)
-						pipeline.addLast("ssl", new SslHandler(engine))
-					}
-					pipeline.addLast("http", new HttpServerCodec())
-					pipeline.addLast("aggregator", new HttpObjectAggregator(512 * 1024))
-					pipeline.addLast("deflator", new HttpContentCompressor())
-					pipeline.addLast("handler", new HttpRequestHandler())
+			.childHandler(new ChannelInitializer[SocketChannel]() {
+			def initChannel(ch:SocketChannel) = {
+				val pipeline = ch.pipeline()
+				if (useHttps) {
+					val engine = sslContext.createSSLEngine()
+					engine.setUseClientMode(false)
+					pipeline.addLast("ssl", new SslHandler(engine))
 				}
-			})
+				pipeline.addLast("http", new HttpServerCodec())
+				pipeline.addLast("aggregator", new HttpObjectAggregator(512 * 1024))
+				pipeline.addLast("deflator", new HttpContentCompressor())
+				pipeline.addLast("handler", new HttpRequestHandler())
+			}
+		})
 
 		bootstrap.bind().sync()
 
 		logger.info(s"http server start on: $port")
-
-		node = Some(Node("domain")
-			.bridge(Netty)
-			.codec(MsgPackCodec)
-			.serve(service)
-			.build())
-		node.foreach{
-			_.listen(new InetSocketAddress("localhost", 8089), Some(sslContext)){ session =>
-				val storage = new StorageServiceImpl(domain)
-				session.setAttribute("storage", storage)
-				session.onClosed ++ { s =>
-					Option(s.sslSession.getValue("sessionId")) match {
-						case Some(sessionId:UUID) => domain.closeNodeSession(sessionId)
-						case _ => None
-					}
-				}
-				session.wire.tls.onComplete {
-					case Success(Some(sslSession)) =>
-						sslSession.putValue("sessionId", domain.newUUID())
-						storage.startup(session)
-					case _ => session.close()
-				}
-			}
-		}
-		logger.info(s"node server start on: ${8089}")
 	}
 
 	def stop():Unit = {
-		eventLoop.foreach{ _.shutdownGracefully(0, 0, TimeUnit.MILLISECONDS) }
+		eventLoop.foreach { _.shutdownGracefully(0, 0, TimeUnit.MILLISECONDS) }
 		eventLoop = None
-		node.foreach{ _.shutdown() }
+		node.foreach { _.shutdown() }
 		node = None
 		threads.shutdown()
 	}
@@ -160,18 +166,27 @@ object Server {
 	 * ドメインサーバを起動します。
 	 */
 	def main(args:Array[String]):Unit = {
-		val docroot = new File("service.domain/docroot")
-		val ca = new Domain.CA(new File("service.domain/ca/demoCA"))
+		val docroot = new File("service/docroot")
+		val ca = new Domain.CA(new File("service/ca/demoCA"))
 		val domain = new Domain("com.kazzla", ca, new DataSource {
-			def setLogWriter(out: PrintWriter): Unit = ???
-			def getLoginTimeout: Int = ???
-			def setLoginTimeout(seconds: Int): Unit = ???
-			def unwrap[T](iface: Class[T]): T = ???
-			def isWrapperFor(iface: Class[_]): Boolean = ???
-			def getParentLogger: Logger = ???
-			def getLogWriter: PrintWriter = ???
-			def getConnection(username: String, password: String): Connection = ???
-			def getConnection: Connection = {
+			var loginTimeout = 10
+			def setLogWriter(out:PrintWriter):Unit = None
+
+			def getLoginTimeout:Int = loginTimeout
+
+			def setLoginTimeout(seconds:Int):Unit = loginTimeout = seconds
+
+			def unwrap[T](iface:Class[T]):T = iface.asInstanceOf[T]
+
+			def isWrapperFor(iface:Class[_]):Boolean = false
+
+			def getParentLogger:Logger = ???
+
+			def getLogWriter:PrintWriter = ???
+
+			def getConnection(username:String, password:String):Connection = ???
+
+			def getConnection:Connection = {
 				DriverManager.getConnection("jdbc:mysql://localhost/kazzla_development", "root", "")
 			}
 		})
@@ -185,12 +200,11 @@ object Server {
 	}
 
 	def httpErrorResponse(status:HttpResponseStatus, message:String):FullHttpResponse = {
-		val buf = Unpooled.copiedBuffer(s"${status.code()} ${status.reasonPhrase()}".getBytes("UTF-8"))
+		val buf = Unpooled.copiedBuffer(s"${status.code() } ${status.reasonPhrase() }".getBytes("UTF-8"))
 		val res = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, buf)
 		res.headers().set("Cache-Control", "no-cache")
 		res.headers().set("Connection", "close")
 		res.headers().set("Content-Type", "text/plain; charset=UTF-8")
 		res
 	}
-
 }
