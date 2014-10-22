@@ -22,7 +22,7 @@ package object io {
 
 	import scala.language.reflectiveCalls
 
-	private[this] val logger = LoggerFactory.getLogger("com.kazzla.core.io")
+	private[this] val logger = LoggerFactory.getLogger("com.kazzla.io")
 
 	// ==============================================================================================
 	// クローズ

@@ -5,7 +5,7 @@
 */
 package com.kazzla
 
-import com.kazzla.asterisk.Abort
+import org.asterisque.msg.Abort
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Error
@@ -14,8 +14,8 @@ import com.kazzla.asterisk.Abort
  * @author Takami Torao
  */
 sealed abstract class _Error(val code:Int, val defaultMessage:String) {
-	def apply() = Abort(code, defaultMessage)
-	def apply(msg:String) = Abort(code, msg)
+	def apply() = new Abort(code, defaultMessage)
+	def apply(msg:String) = new Abort(code, msg)
 }
 
 object EC {

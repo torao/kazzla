@@ -7,7 +7,7 @@ package com
 
 import java.util.UUID
 import java.nio.{ByteOrder, ByteBuffer}
-import com.kazzla.asterisk.Block
+import org.asterisque.msg.Block
 import java.security.MessageDigest
 
 package object kazzla {
