@@ -2,11 +2,178 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6b9306d3-c06a-4578-a58f-e9907ad7246e" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/share/build.sbt" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/sbt" afterPath="$PROJECT_DIR$/share/sbt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/share/src/main/scala/com/kazzla/Error.scala" afterPath="$PROJECT_DIR$/share/src/main/scala/com/kazzla/Error.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/share/src/main/scala/com/kazzla/io.scala" afterPath="$PROJECT_DIR$/share/src/main/scala/com/kazzla/io.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/share/src/main/scala/com/kazzla/package.scala" afterPath="$PROJECT_DIR$/share/src/main/scala/com/kazzla/package.scala" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/.gitignore" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/Gemfile" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/Gemfile.lock" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/README.rdoc" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/Rakefile" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/assets/images/rails.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/assets/javascripts/application.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/assets/javascripts/auth.js.coffee" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/assets/javascripts/dashboard.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/assets/javascripts/dashboard.js.coffee" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/assets/javascripts/settings.js.coffee" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/assets/stylesheets/application.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/assets/stylesheets/auth.css.scss" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/assets/stylesheets/dashboard.css.scss" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/assets/stylesheets/settings.css.scss" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/controllers/application_controller.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/controllers/auth_controller.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/controllers/dashboard_controller.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/controllers/settings_controller.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/controllers/user_controller.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/helpers/application_helper.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/helpers/auth_helper.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/helpers/dashboard_helper.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/helpers/settings_helper.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/mailers/.gitkeep" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/mailers/message.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/.gitkeep" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/activity.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/activity/eventlog.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/auth.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/auth/account.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/auth/contact.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/auth/password_reset_secret.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/auth/role.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/code.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/code/continent.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/code/country.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/code/language.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/code/message.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/code/timezone.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/node.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/node/node.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/node/region.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/models/node/session.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/auth/change_password.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/auth/reset_password.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/auth/signin.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/auth/signout.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/auth/signup.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/auth/withdraw.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/dashboard/home.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/dashboard/index.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/dashboard/nodes.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/dashboard/top.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/layouts/_header.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/layouts/application.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/message/reset_password.text.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/settings/_menu.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/settings/account.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/settings/applications.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/settings/devices.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/settings/notifications.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/settings/password.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/settings/profile.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/app/views/settings/security.html.erb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/config.ru" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/config/application.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/config/boot.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/config/database.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/config/environment.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/config/environments/development.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/config/environments/production.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/config/environments/test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/config/initializers/backtrace_silencers.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/config/initializers/inflections.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/config/initializers/mime_types.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/config/initializers/secret_token.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/config/initializers/session_store.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/config/initializers/wrap_parameters.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/config/locales/en.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/config/routes.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/fixtures/codes.scala" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/fixtures/countries.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/fixtures/messages.de.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/fixtures/messages.en.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/fixtures/messages.fr.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/fixtures/messages.it.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/fixtures/messages.ja.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/fixtures/messages.ko.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/fixtures/messages.zh.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/fixtures/timezones.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/migrate/20130421175852_create_auth_accounts.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/migrate/20130421180014_create_auth_contacts.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/migrate/20130428113405_create_auth_password_reset_secrets.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/migrate/20130428215011_create_activity_eventlogs.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/migrate/20130429110552_create_code_messages.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/migrate/20130430022956_create_code_languages.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/migrate/20130430023018_create_code_countries.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/migrate/20130501190034_create_auth_roles.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/migrate/20130501214850_create_code_continents.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/migrate/20130502021351_create_code_timezones.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/migrate/20130502210035_create_node_regions.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/migrate/20130502210044_create_node_nodes.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/migrate/20140110173546_create_node_sessions.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/schema.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/db/seeds.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/doc/README_FOR_APP" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/lib/assets/.gitkeep" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/lib/assets/kazzla.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/lib/tasks/.gitkeep" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/log/.gitkeep" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/404.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/422.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/500.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/cors.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/cors.json" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/css/bootstrap/css/bootstrap-responsive.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/css/bootstrap/css/bootstrap-responsive.min.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/css/bootstrap/css/bootstrap.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/css/bootstrap/css/bootstrap.min.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/css/bootstrap/img/glyphicons-halflings-white.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/css/bootstrap/img/glyphicons-halflings.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/css/bootstrap/js/bootstrap.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/css/bootstrap/js/bootstrap.min.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/css/kazzla.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/favicon.ico" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/img/logo.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/img/logo_back.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/public/robots.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/script/rails" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/fixtures/.gitkeep" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/fixtures/activity/eventlogs.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/fixtures/auth/accounts.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/fixtures/auth/contacts.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/fixtures/auth/password_reset_secrets.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/fixtures/auth/roles.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/fixtures/code/continents.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/fixtures/code/countries.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/fixtures/code/languages.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/fixtures/code/messages.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/fixtures/code/timezones.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/fixtures/node/nodes.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/fixtures/node/regions.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/fixtures/node/sessions.yml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/functional/.gitkeep" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/functional/auth_controller_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/functional/dashboard_controller_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/functional/message_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/functional/settings_controller_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/integration/.gitkeep" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/performance/browsing_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/test_helper.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/.gitkeep" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/activity/eventlog_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/auth/account_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/auth/contact_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/auth/password_reset_secret_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/auth/role_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/code/continent_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/code/country_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/code/language_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/code/message_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/code/timezone_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/helpers/auth_helper_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/helpers/dashboard_helper_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/helpers/settings_helper_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/node/node_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/node/region_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/test/unit/node/session_test.rb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/vendor/assets/javascripts/.gitkeep" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/vendor/assets/stylesheets/.gitkeep" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dashboard/vendor/plugins/.gitkeep" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="kazzla.iws" />
@@ -70,48 +237,7 @@
     <favorites_list name="kazzla" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="io.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/share/src/main/scala/com/kazzla/io.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2085">
-              <caret line="24" column="64" selection-start-line="24" selection-start-column="64" selection-end-line="24" selection-end-column="64" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="cert.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/share/src/main/scala/com/kazzla/cert.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="218" max-vertical-offset="1170">
-              <caret line="18" column="24" selection-start-line="18" selection-start-column="24" selection-end-line="18" selection-end-column="24" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="debug.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/share/src/main/scala/com/kazzla/debug.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="525">
-              <caret line="10" column="15" selection-start-line="10" selection-start-column="15" selection-end-line="10" selection-end-column="15" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Error.scala" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/share/src/main/scala/com/kazzla/Error.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.26745912" vertical-offset="15" max-vertical-offset="705">
-              <caret line="17" column="30" selection-start-line="17" selection-start-column="30" selection-end-line="17" selection-end-column="30" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -268,30 +394,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope">
-        <subPane subId="Project Files">
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="PackagesPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -300,90 +402,26 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
           </PATH>
+        </subPane>
+      </pane>
+      <pane id="Scope">
+        <subPane subId="Default" />
+        <subPane subId="Project Files">
           <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="share" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
             </PATH_ELEMENT>
           </PATH>
+        </subPane>
+        <subPane subId="Changed Files" />
+      </pane>
+      <pane id="PackagesPane">
+        <subPane>
           <PATH>
             <PATH_ELEMENT>
               <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="share" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="share" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="share" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="kazzla" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="share" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="project" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
@@ -400,7 +438,7 @@
     <property name="Repository.Attach.JavaDocs" value="true" />
     <property name="recentsLimit" value="5" />
     <property name="MemberChooser.sorted" value="false" />
-    <property name="options.lastSelected" value="org.jetbrains.plugins.scala.compiler.ScalacConfigurable" />
+    <property name="options.lastSelected" value="preferences.pluginManager" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../asterisk/target/scala-2.11/asterisque_2.11-1.0-SNAPSHOT.jar!/" />
     <property name="project.structure.side.proportion" value="0.27346465" />
     <property name="MemberChooser.copyJavadoc" value="false" />
@@ -699,86 +737,6 @@
           <key>
             <ExternalProjectPojo>
               <option name="name" value="project" />
-              <option name="path" value="$PROJECT_DIR$/share/project/project/project" />
-            </ExternalProjectPojo>
-          </key>
-          <value>
-            <list>
-              <ExternalProjectPojo>
-                <option name="name" value="project" />
-                <option name="path" value="$PROJECT_DIR$/share/project/project/project" />
-              </ExternalProjectPojo>
-              <ExternalProjectPojo>
-                <option name="name" value="project-build" />
-                <option name="path" value="$PROJECT_DIR$/share/project/project/project/project" />
-              </ExternalProjectPojo>
-            </list>
-          </value>
-        </entry>
-        <entry>
-          <key>
-            <ExternalProjectPojo>
-              <option name="name" value="project" />
-              <option name="path" value="$PROJECT_DIR$/share/project/project/project/project" />
-            </ExternalProjectPojo>
-          </key>
-          <value>
-            <list>
-              <ExternalProjectPojo>
-                <option name="name" value="project" />
-                <option name="path" value="$PROJECT_DIR$/share/project/project/project/project" />
-              </ExternalProjectPojo>
-              <ExternalProjectPojo>
-                <option name="name" value="project-build" />
-                <option name="path" value="$PROJECT_DIR$/share/project/project/project/project/project" />
-              </ExternalProjectPojo>
-            </list>
-          </value>
-        </entry>
-        <entry>
-          <key>
-            <ExternalProjectPojo>
-              <option name="name" value="project" />
-              <option name="path" value="$PROJECT_DIR$/share/project/project" />
-            </ExternalProjectPojo>
-          </key>
-          <value>
-            <list>
-              <ExternalProjectPojo>
-                <option name="name" value="project" />
-                <option name="path" value="$PROJECT_DIR$/share/project/project" />
-              </ExternalProjectPojo>
-              <ExternalProjectPojo>
-                <option name="name" value="project-build" />
-                <option name="path" value="$PROJECT_DIR$/share/project/project/project" />
-              </ExternalProjectPojo>
-            </list>
-          </value>
-        </entry>
-        <entry>
-          <key>
-            <ExternalProjectPojo>
-              <option name="name" value="project" />
-              <option name="path" value="$PROJECT_DIR$/share/project" />
-            </ExternalProjectPojo>
-          </key>
-          <value>
-            <list>
-              <ExternalProjectPojo>
-                <option name="name" value="project" />
-                <option name="path" value="$PROJECT_DIR$/share/project" />
-              </ExternalProjectPojo>
-              <ExternalProjectPojo>
-                <option name="name" value="project-build" />
-                <option name="path" value="$PROJECT_DIR$/share/project/project" />
-              </ExternalProjectPojo>
-            </list>
-          </value>
-        </entry>
-        <entry>
-          <key>
-            <ExternalProjectPojo>
-              <option name="name" value="project" />
               <option name="path" value="$PROJECT_DIR$/share/project/project/project/project/project" />
             </ExternalProjectPojo>
           </key>
@@ -910,13 +868,13 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1680" height="1050" extended-state="0" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3268839" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.28469387" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.5112245" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="SBT Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2377551" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.21530612" sideWeight="0.5" order="16" side_tool="false" content_ui="tabs" />
@@ -929,7 +887,7 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.17643468" sideWeight="0.67134833" order="1" side_tool="true" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.17643468" sideWeight="0.67134833" order="1" side_tool="true" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32959184" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="IvyIDEA" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="5" side_tool="false" content_ui="combo" />
@@ -1021,55 +979,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/service/src/main/scala/com/kazzla/service/schema/fs/Fragment.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.046153847" vertical-offset="0" max-vertical-offset="650">
-          <caret line="2" column="11" selection-start-line="2" selection-start-column="11" selection-end-line="2" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/src/main/scala/com/kazzla/service/schema/fs/Inode.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.46735904" vertical-offset="0" max-vertical-offset="1740">
-          <caret line="18" column="88" selection-start-line="18" selection-start-column="88" selection-end-line="18" selection-end-column="88" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/src/main/scala/com/kazzla/service/schema/activity/Eventlog.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7711213" vertical-offset="38" max-vertical-offset="1395">
-          <caret line="36" column="2" selection-start-line="36" selection-start-column="2" selection-end-line="36" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/share/src/main/scala/com/kazzla/storage/StorageService.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-1.0919881" vertical-offset="1516" max-vertical-offset="2190">
-          <caret line="62" column="30" selection-start-line="62" selection-start-column="30" selection-end-line="62" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/share/src/main/scala/com/kazzla/storage/RegionService.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="255">
-          <caret line="15" column="0" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node/src/main/scala/com/kazzla/node/storage/Storage.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.7096775" vertical-offset="1944" max-vertical-offset="4155">
-          <caret line="16" column="17" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/lib_managed/srcs/com.kazzla/asterisk_2.10/asterisk_2.10-0.1-SNAPSHOT-sources.jar!/com/kazzla/asterisk/Service.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3327338" vertical-offset="715" max-vertical-offset="3630">
-          <caret line="68" column="22" selection-start-line="68" selection-start-column="22" selection-end-line="68" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/node/src/main/scala/com/kazzla/node/storage/StorageNodeImpl.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="870">
@@ -1189,18 +1098,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/service/src/main/scala/com/kazzla/service/storage/Inode.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.2672956" vertical-offset="0" max-vertical-offset="954">
-          <caret line="17" column="11" selection-start-line="17" selection-start-column="11" selection-end-line="17" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/share/src/main/scala/com/kazzla/node/Domain.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1440">
           <caret line="21" column="12" selection-start-line="21" selection-start-column="12" selection-end-line="21" selection-end-column="12" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1208,10 +1109,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="2.2327044" vertical-offset="0" max-vertical-offset="3540">
           <caret line="141" column="60" selection-start-line="141" selection-start-column="60" selection-end-line="141" selection-end-column="60" />
-          <folding>
-            <element signature="n#!!doc" expanded="false" />
-            <element signature="e#204#232#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1219,7 +1116,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3495">
           <caret line="38" column="72" selection-start-line="38" selection-start-column="72" selection-end-line="38" selection-end-column="72" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1227,17 +1123,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1485">
           <caret line="7" column="7" selection-start-line="7" selection-start-column="7" selection-end-line="7" selection-end-column="7" />
-          <folding>
-            <element signature="e#197#236#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/src/main/scala/com/kazzla/service/schema/storage/Block.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.8176101" vertical-offset="15" max-vertical-offset="1335">
-          <caret line="53" column="94" selection-start-line="53" selection-start-column="94" selection-end-line="53" selection-end-column="94" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1245,9 +1130,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.18867925" vertical-offset="0" max-vertical-offset="1230">
           <caret line="16" column="15" selection-start-line="16" selection-start-column="15" selection-end-line="16" selection-end-column="15" />
-          <folding>
-            <element signature="e#197#216#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1263,7 +1145,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="954">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1271,15 +1152,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.047169812" vertical-offset="0" max-vertical-offset="954">
           <caret line="4" column="11" selection-start-line="4" selection-start-column="11" selection-end-line="4" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/src/main/scala/com/kazzla/service/schema/storage/Partition.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4716981" vertical-offset="0" max-vertical-offset="1215">
-          <caret line="31" column="57" selection-start-line="31" selection-start-column="57" selection-end-line="31" selection-end-column="57" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1287,9 +1159,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-1.4465408" vertical-offset="1410" max-vertical-offset="4785">
           <caret line="6" column="7" selection-start-line="6" selection-start-column="7" selection-end-line="6" selection-end-column="7" />
-          <folding>
-            <element signature="e#170#186#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1297,15 +1166,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.031446543" vertical-offset="0" max-vertical-offset="954">
           <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/service/src/main/scala/com/kazzla/service/Context.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4245283" vertical-offset="0" max-vertical-offset="3570">
-          <caret line="40" column="76" selection-start-line="40" selection-start-column="76" selection-end-line="40" selection-end-column="76" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1313,7 +1173,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.9296219" vertical-offset="0" max-vertical-offset="1515">
           <caret line="67" column="5" selection-start-line="67" selection-start-column="5" selection-end-line="67" selection-end-column="5" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1321,7 +1180,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.86659664" vertical-offset="45" max-vertical-offset="1155">
           <caret line="64" column="0" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1329,31 +1187,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.14180672" vertical-offset="0" max-vertical-offset="952">
           <caret line="13" column="6" selection-start-line="13" selection-start-column="6" selection-end-line="13" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/share/src/main/scala/com/kazzla/io.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2085">
-          <caret line="24" column="64" selection-start-line="24" selection-start-column="64" selection-end-line="24" selection-end-column="64" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/share/src/main/scala/com/kazzla/cert.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="218" max-vertical-offset="1170">
-          <caret line="18" column="24" selection-start-line="18" selection-start-column="24" selection-end-line="18" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/share/src/main/scala/com/kazzla/debug.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="525">
-          <caret line="10" column="15" selection-start-line="10" selection-start-column="15" selection-end-line="10" selection-end-column="15" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1361,9 +1194,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.71322435" vertical-offset="0" max-vertical-offset="673">
           <caret line="36" column="33" selection-start-line="36" selection-start-column="33" selection-end-line="36" selection-end-column="33" />
-          <folding>
-            <element signature="e#182#203#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1371,7 +1201,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.20059435" vertical-offset="0" max-vertical-offset="673">
           <caret line="9" column="1" selection-start-line="9" selection-start-column="1" selection-end-line="9" selection-end-column="1" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1379,7 +1208,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.022288261" vertical-offset="0" max-vertical-offset="673">
           <caret line="1" column="35" selection-start-line="1" selection-start-column="35" selection-end-line="1" selection-end-column="35" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1387,15 +1215,76 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="673">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/share/src/main/scala/com/kazzla/Error.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.26745912" vertical-offset="15" max-vertical-offset="705">
-          <caret line="17" column="30" selection-start-line="17" selection-start-column="30" selection-end-line="17" selection-end-column="30" />
-          <folding />
+        <state vertical-scroll-proportion="0.60178304" vertical-offset="0" max-vertical-offset="705">
+          <caret line="31" column="46" selection-start-line="31" selection-start-column="46" selection-end-line="31" selection-end-column="46" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/share/src/main/scala/com/kazzla/debug.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.22288261" vertical-offset="0" max-vertical-offset="673">
+          <caret line="10" column="15" selection-start-line="10" selection-start-column="15" selection-end-line="10" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/share/src/main/scala/com/kazzla/cert.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="218" max-vertical-offset="1170">
+          <caret line="18" column="24" selection-start-line="18" selection-start-column="24" selection-end-line="18" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/share/src/main/scala/com/kazzla/io.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2085">
+          <caret line="24" column="64" selection-start-line="24" selection-start-column="64" selection-end-line="24" selection-end-column="64" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/src/main/scala/com/kazzla/service/storage/Inode.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.51263" vertical-offset="0" max-vertical-offset="673">
+          <caret line="28" column="0" selection-start-line="28" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/src/main/scala/com/kazzla/service/Context.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3570">
+          <caret line="49" column="5" selection-start-line="49" selection-start-column="5" selection-end-line="49" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/src/main/scala/com/kazzla/service/schema/storage/Fstype.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1155">
+          <caret line="4" column="11" selection-start-line="4" selection-start-column="11" selection-end-line="4" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/src/main/scala/com/kazzla/service/schema/storage/Replication.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0234375" vertical-offset="27" max-vertical-offset="795">
+          <caret line="6" column="11" selection-start-line="6" selection-start-column="11" selection-end-line="6" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/src/main/scala/com/kazzla/service/schema/storage/Block.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.05859375" vertical-offset="0" max-vertical-offset="1335">
+          <caret line="6" column="11" selection-start-line="6" selection-start-column="11" selection-end-line="6" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/service/src/main/scala/com/kazzla/service/schema/storage/Partition.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5859375" vertical-offset="0" max-vertical-offset="1200">
+          <caret line="31" column="57" selection-start-line="31" selection-start-column="57" selection-end-line="31" selection-end-column="57" />
         </state>
       </provider>
     </entry>
@@ -1463,7 +1352,7 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>share</last-edited>
+          <last-edited>project</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
@@ -1475,7 +1364,7 @@
       </state>
       <state key="ProjectLibrariesConfigurable.UI">
         <settings>
-          <last-edited>asterisque_2.11-1.0</last-edited>
+          <last-edited>scala-library</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

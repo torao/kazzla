@@ -1,5 +1,5 @@
 class Code::Continent < ActiveRecord::Base
-  attr_accessible :code, :name
+#  attr_accessible :code, :name
 
   def self.continents
     @@_continents ||= Code::Continent.all

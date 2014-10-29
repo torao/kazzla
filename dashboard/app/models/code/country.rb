@@ -1,5 +1,5 @@
 class Code::Country < ActiveRecord::Base
-  attr_accessible :code, :name
+#  attr_accessible :code, :name
 
   def self.countries
     @@_countries ||= Code::Country.all.sort{ |a,b| a.name <=> b.name }

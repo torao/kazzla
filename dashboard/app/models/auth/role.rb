@@ -1,5 +1,5 @@
 class Auth::Role < ActiveRecord::Base
-  attr_accessible :name, :permissions
+#  attr_accessible :name, :permissions
 	belongs_to :user
 
 	def has_permission?(permission)

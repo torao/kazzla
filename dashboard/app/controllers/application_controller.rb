@@ -1,46 +1,48 @@
 class ApplicationController < ActionController::Base
-  protect_from_forgery
+  # Prevent CSRF attacks by raising an exception.
+  # For APIs, you may want to use :null_session instead.
+  protect_from_forgery with: :exception
 
   def signin?
-		if @_signin.nil?
-			if session[:account_id].nil?
+    if @_signin.nil?
+      if session[:account_id].nil?
         @_signin = false
       else
-				@current_account = Auth::Account.find_by_id(session[:account_id])
-				if @current_account.nil?
-					reset_session
-					@_signin = false
-				else
-					@_signin = true
-				end
-			end
-		end
-		@_signin
+        @current_account = Auth::Account.find_by_id(session[:account_id])
+        if @current_account.nil?
+          reset_session
+          @_signin = false
+        else
+          @_signin = true
+        end
+      end
+    end
+    @_signin
   end
 
   def current_account
-		signin?
-		@current_account
+    signin?
+    @current_account
   end
 
-	def add_message(msg)
-		if @messages.nil?
-			@messages = [ ]
-		end
-		@messages.push(msg)
-	end
-
-	def eventlog(msg)
-		log = Activity::Eventlog.new
-		log.account_id = session[:account_id]
-		log.level = 0
-		log.code = 0
-		log.remote = request.remote_ip
-		log.message = msg
-		log.save
+  def add_message(msg)
+    if @messages.nil?
+      @messages = [ ]
+    end
+    @messages.push(msg)
   end
 
-private
+  def eventlog(msg)
+    log = Activity::Eventlog.new
+    log.account_id = session[:account_id]
+    log.level = 0
+    log.code = 0
+    log.remote = request.remote_ip
+    log.message = msg
+    log.save
+  end
+
+  private
 
   def signin_required
     if not signin? and request.path != '/'
@@ -55,5 +57,4 @@ private
   def render_method_not_allowed
     render :file => "#{Rails.env}/public/405.html", :status => '405 Method Not Allowed'
   end
-
 end

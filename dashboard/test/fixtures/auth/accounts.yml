@@ -1,17 +1,17 @@
-# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  hashed_password: MyString
+  password: MyString
   salt: MyString
   name: MyString
-  locale: MyString
+  language: MyString
   timezone: MyString
-  last_login: 2013-04-22 02:58:52
+  role_id: 1
 
 two:
-  hashed_password: MyString
+  password: MyString
   salt: MyString
   name: MyString
-  locale: MyString
+  language: MyString
   timezone: MyString
-  last_login: 2013-04-22 02:58:52
+  role_id: 1

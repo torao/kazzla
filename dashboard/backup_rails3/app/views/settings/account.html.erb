@@ -1,0 +1,43 @@
+<div class="row">
+	<div class="col-md-3">
+		<%= render :partial => 'menu' %>
+	</div>
+	<div class="col-md-9">
+		<%= form_for @current_account, :url => { :action => :account }, :html => { :class => 'form-horizontal', :role => 'form' } do |f| %>
+			<fieldset>
+				<legend>Account</legend>
+				<div class="form-group">
+					<label class="col-sm-2 control-label" for="name">ID</label>
+					<div class="col-sm-10">
+						<%= f.text_field :name, :placeholder => 'Account ID', :readonly => true, :class => 'form-control' %>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label" for="mail">Email</label>
+					<div class="col-sm-10">
+						<% @current_account.contacts.each{ |c| %>
+							<%= email_field_tag 'auth_account[email]', c.mail_address, :placeholder => 'Mail address', :class => 'form-control' %>
+						<% } %>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label" for="language">Language</label>
+					<div class="col-sm-10">
+						<%= f.select :language, language_options_for_select(user_language), { :class => 'form-control' } %>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label" for="timezone">TimeZone</label>
+					<div class="col-sm-10">
+						<%= f.select :timezone, timezone_options_for_select(user_language), { :class => 'form-control' } %>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-10">
+						<%= f.submit 'Update', :class => 'btn btn-default' %>
+					</div>
+				</div>
+			</fieldset>
+		<% end %>
+	</div>
+</div>

@@ -1,5 +1,5 @@
 class Code::Language < ActiveRecord::Base
-  attr_accessible :code, :name
+#  attr_accessible :code, :name
 
 	DEFAULT_CODE = 'en'
 
@@ -12,7 +12,7 @@ class Code::Language < ActiveRecord::Base
 	end
 
 	def self.languages
-    @@_languages ||= Code::Language.all(:order => 'code')
+    @@_languages ||= Code::Language.order(:code)
 		@@_languages
 	end
 

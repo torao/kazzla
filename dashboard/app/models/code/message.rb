@@ -1,5 +1,5 @@
 class Code::Message < ActiveRecord::Base
-  attr_accessible :code, :content, :country, :language
+#  attr_accessible :code, :content, :country, :language
 
 	def self.message(lang, code)
 		if lang.blank?
@@ -13,10 +13,7 @@ class Code::Message < ActiveRecord::Base
 	def self.contents(lang)
 		@@_contents ||= { }
 		unless @@_contents.has_key?(lang)
-			@@_contents[lang] = Hash[*(Code::Message
-				.find(:all, :conditions => [ "language=?", lang])
-				.map { |l| [ l.code, l.content] }).flatten
-			]
+			@@_contents[lang] = Hash[*(Code::Message.where([ "language=?", lang]).map { |l| [ l.code, l.content] }).flatten]
 		end
 		@@_contents[lang]
 	end
