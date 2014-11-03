@@ -1,3 +1,5 @@
+# -*- encoding: UTF-8 -*-
+#
 require "kazzla"
 include Kazzla
 
@@ -6,23 +8,32 @@ class AuthController < ApplicationController
 
 	def signup
     if request.post?
-      uri = "mailto:#{params[:account].downcase}"
-      if Auth::Contact.exists?(:uri => uri)
-        add_message 'specified email is already signed-up'
-      else
+      @signup = Form::SignUp.new(params[:form_sign_up])
+      if ! @signup.language.nil? && @signup.valid?
+        # アカウント情報作成
         account = Auth::Account.new
-        account.plain_password = params[:password]
-        account.name = params[:id]
-        account.language = params[:language]
-        account.timezone = params[:timezone]
+        account.plain_password = @signup.password
+        account.name = @signup.name
+        account.language = @signup.language
+        account.timezone = @signup.timezone
+        # コンタクト情報作成
         contact = Auth::Contact.new
         contact.account = account
-        contact.uri = uri
-        account.save
-        contact.save
+        contact.schema = "mailto"
+        contact.uri = @signup.email.downcase
+        # アカウント情報、コンタクト情報を保存
+        ActiveRecord::Base.transaction do
+          unless account.save && contact.save
+            raise ActiveRecord::Rollback, 'save failed'
+          end
+        end
+        # ログインの実行
         session[:account_id] = account.id
+        eventlog('sign-up success')
         redirect_to '/'
-				eventlog('sign-up success')
+      else
+        # 入力エラーやトップページからのサインアップは追加の入力ページを表示
+        render :signup
       end
     end
   end
@@ -58,29 +69,35 @@ class AuthController < ApplicationController
 			return
 		end
 
-    # password authentication with ID
-    account = Auth::Account.find_by_name(params[:account])
-    if ! account.nil? and account.authenticate(params[:password])
-      session[:account_id] = account.id
-      redirect_to "/"
-      eventlog("sign-in success")
-      return
-    end
+    if request.post?
+      @signin = Form::SignIn.new(params[:form_sign_in])
+      if @signin.valid?
 
-    # password authentication with email
-    contact = Auth::Contact.find_by_uri("mailto:" + params[:account].downcase)
-    if ! contact.nil? and contact.account.authenticate(params[:password])
-      account = contact.account
-      account.save()
-      session[:account_id] = account.id
-      redirect_to "/"
-      eventlog("sign-in success")
-      return
-    end
+        # password authentication with ID
+        account = Auth::Account.where(['name=?', @signin.account]).first
+        if ! account.nil? and account.authenticate(@signin.password)
+          session[:account_id] = account.id
+          redirect_to '/'
+          eventlog("sign-in success")
+          return
+        end
 
-    # authentication failure
-    eventlog("sign-in failure")
-    reset_session
+        # password authentication with email
+        contact = Auth::Contact.where(['uri=? and schema=\'mailto\'', @signin.account.downcase])
+        if ! contact.nil? and contact.account.authenticate(@signin.password)
+          account = contact.account
+          account.save()
+          session[:account_id] = account.id
+          redirect_to "/"
+          eventlog("sign-in success")
+          return
+        end
+      end
+
+      # authentication failure
+      eventlog("sign-in failure")
+      reset_session
+    end
   end
 
   def signout

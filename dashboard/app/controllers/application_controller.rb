@@ -33,6 +33,8 @@ class ApplicationController < ActionController::Base
   end
 
   def eventlog(msg)
+    logger.debug('### ' + msg)
+    p '### ' + msg
     log = Activity::Eventlog.new
     log.account_id = session[:account_id]
     log.level = 0

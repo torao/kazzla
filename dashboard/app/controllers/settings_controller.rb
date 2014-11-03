@@ -2,6 +2,13 @@ class SettingsController < ApplicationController
   before_filter :signin_required
 
   def account
+    if request.get?
+      @account = Form::Account.new
+      @account.name = @current_account.name
+      @account.contacts = @current_account.contacts
+      @account.language = @current_account.language
+      @account.timezone = @current_account.timezone
+    end
     if request.put?
       a = params[:auth_account]
       account = @current_account
@@ -41,5 +48,17 @@ class SettingsController < ApplicationController
   end
 
   def applications
+  end
+
+  class Form::Account
+    include ActiveModel::Model
+
+    attr_accessor :name, :contacts, :password, :language, :timezone
+
+    validates :name, length: { minimum: 1, maximum: 15 }
+    # validates :emails, format: { with: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i }
+    validates :password, length: { minimum: 1 }
+    validates :language, presence: true
+    validates :timezone, presence: true
   end
 end

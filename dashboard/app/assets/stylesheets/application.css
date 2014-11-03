@@ -27,3 +27,14 @@ footer ul li {
 footer ul li .muted {
     color: #eeeeee;
 }
+
+/*
+ * Rails
+*/
+.field_with_errors label {
+    color: crimson;
+}
+.field_with_errors input[type='text'],
+.field_with_errors input[type='password'] {
+    border: solid 1px crimson;
+}

@@ -1,23 +1,26 @@
 <div class="list-group">
 	<a href="<%= url_for :controller => :settings, :action => :account %>" class="list-group-item <%= params[:action] == 'account'? 'active': '' %>">
-		<i class="icon-user"></i> Account<i class="icon-chevron-right"></i>
+		<i class="glyphicon glyphicon-user"></i>
+		Account
 	</a>
 	<a href="<%= url_for :controller => :settings, :action => :security %>" class="list-group-item <%= params[:action] == 'security'? 'active': '' %>">
-		<i class="icon-lock"></i> Security and Privacy<i class="icon-chevron-right"></i>
+		<i class="glyphicon glyphicon-lock"></i>
+		Security and Privacy
 	</a>
 	<a href="<%= url_for :controller => :settings, :action => :password %>" class="list-group-item <%= params[:action] == 'password'? 'active': '' %>">
-		Password<i class="icon-chevron-right"></i>
+		Password
 	</a>
 	<a href="<%= url_for :controller => :settings, :action => :devices %>" class="list-group-item <%= params[:action] == 'devices'? 'active': '' %>">
-		Devices<i class="icon-chevron-right"></i>
+		Devices
 	</a>
 	<a href="<%= url_for :controller => :settings, :action => :notifications %>" class="list-group-item <%= params[:action] == 'notifications'? 'active': '' %>">
-		Notification<i class="icon-chevron-right"></i>
+		Notification
 	</a>
 	<a href="<%= url_for :controller => :settings, :action => :profile %>" class="list-group-item <%= params[:action] == 'profile'? 'active': '' %>">
-		Profile<i class="icon-chevron-right"></i>
+		Profile
 	</a>
-	<a href="<%= url_for :controller => :settings, :action => :applications %>" class="list-group-item <%= params[:action] == 'notification'? 'active': '' %>">
-		<i class="icon-th"></i> Application<i class="icon-chevron-right"></i>
+	<a href="<%= url_for :controller => :settings, :action => :applications %>" class="list-group-item <%= params[:action] == 'applications'? 'active': '' %> disabled">
+		<i class="glyphicon glyphicon-th-large"></i>
+		Application
 	</a>
 </div>

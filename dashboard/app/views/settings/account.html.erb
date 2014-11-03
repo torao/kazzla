@@ -3,39 +3,53 @@
 		<%= render :partial => 'menu' %>
 	</div>
 	<div class="col-md-9">
-		<%= form_for @current_account, :url => { :action => :account }, :html => { :class => 'form-horizontal', :role => 'form' } do |f| %>
+		<%= form_for @account, :as => :account, :url => { :action => :account }, :html => { :class => 'form-horizontal', :role => 'form' } do |f| %>
 			<fieldset>
 				<legend>Account</legend>
 				<div class="form-group">
-					<label class="col-sm-2 control-label" for="name">ID</label>
+					<%= f.label :name, 'User Name', :class => 'col-sm-2 control-label' %>
 					<div class="col-sm-10">
-						<%= f.text_field :name, :placeholder => 'Account ID', :readonly => true, :class => 'form-control' %>
+						<%= f.text_field(:name, :placeholder => 'User Name', :readonly => true, :class => 'form-control') %>
 					</div>
 				</div>
 				<div class="form-group">
-					<label class="col-sm-2 control-label" for="mail">Email</label>
+					<%= f.label :language, 'Language', :class => 'col-sm-2 control-label' %>
 					<div class="col-sm-10">
-						<% @current_account.contacts.each{ |c| %>
-							<%= email_field_tag 'auth_account[email]', c.mail_address, :placeholder => 'Mail address', :class => 'form-control' %>
-						<% } %>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-sm-2 control-label" for="language">Language</label>
-					<div class="col-sm-10">
-						<%= f.select :language, language_options_for_select(user_language), { :class => 'form-control' } %>
+						<%= f.select(:language, language_options_for_select(user_language), { :selected => @account.language }, { :class => 'form-control' }) %>
 					</div>
 				</div>
 				<div class="form-group">
 					<label class="col-sm-2 control-label" for="timezone">TimeZone</label>
 					<div class="col-sm-10">
-						<%= f.select :timezone, timezone_options_for_select(user_language), { :class => 'form-control' } %>
+						<%= f.select(:timezone, timezone_options_for_select(user_language), { :selected => @account.timezone }, { :class => 'form-control' }) %>
 					</div>
 				</div>
 				<div class="form-group">
 					<div class="col-sm-offset-2 col-sm-10">
 						<%= f.submit 'Update', :class => 'btn btn-default' %>
 					</div>
+				</div>
+			</fieldset>
+			<fieldset>
+				<legend>Contact</legend>
+				<div class="form-group">
+					<% @account.contacts.each_with_index do |contact, i| %>
+						<div class="col-sm-2">
+							<%= select_tag("account.contacts[#{i}].schema", options_for_select([['mailto','mailto'],['tel','tel']]), { :class => 'form-control'}) %>
+						</div>
+						<div class="col-sm-5">
+							<%= text_field_tag("account.contacts[#{i}].uri", contact.uri, { :placeholder => 'User Name', :class => 'form-control'}) %>
+						</div>
+						<div class="col-sm-5">
+							<% if contact.confirmed_at.nil? %>
+								<i class="glyphicon glyphicon-log-in"></i>
+								<a href="#">Confirm Now</a>
+							<% else %>
+								<i class="glyphicon glyphicon-ok"></i>
+								<%= h contact.confirmed_at %>
+							<% end %>
+						</div>
+					<% end %>
 				</div>
 			</fieldset>
 		<% end %>

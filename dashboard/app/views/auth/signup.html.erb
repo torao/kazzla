@@ -1,38 +1,41 @@
 <div class="row">
-  <div class="col-md-4">
-    <%= form_tag("/auth/signup", :method => :post) do %>
-      <fieldset>
-        <legend>Sign up</legend>
-				<div class="form-group">
-					<label class="sr-only" for="id">Account</label>
-					<%= text_field_tag :id, params[:id], :placeholder => 'ID', :class => 'form-control' %>
-				</div>
-				<div class="form-group">
-					<label class="sr-only" for="account">EMail</label>
-					<%= email_field_tag :account, params[:account], :placeholder => 'Mail Address', :class => 'form-control' %>
-				</div>
-				<div class="form-group">
-					<label class="sr-only" for="password">Password</label>
-	        <%= password_field_tag :password, '', :placeholder => 'Password', :class => 'form-control' %>
-				</div>
-				<div class="form-group">
-					<label class="sr-only" for="language">Language</label>
-					<%= select_tag "language", language_options_for_select(user_language), { :class => 'form-control' } %>
-				</div>
-				<div class="form-group">
-					<label class="sr-only" for="timezone">TimeZone</label>
-					<%= select_tag "timezone", timezone_options_for_select(user_language), { :class => 'form-control' } %>
-				</div>
-				<div class="form-group">
-	        <label class="checkbox" for="confirm">
-						<%= check_box_tag(:confirm) %>
-	          I read and accept your term of use.
-  	      </label>
-				</div>
-        <div>
-          <%= submit_tag("Sign up", :class => "btn btn-primary") %>
-        </div>
-      </fieldset>
-    <% end %>
+  <div class="col-md-6 col-md-offset-3">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">Sign Up</h3>
+			</div>
+			<div class="panel-body">
+				<%= render :partial => 'error', :locals => { :model => @signup } %>
+				<%= form_for(@signup, :url => { :action => :signup }, :html => { :method => :post }) do |f| %>
+					<div class="form-group">
+						<%= f.label(:name, 'User Name', {:class => 'control-label'}) %>
+						<%= f.text_field(:name, { :placeholder => 'ID', :class => 'form-control' }) %>
+					</div>
+					<div class="form-group">
+						<%= f.label(:email, 'EMail', {:class => 'control-label'}) %>
+						<%= f.email_field(:email, { :placeholder => 'Mail Address', :class => 'form-control' }) %>
+					</div>
+					<div class="form-group">
+						<%= f.label(:password, 'Password', {:class => 'control-label'}) %>
+						<%= f.password_field(:password, { :placeholder => 'Password', :class => 'form-control' }) %>
+					</div>
+					<div class="form-group">
+						<%= f.label(:language, 'Language', {:class => 'control-label'}) %>
+						<%= f.select(:language, language_options_for_select(user_language), { :selected => @signup.language }, { :class => 'form-control' }) %>
+					</div>
+					<div class="form-group">
+						<%= f.label(:timezone, 'TimeZone', {:class => 'control-label'}) %>
+						<%= f.select(:timezone, timezone_options_for_select(user_language), { :selected => @signup.timezone }, { :class => 'form-control' }) %>
+					</div>
+					<div class="form-group">
+						<%= f.check_box(:confirmed) %>
+						I read and accept your term of use.
+					</div>
+					<div>
+						<%= f.submit('Sign up', { :class => "btn btn-primary" }) %>
+					</div>
+				<% end %>
+			</div>
+		</div>
   </div>
 </div>

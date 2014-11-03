@@ -5,6 +5,8 @@ class DashboardController < ApplicationController
 
 	def index
 		if not signin?
+      @signin = Form::SignIn.new
+      @signup = Form::SignUp.new
       render :action => "top"
 		elsif @current_account.hashed_password.empty?
 			redirect_to "/auth/change_password"

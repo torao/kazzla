@@ -39,6 +39,7 @@ ActiveRecord::Schema.define(version: 20140110173546) do
 
   create_table "auth_contacts", force: true do |t|
     t.integer  "account_id",                   null: false
+    t.string   "schema",                       null: false
     t.string   "uri",                          null: false
     t.boolean  "confirmed",    default: false, null: false
     t.datetime "confirmed_at"
@@ -46,7 +47,8 @@ ActiveRecord::Schema.define(version: 20140110173546) do
     t.datetime "updated_at"
   end
 
-  add_index "auth_contacts", ["uri"], name: "index_auth_contacts_on_uri", unique: true, using: :btree
+  add_index "auth_contacts", ["account_id"], name: "index_auth_contacts_on_account_id", using: :btree
+  add_index "auth_contacts", ["schema", "uri"], name: "index_auth_contacts_on_schema_and_uri", unique: true, using: :btree
 
   create_table "auth_password_reset_secrets", force: true do |t|
     t.integer  "account_id", null: false

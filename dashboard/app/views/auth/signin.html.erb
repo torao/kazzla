@@ -1,2 +1,21 @@
-<h1>Auth#signin</h1>
-<p>Find me in app/views/auth/signin.html.erb</p>
+<div class="row">
+	<div class="col-md-4">
+		<%= form_for(@signin, :url => { :action => :signin }, :html => { :method => :post }) do |f| %>
+			<fieldset>
+				<legend>Sign in</legend>
+				<%= render :partial => 'error', :locals => { :model => @signin } %>
+				<div class="form-group">
+					<%= f.label(:account, 'Account') %>
+					<%= f.text_field(:account, { :placeholder => 'Kazzla ID or EMail', :class => 'form-control' }) %>
+				</div>
+				<div class="form-group">
+					<%= f.label(:password, 'Password') %>
+					<%= f.password_field(:password, { :placeholder => 'Password', :class => 'form-control' }) %>
+				</div>
+				<div>
+					<%= f.submit('Sign in', { :class => "btn btn-primary" }) %>
+				</div>
+			</fieldset>
+		<% end %>
+	</div>
+</div>

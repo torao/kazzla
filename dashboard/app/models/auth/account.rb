@@ -9,6 +9,9 @@ class Auth::Account < ActiveRecord::Base
 	has_many :nodes, :dependent => :destroy, :foreign_key => :account_id, :class_name => "Node::Node"
 	belongs_to :role
 
+  validates_uniqueness_of :name
+  validates_presence_of :name
+
 	attr_accessor :plain_password
 
 	before_save :encrypt_password
