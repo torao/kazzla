@@ -100,7 +100,45 @@ class SettingsController < ApplicationController
   def notifications
   end
 
+  # 公開プロフィール情報の編集
   def profile
+    # 現在のプロフィール取得
+    profile = @current_account.profile
+    if profile.nil?
+      profile = Auth::Profile.new({ account_id: @current_account.id })
+      profile.save!
+    end
+    if request.get?
+      # プロフィール表示
+      @profile = Form::Profile.new({
+        account_id: @current_account.id,
+        name: profile.name,
+        bio: profile.bio,
+        location: profile.location,
+        url: profile.url
+      })
+    elsif request.post?
+      # プロフィール更新
+      @profile = Form::Profile.new(params[:profile])
+      @profile.account_id = @current_account.id
+      profile.name = @profile.name
+      profile.bio = @profile.bio
+      profile.location = @profile.location
+      profile.url = @profile.url
+      ActiveRecord::Base.transaction {
+        profile.save!
+        unless @profile.image.nil?
+          icon = Auth::ProfileImage.where(['account_id=?', @current_account]).first
+          if icon.nil?
+            icon = Auth::ProfileImage.new({ account_id: @current_account.id })
+          end
+          icon.content = @profile.image.read
+          icon.content_type = @profile.image.content_type
+          icon.original_name = @profile.image.original_filename
+          icon.save!
+        end
+      }
+    end
   end
 
   def applications

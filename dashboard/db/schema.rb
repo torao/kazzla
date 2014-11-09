@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141109070602) do
+ActiveRecord::Schema.define(version: 20141109183023) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -57,6 +57,29 @@ ActiveRecord::Schema.define(version: 20141109070602) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "auth_profile_images", force: true do |t|
+    t.integer  "account_id",    null: false
+    t.string   "original_name", null: false
+    t.string   "content_type",  null: false
+    t.binary   "content",       null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "auth_profile_images", ["account_id"], name: "index_auth_profile_images_on_account_id", unique: true, using: :btree
+
+  create_table "auth_profiles", force: true do |t|
+    t.integer  "account_id",              null: false
+    t.string   "name",       default: "", null: false
+    t.text     "bio",        default: "", null: false
+    t.string   "location",   default: "", null: false
+    t.string   "url",        default: "", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "auth_profiles", ["account_id"], name: "index_auth_profiles_on_account_id", unique: true, using: :btree
 
   create_table "auth_roles", force: true do |t|
     t.string   "name",        null: false

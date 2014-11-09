@@ -7,6 +7,7 @@ class Auth::Account < ActiveRecord::Base
   has_many :contacts, :dependent => :destroy, :foreign_key => :account_id
 	has_many :password_reset_secrets, :dependent => :destroy, :foreign_key => :account_id
 	has_many :nodes, :dependent => :destroy, :foreign_key => :account_id, :class_name => "Node::Node"
+  has_one :profile, :dependent => :destroy, :foreign_key => :account_id, :class_name => 'Auth::Profile'
 	belongs_to :role
 
   validates_uniqueness_of :name
@@ -14,18 +15,18 @@ class Auth::Account < ActiveRecord::Base
 
 	attr_accessor :plain_password
 
-	before_save :encrypt_password
+	before_save :encrypt_password, :add_profile
 
 	def authenticate(password)
 		self.hashed_password == Auth::Account.encrypt(password, self.salt)
 	end
 
 	def display_name
-		if name.empty?
-			contacts[0].mail_address
-		else
-			name
-		end
+    if self.profile.nil?
+      name
+    else
+      self.profile.name
+    end
 	end
 
 	def can?(permission)
@@ -41,7 +42,13 @@ class Auth::Account < ActiveRecord::Base
 			end
 			self.hashed_password = Auth::Account.encrypt(plain_password, self.salt)
 		end
-	end
+  end
+
+  def add_profile()
+    if self.profile.nil?
+      self.profile = Auth::Profile.new({ account_id: id })
+    end
+  end
 
 	def self.encrypt(password, salt)
 		raise "password is nil" if password.nil?

@@ -44,6 +44,10 @@ class ApplicationController < ActionController::Base
     log.save
   end
 
+  def not_found
+    render :file => "#{Rails.root}/public/404.html", :status=>'404 Not Found'
+  end
+
   private
 
   def signin_required

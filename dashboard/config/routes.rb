@@ -8,7 +8,8 @@ Rails.application.routes.draw do
   post 'settings/password'
   get 'settings/devices'
   get 'settings/notifications'
-  get 'settings/profile'
+  get  'settings/profile'
+  post 'settings/profile'
   get 'settings/applications'
 
   get  'dashboard/index'
@@ -31,6 +32,8 @@ Rails.application.routes.draw do
   get  'auth/profile'
   post 'auth/profile'
 
+  get  'user/profile/:id' => 'user#profile'
+  get  'user/img/:id' => 'user#profile_image'
   get  'user/list'
 
   # The priority is based upon order of creation: first created -> highest priority.

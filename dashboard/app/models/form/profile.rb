@@ -3,11 +3,13 @@
 class Form::Profile
   include ActiveModel::Model
 
-  attr_accessor :name, :email, :password, :language, :timezone
+  attr_accessor :account_id, :image, :name, :bio, :location, :url
 
   validates :name, length: { minimum: 1, maximum: 15 }
-  validates :email, format: { with: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i }
-  validates :password, length: { minimum: 1 }
-  validates :language, presence: true
-  validates :timezone, presence: true
+  validates :name, presence: true
+  validates :bio, presence: true
+  validates :location, presence: true
+  validates :url, presence: true
+
 end
+
