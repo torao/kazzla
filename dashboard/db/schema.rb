@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140110173546) do
+ActiveRecord::Schema.define(version: 20141109070602) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -64,6 +64,19 @@ ActiveRecord::Schema.define(version: 20140110173546) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "auth_tokens", force: true do |t|
+    t.integer  "account_id", null: false
+    t.integer  "scheme",     null: false
+    t.integer  "object"
+    t.uuid     "token",      null: false
+    t.datetime "issued_at",  null: false
+    t.datetime "expired_at", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "auth_tokens", ["account_id", "scheme", "token"], name: "index_auth_tokens_on_account_id_and_scheme_and_token", unique: true, using: :btree
 
   create_table "code_continents", force: true do |t|
     t.string   "code",       limit: 2, null: false

@@ -1,31 +1,33 @@
 Rails.application.routes.draw do
-  get "settings/account"
-  put 'settings/account'
-  get "settings/security"
-  get "settings/password"
-  post "settings/password"
-  get "settings/devices"
-  get "settings/notifications"
-  get "settings/profile"
-  get "settings/applications"
+  get 'settings/account'
+  post 'settings/account'
+  get  'settings/confirm_contact'
+  post 'settings/confirm_contact/:id' => 'settings#confirm_contact'
+  get 'settings/security'
+  get 'settings/password'
+  post 'settings/password'
+  get 'settings/devices'
+  get 'settings/notifications'
+  get 'settings/profile'
+  get 'settings/applications'
 
-  get  "dashboard/index"
-  post "dashboard/lang"
-  get  "dashboard/home"
-  get  "dashboard/status"
-  get  "dashboard/nodes"
-  get "dashboard/nodes/:id" => "dashboard#nodes"
+  get  'dashboard/index'
+  post 'dashboard/lang'
+  get  'dashboard/home'
+  get  'dashboard/status'
+  get  'dashboard/nodes'
+  get 'dashboard/nodes/:id' => 'dashboard#nodes'
 
-  get  "auth/signup"
-  post "auth/signup"
-  post "auth/withdraw"
-  post "auth/signin"
-  get  "auth/signin"
-  get  "auth/signout"
-  post "auth/reset_password"
-  get  "auth/reset_password"
-  post "auth/change_password"
-  get  "auth/change_password"
+  get  'auth/signup'
+  post 'auth/signup'
+  post 'auth/withdraw'
+  post 'auth/signin'
+  get  'auth/signin'
+  get  'auth/signout'
+  post 'auth/reset_password'
+  get  'auth/reset_password'
+  post 'auth/change_password'
+  get  'auth/change_password'
   get  'auth/profile'
   post 'auth/profile'
 

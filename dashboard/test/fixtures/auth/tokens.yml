@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  account_id: 1
+  token: 
+  issued_at: 2014-11-09 16:06:02
+
+two:
+  account_id: 1
+  token: 
+  issued_at: 2014-11-09 16:06:02

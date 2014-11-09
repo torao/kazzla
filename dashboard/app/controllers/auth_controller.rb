@@ -113,7 +113,7 @@ class AuthController < ApplicationController
 			redirect_to "/"
 		elsif request.post?
 			current_account.plain_password = params[:password]
-			current_account.save!()
+			current_account.save!
 			eventlog("password changed")
 			redirect_to "/"
 		end

@@ -3,18 +3,74 @@ class SettingsController < ApplicationController
 
   def account
     if request.get?
-      @account = Form::Account.new
+      @account = Form::Account.new({
+        name: @current_account.name,
+        contacts: @current_account.contacts.map{ |c| Form::Contact.create(c) },
+        language: @current_account.language,
+        timezone: @current_account.timezone,
+      })
+    elsif request.post?
+      contacts = params[:contacts].nil? ? []: params[:contacts].values.map{ |c| Form::Contact.new(c) }
+      contacts = contacts.push(Form::Contact.new(params[:new_contact])) unless params[:new_contact][:uri].blank?
+      # ・認証済みのコンタクト情報については変更不可 (削除のみ)
+      # ・最低一つの認証済みコンタクト情報が必要
+      @account = Form::Account.new(params[:account])
       @account.name = @current_account.name
-      @account.contacts = @current_account.contacts
-      @account.language = @current_account.language
-      @account.timezone = @current_account.timezone
+      # ・既存のコンタクト情報について、自分が所有していないコンタクトIDを上書きしないように抽出
+      existing_contact_ids = @current_account.contacts.map{ |c| c.id.to_s }
+      @account.contacts = contacts.select{ |c| c.id.nil? || existing_contact_ids.include?(c.id.to_s) }
+      @current_account.language = @account.language
+      @current_account.timezone = @account.timezone
+      @current_account.contacts = @account.contacts.map{ |c|
+        if c.id.nil?
+          c.to_model
+        else
+          contact = @current_account.contacts.find{ |d| d.id.to_s == c.id.to_s }
+          if contact.confirmed_at.nil?
+            contact.schema = c.schema
+            contact.uri = c.uri
+          end
+          contact
+        end
+      }
+      @current_account.save!
+      # 新規追加されIDが振られたコンタクト情報を復元
+      @account.contacts = @current_account.contacts.map{ |c| Form::Contact.create(c) }
     end
-    if request.put?
-      a = params[:auth_account]
-      account = @current_account
-      account.language = a[:language]
-      account.timezone = a[:timezone]
-      account.save!
+  end
+
+  # 連絡先の有効性確認
+  def confirm_contact
+    if request.get?
+      token = Auth::Token.where(['token=?', params[:token]]).first
+      if token.nil? or token.expired_at < Time.now or token.scheme != Auth::Token::SCHEME_CONFIRM_MAIL_ADDRESS
+        # トークンが無効
+        @message = { alert: :warning, message: :invalid_token }
+        unless token.nil?
+          token.destroy
+        end
+      elsif @current_account.nil? or @current_account.id != token.account_id
+        # パスワードを入力して
+        unless session[:account_id].nil?
+          eventlog("sign-out success")
+        end
+        reset_session
+        @message = { alert: :danger, message: :not_logged_on }
+      else
+        # メールアドレスの確認完了: トークンの削除してコンタクト情報を確認済みにする
+        contact = Auth::Contact.find(token.object)
+        contact.confirmed_at = Time.now
+        ActiveRecord::Base.transaction {
+          contact.save!
+          token.destroy!
+        }
+        @message = { alert: :success, message: :your_mail_address_is_verified }
+      end
+    elsif request.post?
+      # コンタクト情報確認手続きの開始
+      contact = Auth::Contact.find(params[:id])
+      contact.confirm(url_for({ :controller => :settings, :action => :confirm_contact, :id => '' }))
+      @message = { alert: :success, message: :confirm_message_sent_to_your_mail_address }
     end
   end
 

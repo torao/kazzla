@@ -21,3 +21,7 @@
 
 en:
   hello: "Hello world"
+  user_mailer:
+    address_confirmation:
+      from: "Kazzla Authority <kazzla.development@gmail.com>"
+      subject: "e-Mail Address Confirmation from Kazzla"

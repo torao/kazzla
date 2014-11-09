@@ -7,49 +7,81 @@
 			<fieldset>
 				<legend>Account</legend>
 				<div class="form-group">
-					<%= f.label :name, 'User Name', :class => 'col-sm-2 control-label' %>
+					<div class="col-sm-2">
+						<%= f.label :name, 'User Name', :class => 'control-label' %>
+					</div>
 					<div class="col-sm-10">
-						<%= f.text_field(:name, :placeholder => 'User Name', :readonly => true, :class => 'form-control') %>
+						<p class="form-control-static"><b><%= h @account.name %></b></p>
 					</div>
 				</div>
 				<div class="form-group">
-					<%= f.label :language, 'Language', :class => 'col-sm-2 control-label' %>
-					<div class="col-sm-10">
-						<%= f.select(:language, language_options_for_select(user_language), { :selected => @account.language }, { :class => 'form-control' }) %>
+					<div class="col-sm-2">
+						<%= f.label :language, 'Language', :class => 'control-label' %>
+					</div>
+					<div class="col-sm-5">
+						<%= f.select(:language, language_options_for_select(user_language, @account.language), {}, { :class => 'form-control' }) %>
+						<!-- <%= h @account.language %> -->
 					</div>
 				</div>
 				<div class="form-group">
-					<label class="col-sm-2 control-label" for="timezone">TimeZone</label>
-					<div class="col-sm-10">
-						<%= f.select(:timezone, timezone_options_for_select(user_language), { :selected => @account.timezone }, { :class => 'form-control' }) %>
+					<div class="col-sm-2">
+						<label class="control-label" for="timezone">TimeZone</label>
+					</div>
+					<div class="col-sm-5">
+						<%= f.select(:timezone, timezone_options_for_select(user_language, @account.timezone), {}, { :class => 'form-control' }) %>
+						<!-- <%= h @account.timezone %> -->
 					</div>
 				</div>
 				<div class="form-group">
-					<div class="col-sm-offset-2 col-sm-10">
+					<div class="col-sm-2">
+						<%= f.label(:contacts, 'Contact', :class => 'control-label') %>
+					</div>
+					<div class="col-sm-10">
+						<% @account.contacts.each_with_index do |contact, i| %>
+							<div class="row form-group" id="contact_<%= i %>">
+								<%= hidden_field_tag("contacts[#{i}][id]", contact.id) %>
+								<div class="col-sm-7">
+									<p class="form-control-static">
+										<% if contact.schema == 'mailto' %>
+											<i class="glyphicon glyphicon-envelope"></i>
+										<% elsif contact.schema == 'tel' %>
+											<i class="glyphicon glyphicon-phone"></i>
+										<% end %><%= contact.uri %>
+										<% unless contact.confirmed_at.nil? %>
+											<br/>
+											<small>
+												<i title="<%= contact.confirmed_at %>">
+													<i class="glyphicon glyphicon-ok"></i>
+													verified at <%= h elapsed_time(contact.confirmed_at) %> ago.
+												</i>
+											</small>
+										<% end %>
+										<%= hidden_field_tag("contacts[#{i}][schema]", contact.schema) %>
+										<%= hidden_field_tag("contacts[#{i}][uri]", contact.uri) %>
+									</p>
+								</div>
+								<div class="col-sm-4">
+									<a href="#" class="delete-contact" data-id="<%= i %>"><i class="glyphicon glyphicon-remove"></i>Delete</a>
+									<% if contact.confirmed_at.nil? %>
+										<%= link_to('<i class="glyphicon glyphicon-send"></i>Confirm'.html_safe, { :controller=>:settings, :action=>:confirm_contact, :id=>contact.id }, { :method => :post }) %>
+									<% end %>
+								</div>
+							</div>
+						<% end %>
+						<div class="row form-group">
+							<div class="col-sm-2">
+								<%= contact_select_tag("new_contact[schema]", 'mailto', { :class => 'form-control'}) %>
+							</div>
+							<div class="col-sm-5">
+								<%= text_field_tag("new_contact[uri]", '', { :placeholder => 'Additional EMail or Telephone', :class => 'form-control'}) %>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-2">
 						<%= f.submit 'Update', :class => 'btn btn-default' %>
 					</div>
-				</div>
-			</fieldset>
-			<fieldset>
-				<legend>Contact</legend>
-				<div class="form-group">
-					<% @account.contacts.each_with_index do |contact, i| %>
-						<div class="col-sm-2">
-							<%= select_tag("account.contacts[#{i}].schema", options_for_select([['mailto','mailto'],['tel','tel']]), { :class => 'form-control'}) %>
-						</div>
-						<div class="col-sm-5">
-							<%= text_field_tag("account.contacts[#{i}].uri", contact.uri, { :placeholder => 'User Name', :class => 'form-control'}) %>
-						</div>
-						<div class="col-sm-5">
-							<% if contact.confirmed_at.nil? %>
-								<i class="glyphicon glyphicon-log-in"></i>
-								<a href="#">Confirm Now</a>
-							<% else %>
-								<i class="glyphicon glyphicon-ok"></i>
-								<%= h contact.confirmed_at %>
-							<% end %>
-						</div>
-					<% end %>
 				</div>
 			</fieldset>
 		<% end %>
