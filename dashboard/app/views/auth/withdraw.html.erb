@@ -1,2 +1,30 @@
-<h1>Auth#withdraw</h1>
-<p>Find me in app/views/auth/withdraw.html.erb</p>
+<div class="row">
+	<div class="col-md-6 col-md-offset-3">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">Withdraw</h3>
+			</div>
+			<div class="panel-body">
+				<%= render :partial => 'error', :locals => { :model => @withdraw } %>
+				<%= form_for(@withdraw, :as => :withdraw, :url => { :action => :withdraw }, :html => { :method => :post }) do |f| %>
+					<div class="form-group">
+						<p>
+							If you really want to withdraw from kazzla,
+						</p>
+						<ol>
+							<li>please take your storage-space out that had been deposited in other users.</li>
+							<li>disconnect your all devices.</li>
+						</ol>
+						<p>
+							<%= f.check_box(:confirmed) %>
+							I really confirm to delete all data on kazzla.
+						</p>
+					</div>
+					<div class="form-group">
+						<%= f.submit('Withdraw', { :class => "btn btn-default" }) %>
+					</div>
+				<% end %>
+			</div>
+		</div>
+	</div>
+</div>

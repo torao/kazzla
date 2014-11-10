@@ -1,11 +1,10 @@
 <% if model.errors.any? %>
-	<div id="error_explanation">
-		<h2><%= model.errors.count %>件のエラーがあります。</h2>
-
-		<ul>
+	<div class="alert alert-warning alert-dismissible" role="alert">
+		<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+		<ol>
 			<% model.errors.full_messages.each do |msg| %>
 				<li><%= msg %></li>
 			<% end %>
-		</ul>
+		</ol>
 	</div>
 <% end %>

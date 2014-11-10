@@ -78,18 +78,13 @@ class SettingsController < ApplicationController
   end
 
   def password
-    if request.post?
-      pass = params[:current_password]
-      pass1 = params[:new_password1]
-      pass2 = params[:new_password2]
-      if not @current_account.authenticate(pass)
-        add_message('invalid password')
-      elsif pass1 != pass2
-        add_message('new passwords are not same')
-      else
-        @current_account.plain_password = pass1
+    if request.get?
+      @password = Form::PasswordChange.new
+    elsif request.post?
+      @password = Form::PasswordChange.new(params[:password])
+      if @current_account.authenticate(@password.old_password) and @password.new_password1 == @password.new_password2
+        @current_account.plain_password = @password.new_password1
         @current_account.save!
-        add_message('password changed')
       end
     end
   end

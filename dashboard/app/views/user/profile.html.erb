@@ -1,0 +1,29 @@
+<div class="row profile">
+	<div class="col-md-6 col-md-offset-3">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">Profile</h3>
+			</div>
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-sm-2">
+						<img src="<%= url_for(:controller => :user, :action => :profile_image, :id => @profile.account_id) %>" class="profile-icon"/>
+					</div>
+					<div class="col-sm-10">
+						<strong class="name"><%= h @profile.name %></strong>
+						<br/>
+						<small>
+							<% unless @profile.display_name.blank? %><%= @profile.user_name %><% end %>
+							<% unless @profile.location.blank? %> @ <%= @profile.location %><% end %></small>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<p><%= @profile.bio %></p>
+						<div class="pull-right"><small><a href="<%= @profile.url %>"><%= @profile.url %></a></small></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

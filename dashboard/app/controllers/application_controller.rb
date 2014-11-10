@@ -56,6 +56,10 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def sign_in_if_possible
+    current_account
+  end
+
   def render_not_found
     render :file => "#{Rails.env}/public/404.html", :status => '404 Not Found'
   end

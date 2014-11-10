@@ -1,5 +1,10 @@
 module ApplicationHelper
 
+  # サインインしているかどうかの判定
+  def sign_in?
+    not session[:account_id].nil?
+  end
+
 	# refer user localized message without html escape
 	def msg(code)
 		Code::Message.message(user_language, "#{code}") || "UNDEF[msg.#{code}]"

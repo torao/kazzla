@@ -21,6 +21,7 @@ Rails.application.routes.draw do
 
   get  'auth/signup'
   post 'auth/signup'
+  get  'auth/withdraw'
   post 'auth/withdraw'
   post 'auth/signin'
   get  'auth/signin'

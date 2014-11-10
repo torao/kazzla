@@ -1,8 +1,27 @@
 class UserController < ApplicationController
+  before_filter :sign_in_if_possible, :expect => [ :profile_image ]
 
   # ユーザプロフィールの表示
   def profile
-
+    id = params[:id]
+    account = Auth::Account.where(['name=?', id]).first
+    if account.nil?
+      account = Auth::Account.where(['id=?', id]).first
+    end
+    if account.nil?
+      not_found
+    elsif account.profile.nil?
+      @profile = Form::UserProfile.new({ account_id: account.id, user_name: account.name })
+    else
+      @profile = Form::UserProfile.new({
+        account_id: account.id,
+        user_name: account.name,
+        display_name: account.profile.name,
+        bio: account.profile.bio,
+        location: account.profile.location,
+        url: account.profile.url,
+      })
+    end
   end
 
   # プロフィールイメージの参照

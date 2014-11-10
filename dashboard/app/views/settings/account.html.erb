@@ -82,6 +82,9 @@
 					<div class="col-sm-offset-2 col-sm-2">
 						<%= f.submit 'Update', :class => 'btn btn-default' %>
 					</div>
+					<div class="col-sm-offset-2 col-sm-2">
+						<small><%= link_to('+ withdraw', { :controller => :auth, :action => :withdraw }) %></small>
+					</div>
 				</div>
 			</fieldset>
 		<% end %>

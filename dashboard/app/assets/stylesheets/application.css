@@ -28,12 +28,18 @@ footer ul li .muted {
     color: #eeeeee;
 }
 
+.profile-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 4px;
+}
 .header-profile-icon {
     width: 32px;
     height: 32px;
     border-radius: 4px;
     margin: -8px 0px;
 }
+
 /*
  * Rails
 */

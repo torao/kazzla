@@ -6,6 +6,7 @@ include Kazzla
 class AuthController < ApplicationController
   before_filter :signin_required, :only => [ :change_password, :withdraw ]
 
+  # サインアップ
 	def signup
     if request.post?
       @signup = Form::SignUp.new(params[:form_sign_up])
@@ -38,13 +39,21 @@ class AuthController < ApplicationController
     end
   end
 
+  # 退会
   def withdraw
-    account_id = session[:account_id]
-    unless account_id.nil?
-      account = Auth::Account.find(account_id)
-      account.destroy()
-      reset_session
-      redirect_to '/'
+    if request.post?
+      @withdraw = Form::Withdraw.new(params[:withdraw])
+      if @withdraw.valid?
+        account_id = session[:account_id]
+        unless account_id.nil?
+          account = Auth::Account.find(account_id)
+          account.destroy
+          reset_session
+        end
+        redirect_to '/'
+      end
+    else
+      @withdraw = Form::Withdraw.new({ confirmed: false })
     end
   end
 

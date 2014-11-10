@@ -18,11 +18,7 @@ class Auth::Account < ActiveRecord::Base
 	end
 
 	def display_name
-		if name.empty?
-			contacts[0].mail_address
-		else
-			name
-		end
+		self.name
 	end
 
 	def can?(permission)
