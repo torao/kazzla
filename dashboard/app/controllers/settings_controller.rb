@@ -25,15 +25,15 @@ class SettingsController < ApplicationController
         if c.id.nil?
           c.to_model
         else
-          contact = @current_account.contacts.find{ |d| d.id.to_s == c.id.to_s }
-          if contact.confirmed_at.nil?
-            contact.schema = c.schema
-            contact.uri = c.uri
-          end
+          contact = @current_account.contacts.find{ |d| c.id.to_s == d.id.to_s }
+          contact.notify = (c.notify.to_s == 'true')
           contact
         end
       }
-      @current_account.save!
+      ActiveRecord::Base.transaction {
+        @current_account.save!
+        @current_account.contacts.each{ |c| c.save! }
+      }
       # 新規追加されIDが振られたコンタクト情報を復元
       @account.contacts = @current_account.contacts.map{ |c| Form::Contact.create(c) }
     end
@@ -90,9 +90,6 @@ class SettingsController < ApplicationController
   end
 
   def devices
-  end
-
-  def notifications
   end
 
   # 公開プロフィール情報の編集

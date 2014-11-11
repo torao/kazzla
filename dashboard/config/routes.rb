@@ -7,7 +7,6 @@ Rails.application.routes.draw do
   get 'settings/password'
   post 'settings/password'
   get 'settings/devices'
-  get 'settings/notifications'
   get  'settings/profile'
   post 'settings/profile'
   get 'settings/applications'

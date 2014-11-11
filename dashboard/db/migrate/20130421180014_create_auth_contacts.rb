@@ -4,6 +4,7 @@ class CreateAuthContacts < ActiveRecord::Migration
       t.integer   :account_id, :null => false
       t.string    :schema, :null => false
       t.string    :uri, :null => false
+      t.boolean   :notify, :null => false, :default => true
 			t.timestamp :confirmed_at, :null => true
 
       t.timestamps

@@ -92,10 +92,10 @@ class AuthController < ApplicationController
         end
 
         # password authentication with email
-        contact = Auth::Contact.where(['uri=? and schema=\'mailto\'', @signin.account.downcase])
-        if ! contact.nil? and contact.account.authenticate(@signin.password)
+        contact = Auth::Contact.where(['uri=? and schema=\'mailto\'', @signin.account.downcase]).first
+        if not contact.nil? and contact.account.authenticate(@signin.password)
           account = contact.account
-          account.save()
+          account.save!
           session[:account_id] = account.id
           redirect_to "/"
           eventlog("sign-in success")

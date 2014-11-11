@@ -37,34 +37,46 @@
 						<%= f.label(:contacts, 'Contact', :class => 'control-label') %>
 					</div>
 					<div class="col-sm-10">
-						<% @account.contacts.each_with_index do |contact, i| %>
+						<% @account.contacts.sort_by { |c| c.uri }.each_with_index do |contact, i| %>
 							<div class="row form-group" id="contact_<%= i %>">
 								<%= hidden_field_tag("contacts[#{i}][id]", contact.id) %>
-								<div class="col-sm-7">
-									<p class="form-control-static">
-										<% if contact.schema == 'mailto' %>
-											<i class="glyphicon glyphicon-envelope"></i>
-										<% elsif contact.schema == 'tel' %>
-											<i class="glyphicon glyphicon-phone"></i>
-										<% end %><%= contact.uri %>
-										<% unless contact.confirmed_at.nil? %>
-											<br/>
+								<div class="panel panel-default">
+									<div class="panel-body">
+										<div class="pull-right">
+											<button type="button" class="close delete-contact" data-id="<%= i %>"><span aria-hidden="true">&times;</span><span class="sr-only">Delete</span></button>
+										</div>
+										<div class="form-control-static">
+											<% if contact.schema == 'mailto' %>
+												<i class="glyphicon glyphicon-envelope"></i>
+											<% elsif contact.schema == 'tel' %>
+												<i class="glyphicon glyphicon-phone"></i>
+											<% end %><%= contact.uri %>
+											<%= hidden_field_tag("contacts[#{i}][schema]", contact.schema) %>
+											<%= hidden_field_tag("contacts[#{i}][uri]", contact.uri) %>
+										</div>
+										<div>
+											<% if contact.confirmed_at.nil? %>
+												<small class="text-warning">
+													<i>
+														<i class="glyphicon glyphicon-lock"></i> not verified yet.
+														<%= link_to('<i class="glyphicon glyphicon-send"></i> Verify'.html_safe, { :controller=>:settings, :action=>:confirm_contact, :id=>contact.id }, { :method => :post }) %>
+													</i>
+												</small>
+											<% else %>
+												<small class="text-success">
+													<i title="<%= contact.confirmed_at %>">
+														<i class="glyphicon glyphicon-ok"></i> verified to <%= h elapsed_time(contact.confirmed_at) %>.
+														<%= link_to('<i class="glyphicon glyphicon-send"></i> Verify'.html_safe, { :controller=>:settings, :action=>:confirm_contact, :id=>contact.id }, { :method => :post }) %>
+													</i>
+												</small>
+											<% end %>
+										</div>
+										<div>
 											<small>
-												<i title="<%= contact.confirmed_at %>">
-													<i class="glyphicon glyphicon-ok"></i>
-													verified at <%= h elapsed_time(contact.confirmed_at) %> ago.
-												</i>
+												<%= check_box_tag("contacts[#{i}][notify]", true, contact.notify) %> send notification to this email address.
 											</small>
-										<% end %>
-										<%= hidden_field_tag("contacts[#{i}][schema]", contact.schema) %>
-										<%= hidden_field_tag("contacts[#{i}][uri]", contact.uri) %>
-									</p>
-								</div>
-								<div class="col-sm-4">
-									<a href="#" class="delete-contact" data-id="<%= i %>"><i class="glyphicon glyphicon-remove"></i>Delete</a>
-									<% if contact.confirmed_at.nil? %>
-										<%= link_to('<i class="glyphicon glyphicon-send"></i>Confirm'.html_safe, { :controller=>:settings, :action=>:confirm_contact, :id=>contact.id }, { :method => :post }) %>
-									<% end %>
+										</div>
+									</div>
 								</div>
 							</div>
 						<% end %>

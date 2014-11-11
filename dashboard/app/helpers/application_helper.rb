@@ -93,14 +93,16 @@ module ApplicationHelper
   # 指定時刻からの経過時間を人が読める形式で参照
   def elapsed_time(tm)
     span = Time.now - tm
+    min = (span / 60 % 60).to_i
+    hour = (span / 60 / 60 % 24).to_i
+    day = (span / 60 / 60 / 24).to_i
+    min_s = "#{min} minute#{min==1? '': 's'}"
+    hour_s = "#{hour} hour#{hour==1? '': 's'}"
+    day_s = "#{day} day#{day==1? '': 's'}"
     if span < 60
       'now'
-    elsif span < 60 * 60
-      "#{(span / 60).to_i} minutes"
-    elsif span < 60 * 60 * 24
-      "#{(span / 60 / 60).to_i} hours #{(span / 60 % 60).to_i} minutes"
     else
-      "#{(span / 60 / 60 / 24).to_i} days #{(span / 60 / 60 % 24).to_i} hours"
+      (day == 0? "": "#{day_s} ") + (hour == 0? "": "#{hour_s} ") + (min == 0? "": "#{min_s} ") + "ago"
     end
   end
 

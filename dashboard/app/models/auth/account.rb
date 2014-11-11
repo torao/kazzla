@@ -15,14 +15,15 @@ class Auth::Account < ActiveRecord::Base
 
 	attr_accessor :plain_password
 
-	before_save :encrypt_password, :add_profile
+	before_save :encrypt_password
+  before_create :add_profile
 
 	def authenticate(password)
 		self.hashed_password == Auth::Account.encrypt(password, self.salt)
 	end
 
 	def display_name
-    if self.profile.nil?
+    if self.profile.nil? or self.profile.name.blank?
       name
     else
       self.profile.name
