@@ -1,0 +1,10 @@
+<div class="list-group">
+	<a href="<%= url_for :controller => :user, :action => :profile, :id => @current_account.id %>" class="list-group-item <%= params[:action] == 'profile'? 'active': '' %>">
+		<i class="glyphicon glyphicon-user"></i>
+		Profile
+	</a>
+	<a href="<%= url_for :controller => :user, :action => :notifications %>" class="list-group-item <%= params[:action] == 'notifications'? 'active': '' %>">
+		<i class="glyphicon glyphicon-lock"></i>
+		Notifications
+	</a>
+</div>

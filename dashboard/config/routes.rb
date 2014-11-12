@@ -9,14 +9,14 @@ Rails.application.routes.draw do
   get 'settings/devices'
   get  'settings/profile'
   post 'settings/profile'
-  get 'settings/applications'
+  get  'settings/applications'
 
   get  'dashboard/index'
   post 'dashboard/lang'
   get  'dashboard/home'
   get  'dashboard/status'
   get  'dashboard/nodes'
-  get 'dashboard/nodes/:id' => 'dashboard#nodes'
+  get  'dashboard/nodes/:id' => 'dashboard#nodes'
 
   get  'auth/signup'
   post 'auth/signup'
@@ -34,6 +34,8 @@ Rails.application.routes.draw do
 
   get  'user/profile/:id' => 'user#profile'
   get  'user/img/:id' => 'user#profile_image'
+  get  'user/notifications'
+  post 'user/notifications/:id' => 'user#notifications'
   get  'user/list'
 
   # The priority is based upon order of creation: first created -> highest priority.

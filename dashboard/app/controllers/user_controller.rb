@@ -34,6 +34,28 @@ class UserController < ApplicationController
     end
   end
 
+  # 通知の表示
+  def notifications
+    if request.get?
+      page = params[:p].nil? ? 0: params[:p].to_i
+      items_per_page = params[:ipp].nil? ? 25: params[:ipp].to_i
+      if page <= 0
+        page = 0
+      elsif items_per_page > 100
+        items_per_page = 100
+      end
+      @notifications = Form::Notifications.new({
+        notifications: User::Notification.where(['account_id=?', @current_account.id]).order('created_at desc').offset(page * items_per_page).limit(items_per_page),
+        total: @current_account.notifications_count,
+        page: page,
+        items_per_page: items_per_page
+      })
+    elsif request.post?
+      User::Notification.make_items_to_read(@current_account.id, params[:id])
+      render :json => { id: [ params[:id] ], unread: @current_account.unread_notifications_count }
+    end
+  end
+
   def list
     render :text => "[{id:'torao',name:'Torao Takami'}]"
   end

@@ -31,6 +31,7 @@ class AuthController < ApplicationController
         # ログインの実行
         session[:account_id] = account.id
         eventlog('sign-up success')
+        current_account.eventlog(:sign_up, { :remote => request.remote_ip })
         redirect_to '/'
       else
         # 入力エラーやトップページからのサインアップは追加の入力ページを表示
@@ -46,6 +47,7 @@ class AuthController < ApplicationController
       if @withdraw.valid?
         account_id = session[:account_id]
         unless account_id.nil?
+          current_account.eventlog(:withdraw, { :remote => request.remote_ip })
           account = Auth::Account.find(account_id)
           account.destroy
           reset_session
@@ -88,6 +90,7 @@ class AuthController < ApplicationController
           session[:account_id] = account.id
           redirect_to '/'
           eventlog("sign-in success")
+          account.eventlog(:sign_in, { :remote => request.remote_ip })
           return
         end
 
@@ -99,6 +102,7 @@ class AuthController < ApplicationController
           session[:account_id] = account.id
           redirect_to "/"
           eventlog("sign-in success")
+          account.eventlog(:sign_in, { :remote => request.remote_ip })
           return
         end
       end
@@ -111,6 +115,7 @@ class AuthController < ApplicationController
 
   def signout
 		unless session[:account_id].nil?
+      User::Notification.add(session[:account_id], User::Notification::PRIORITY_EVENTLOG, :dashboard, :sign_out, { :remote => request.remote_ip })
 			eventlog("sign-out success")
 		end
     reset_session

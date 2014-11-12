@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141109183023) do
+ActiveRecord::Schema.define(version: 20141111175009) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -45,6 +45,7 @@ ActiveRecord::Schema.define(version: 20141109183023) do
     t.datetime "confirmed_at"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "notify",       default: true,  null: false
   end
 
   add_index "auth_contacts", ["account_id"], name: "index_auth_contacts_on_account_id", using: :btree
@@ -185,6 +186,18 @@ ActiveRecord::Schema.define(version: 20141109183023) do
     t.string   "node_id"
     t.string   "endpoints"
     t.string   "proxy"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "user_notifications", force: true do |t|
+    t.integer  "account_id", null: false
+    t.integer  "priority",   null: false
+    t.string   "informant",  null: false
+    t.datetime "read_at"
+    t.datetime "pinned_at"
+    t.string   "code",       null: false
+    t.string   "args",       null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end

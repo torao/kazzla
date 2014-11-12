@@ -90,6 +90,11 @@ module ApplicationHelper
     select_tag(name, options_for_select(contact_options(user_language), { :selected => selected }), html || { })
   end
 
+  # 指定時刻を人が読める形式で参照
+  def absolute_time(tm)
+    tm.to_s
+  end
+
   # 指定時刻からの経過時間を人が読める形式で参照
   def elapsed_time(tm)
     span = Time.now - tm

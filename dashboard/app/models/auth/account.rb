@@ -30,11 +30,31 @@ class Auth::Account < ActiveRecord::Base
     end
 	end
 
+  # 全知件数を取得
+  def notifications_count
+    User::Notification.where(['account_id=?', id]).count
+  end
+
+  # 未読通知件数を取得
+  def unread_notifications_count
+    User::Notification.where(['account_id=? and read_at is null', id]).count
+  end
+
+  # ユーザへの通知を追加
+  def notify_information(code, args)
+    User::Notification.add(id, User::Notification::PRIORITY_INFORMATION, :dashboard, code, args)
+  end
+
+  # ユーザへイベントログを追加
+  def eventlog(code, args)
+    User::Notification.add(id, User::Notification::PRIORITY_EVENTLOG, :dashboard, code, args)
+  end
+
 	def can?(permission)
 		not role.nil? and role.has_permission(permission)
 	end
 
-	private
+  private
 
 	def encrypt_password()
 		unless plain_password.nil?

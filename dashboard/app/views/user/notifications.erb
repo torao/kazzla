@@ -1,0 +1,23 @@
+<div class="row notifications">
+	<div class="col-md-3">
+		<%= render :partial => 'menu' %>
+	</div>
+	<div class="col-md-9">
+		<div class="list-group">
+		<% @notifications.notifications.each do |n| %>
+				<a href="#" class="list-group-item notice-item <%= n.read_at.nil? ? 'unread-notice-item': '' %>" data-id="<%= n.id %>">
+					<!-- <h4 class="list-group-item-heading"><%= h n.code %>(<%= h n.args %>)</h4> -->
+					<p class="list-group-item-text <%= n.read_at.nil? ? '': 'text-muted' %>">
+						<%= h n.code %>(<%= h n.args %>)
+						<div class="pull-right">
+							<small>
+								from <%= h n.informant %>,
+								<span title="<%= h absolute_time(n.created_at) %>"><%= h elapsed_time(n.created_at) %></span>
+							</small>
+						</div>
+					</p>
+				</a>
+		<% end %>
+		</div>
+	</div>
+</div>
