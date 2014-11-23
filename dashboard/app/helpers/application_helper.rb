@@ -106,8 +106,10 @@ module ApplicationHelper
     day_s = "#{day} day#{day==1? '': 's'}"
     if span < 60
       'now'
+    elsif day == 0
+      (hour == 0? "": "#{hour_s} ") + (min == 0? "": "#{min_s} ") + "ago"
     else
-      (day == 0? "": "#{day_s} ") + (hour == 0? "": "#{hour_s} ") + (min == 0? "": "#{min_s} ") + "ago"
+      "#{day_s} " + (hour == 0? "": "#{hour_s} ") + "ago"
     end
   end
 

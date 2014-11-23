@@ -43,7 +43,11 @@ class UserController < ApplicationController
         page = 0
       elsif items_per_page > 100
         items_per_page = 100
+      elsif items_per_page < 5
+        items_per_page = 5
       end
+      params[:ipp] = items_per_page.to_s
+      params[:p] = page.to_s
       @notifications = Form::Notifications.new({
         notifications: User::Notification.where(['account_id=?', @current_account.id]).order('created_at desc').offset(page * items_per_page).limit(items_per_page),
         total: @current_account.notifications_count,
